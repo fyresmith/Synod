@@ -170,7 +170,7 @@
 
 /* ============================================================
 
-   Settings panel
+/* Settings panel
    ============================================================ */
 
 .synod-settings .synod-settings-card {
@@ -252,6 +252,23 @@
   border: none;
   border-top: 1px solid var(--background-modifier-border);
   margin: 20px 0 8px;
+}
+
+.synod-settings .synod-update-status {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.synod-settings .synod-update-status[data-state="up_to_date"] {
+  color: var(--color-green);
+}
+
+.synod-settings .synod-update-status[data-state="update_available"] {
+  color: var(--color-yellow);
+}
+
+.synod-settings .synod-update-status[data-state="error"] {
+  color: var(--color-red);
 }
 
 /* Offline editor state */

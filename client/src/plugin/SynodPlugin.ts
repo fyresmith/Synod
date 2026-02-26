@@ -3,6 +3,7 @@ import {
   PluginSettings,
   ConnectionStatus,
   ManagedVaultBinding,
+  UpdateCheckResult,
 } from '../types';
 import { SocketClient } from '../socket';
 import { SyncEngine } from '../syncEngine';
@@ -21,6 +22,7 @@ import {
   readManagedBinding,
 } from '../main/managedVault';
 import { exchangeBootstrapToken } from './auth/bootstrapExchange';
+import { checkForClientUpdate, installClientUpdate } from './update';
 import { flushOfflineQueue, OfflineFlushResult } from './connection/offlineQueueFlusher';
 import { getManagedStatusLabel, getUnmanagedStatusLabel } from './connection/connectionStatus';
 import { bindPluginSocketHandlers } from './connection/socketHandlerFactory';
@@ -47,6 +49,9 @@ export default class SynodPlugin extends Plugin {
   private reconnectBanner = new ReconnectBanner();
   private disconnectGraceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly DISCONNECT_GRACE_MS = 8000;
+  private updateResult: UpdateCheckResult | null = null;
+  private checkingForUpdates = false;
+  private installingUpdate = false;
 
   followTargetId: string | null = null;
 
@@ -437,6 +442,105 @@ export default class SynodPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+  }
+
+  getInstalledVersion(): string {
+    return String(this.manifest.version ?? '').trim() || 'unknown';
+  }
+
+  getUpdateResult(): UpdateCheckResult | null {
+    return this.updateResult;
+  }
+
+  isCheckingForUpdates(): boolean {
+    return this.checkingForUpdates;
+  }
+
+  isInstallingUpdate(): boolean {
+    return this.installingUpdate;
+  }
+
+  async checkForUpdatesFromUi(): Promise<void> {
+    if (this.checkingForUpdates || this.installingUpdate) return;
+
+    const currentVersion = this.getInstalledVersion();
+    this.checkingForUpdates = true;
+    this.refreshSettingsTab();
+
+    try {
+      const result = await checkForClientUpdate(currentVersion);
+      this.updateResult = result;
+      if (result.status === 'error') {
+        new Notice(`Synod: Update check failed — ${result.message}`);
+      } else {
+        new Notice(`Synod: ${result.message}`);
+      }
+    } finally {
+      this.checkingForUpdates = false;
+      this.refreshSettingsTab();
+    }
+  }
+
+  async installPendingUpdateFromUi(): Promise<void> {
+    if (this.checkingForUpdates || this.installingUpdate) return;
+    if (!this.updateResult || this.updateResult.status !== 'update_available') {
+      new Notice('Synod: No pending update to install.');
+      return;
+    }
+
+    const release = this.updateResult.latestRelease;
+    const confirmInstall = window.confirm(
+      `Install Synod update v${release.version}?`,
+    );
+    if (!confirmInstall) return;
+
+    this.installingUpdate = true;
+    this.refreshSettingsTab();
+
+    try {
+      const result = await installClientUpdate({
+        adapter: this.app.vault.adapter,
+        pluginId: this.manifest.id,
+        release,
+        currentVersion: this.getInstalledVersion(),
+      });
+
+      new Notice(`Synod: ${result.message}`);
+      if (result.status === 'success') {
+        this.updateResult = {
+          status: 'up_to_date',
+          currentVersion: result.toVersion,
+          latestRelease: release,
+          checkedAt: new Date().toISOString(),
+          message: `Synod is up to date (v${result.toVersion}).`,
+        };
+        const reloadPrompt = window.confirm(
+          'Synod updated successfully. Open plugin settings so you can disable and re-enable Synod now?',
+        );
+        if (reloadPrompt) {
+          this.openSettingsTab();
+        }
+      } else {
+        this.updateResult = {
+          status: 'error',
+          currentVersion: this.getInstalledVersion(),
+          checkedAt: new Date().toISOString(),
+          message: result.message,
+        };
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      new Notice(`Synod: Update install failed — ${message}`);
+      this.updateResult = {
+        status: 'error',
+        currentVersion: this.getInstalledVersion(),
+        checkedAt: new Date().toISOString(),
+        message,
+      };
+    } finally {
+      this.installingUpdate = false;
+      this.refreshSettingsTab();
+    }
   }
 
   onunload(): void {

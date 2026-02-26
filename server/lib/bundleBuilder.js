@@ -14,7 +14,7 @@ const DEFAULT_DENY_PATHS = ['.git', '.synod', '.synod-quarantine', '.DS_Store', 
 const ASSETS_ROOT = resolve(fileURLToPath(new URL('../assets/', import.meta.url)));
 const TEMPLATE_ROOT = join(ASSETS_ROOT, 'template-vault');
 const LEGACY_PLUGIN_ROOT = join(ASSETS_ROOT, 'plugin', PLUGIN_ID);
-const MONOREPO_ROOT = resolve(fileURLToPath(new URL('../../../', import.meta.url)));
+const MONOREPO_ROOT = resolve(fileURLToPath(new URL('../../', import.meta.url)));
 const CLIENT_LOCK_PATH = join(MONOREPO_ROOT, 'release', 'synod-client.lock.json');
 
 function hashBuffer(buffer) {

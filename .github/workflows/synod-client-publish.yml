@@ -32,18 +32,22 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: apps/synod-client/package-lock.json
+          cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
-        working-directory: apps/synod-client
+        working-directory: client
         run: npm ci --workspaces=false
 
       - name: Build and validate BRAT assets
-        working-directory: apps/synod-client
+        working-directory: client
         run: npm run build:brat
 
+      - name: Build release checksums
+        working-directory: client
+        run: npm run build:checksums
+
       - name: Ensure tag matches package + manifest
-        working-directory: apps/synod-client
+        working-directory: client
         run: npm run assert-tag-version -- "${{ env.RELEASE_TAG }}"
 
       - name: Create GitHub release with BRAT assets
@@ -54,6 +58,7 @@ jobs:
           name: 'Synod Client ${{ env.RELEASE_TAG }}'
           prerelease: ${{ contains(env.RELEASE_TAG, '-') }}
           files: |
-            apps/synod-client/manifest.json
-            apps/synod-client/main.js
-            apps/synod-client/styles.css
+            client/manifest.json
+            client/main.js
+            client/styles.css
+            client/checksums.txt

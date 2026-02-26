@@ -19,6 +19,42 @@ export class SynodSettingTab extends PluginSettingTab {
     super(app, plugin);
   }
 
+  private renderUpdateSettings(containerEl: HTMLElement): void {
+    const card = containerEl.createDiv({ cls: 'synod-settings-card' });
+    card.createEl('h3', { text: 'Client Updates' });
+    card.createEl('p', { text: `Installed: v${this.plugin.getInstalledVersion()}` });
+
+    const result = this.plugin.getUpdateResult();
+    const status = card.createEl('p', { cls: 'synod-update-status' });
+    if (this.plugin.isCheckingForUpdates()) {
+      status.textContent = 'Checking GitHub releases...';
+    } else if (this.plugin.isInstallingUpdate()) {
+      status.textContent = 'Installing update...';
+    } else if (result) {
+      status.textContent = result.message;
+      status.dataset.state = result.status;
+    } else {
+      status.textContent = 'No update check has run yet.';
+    }
+
+    const actions = card.createDiv({ cls: 'synod-settings-actions' });
+    const checkBtn = actions.createEl('button', { text: 'Check for Synod updates' });
+    checkBtn.disabled = this.plugin.isCheckingForUpdates() || this.plugin.isInstallingUpdate();
+    checkBtn.addEventListener('click', async () => {
+      await this.plugin.checkForUpdatesFromUi();
+      this.display();
+    });
+
+    if (result?.status === 'update_available') {
+      const installBtn = actions.createEl('button', { cls: 'mod-cta', text: `Install v${result.latestRelease.version}` });
+      installBtn.disabled = this.plugin.isCheckingForUpdates() || this.plugin.isInstallingUpdate();
+      installBtn.addEventListener('click', async () => {
+        await this.plugin.installPendingUpdateFromUi();
+        this.display();
+      });
+    }
+  }
+
   private renderUserCard(parent: HTMLElement): void {
     if (this.plugin.settings.user) {
       const user = this.plugin.settings.user;
@@ -117,9 +153,10 @@ export class SynodSettingTab extends PluginSettingTab {
 
     if (this.plugin.isManagedVault()) {
       this.renderManagedSettings(containerEl);
-      return;
+    } else {
+      this.renderBootstrapSettings(containerEl);
     }
-
-    this.renderBootstrapSettings(containerEl);
+    containerEl.createEl('hr', { cls: 'synod-section-divider' });
+    this.renderUpdateSettings(containerEl);
   }
 }

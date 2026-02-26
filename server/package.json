@@ -24,6 +24,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "prepack": "node scripts/sync-readme.mjs",
     "start": "node index.js",
     "dev": "node --watch index.js",
     "build": "npm run verify && npm pack --dry-run",

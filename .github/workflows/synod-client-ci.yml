@@ -3,14 +3,14 @@ name: synod-client-ci
 on:
   pull_request:
     paths:
-      - 'apps/synod-client/**'
+      - 'client/**'
       - 'packages/contracts/**'
       - '.github/workflows/synod-client-ci.yml'
   push:
     branches:
       - main
     paths:
-      - 'apps/synod-client/**'
+      - 'client/**'
       - 'packages/contracts/**'
       - '.github/workflows/synod-client-ci.yml'
 
@@ -26,12 +26,12 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: apps/synod-client/package-lock.json
+          cache-dependency-path: client/package-lock.json
 
       - name: Install synod-client dependencies
-        working-directory: apps/synod-client
+        working-directory: client
         run: npm ci --workspaces=false
 
       - name: Build and validate BRAT assets
-        working-directory: apps/synod-client
+        working-directory: client
         run: npm run build:brat

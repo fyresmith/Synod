@@ -2,11 +2,14 @@
 node_modules/
 
 # Workspace outputs
-apps/*/node_modules/
-apps/*/.env
+client/node_modules/
+server/node_modules/
+client/.env
+server/.env
+client/checksums.txt
 
 # Plugin runtime state
-apps/synod-client/data.json
+client/data.json
 
 # Logs
 yarn-error.log*

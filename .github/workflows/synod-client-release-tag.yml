@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: apps/synod-client/package-lock.json
+          cache-dependency-path: client/package-lock.json
 
       - name: Ensure default branch
         run: |
@@ -46,11 +46,11 @@ jobs:
           fi
 
       - name: Install dependencies
-        working-directory: apps/synod-client
+        working-directory: client
         run: npm ci --workspaces=false
 
       - name: Build and validate BRAT assets
-        working-directory: apps/synod-client
+        working-directory: client
         run: npm run build:brat
 
       - name: Bump client version
@@ -65,16 +65,16 @@ jobs:
               echo "custom_version is required when release_type=custom"
               exit 1
             fi
-            npm --prefix apps/synod-client version "$CUSTOM_VERSION" --no-git-tag-version
+            npm --prefix client version "$CUSTOM_VERSION" --no-git-tag-version
           else
-            npm --prefix apps/synod-client version "$RELEASE_TYPE" --no-git-tag-version
+            npm --prefix client version "$RELEASE_TYPE" --no-git-tag-version
           fi
-          VERSION=$(node -p "require('./apps/synod-client/package.json').version")
-          node -e "const fs=require('fs');const m=JSON.parse(fs.readFileSync('apps/synod-client/manifest.json','utf8'));m.version=process.argv[1];fs.writeFileSync('apps/synod-client/manifest.json',JSON.stringify(m,null,2)+'\\n');" "$VERSION"
+          VERSION=$(node -p "require('./client/package.json').version")
+          node -e "const fs=require('fs');const m=JSON.parse(fs.readFileSync('client/manifest.json','utf8'));m.version=process.argv[1];fs.writeFileSync('client/manifest.json',JSON.stringify(m,null,2)+'\\n');" "$VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Validate BRAT metadata after version bump
-        working-directory: apps/synod-client
+        working-directory: client
         run: npm run check:brat
 
       - name: Pin client artifacts
@@ -88,14 +88,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
-            apps/synod-client/package.json \
-            apps/synod-client/package-lock.json \
-            apps/synod-client/manifest.json \
+            client/package.json \
+            client/package-lock.json \
+            client/manifest.json \
             release/synod-client.lock.json \
             artifacts/synod-client \
-            apps/synod-server/assets/plugin/synod/main.js \
-            apps/synod-server/assets/plugin/synod/manifest.json \
-            apps/synod-server/assets/plugin/synod/styles.css
+            server/assets/plugin/synod/main.js \
+            server/assets/plugin/synod/manifest.json \
+            server/assets/plugin/synod/styles.css
           if git diff --cached --quiet; then
             echo "No version change detected."
             exit 1

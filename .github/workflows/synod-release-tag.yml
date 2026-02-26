@@ -1,4 +1,4 @@
-name: synod-server-release-tag
+name: synod-release-tag
 
 on:
   workflow_dispatch:
@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: apps/synod-server/package-lock.json
+          cache-dependency-path: server/package-lock.json
 
       - name: Ensure default branch
         run: |
@@ -49,14 +49,14 @@ jobs:
         run: node tools/synod-client/verify-lock.mjs
 
       - name: Install dependencies
-        working-directory: apps/synod-server
+        working-directory: server
         run: npm ci --workspaces=false
 
-      - name: Build server package
-        working-directory: apps/synod-server
+      - name: Build package
+        working-directory: server
         run: npm run build
 
-      - name: Bump server version
+      - name: Bump version
         id: bump
         shell: bash
         run: |
@@ -68,11 +68,11 @@ jobs:
               echo "custom_version is required when release_type=custom"
               exit 1
             fi
-            npm --prefix apps/synod-server version "$CUSTOM_VERSION" --no-git-tag-version
+            npm --prefix server version "$CUSTOM_VERSION" --no-git-tag-version
           else
-            npm --prefix apps/synod-server version "$RELEASE_TYPE" --no-git-tag-version
+            npm --prefix server version "$RELEASE_TYPE" --no-git-tag-version
           fi
-          VERSION=$(node -p "require('./apps/synod-server/package.json').version")
+          VERSION=$(node -p "require('./server/package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Commit and push version + tag
@@ -82,15 +82,15 @@ jobs:
           VERSION="${{ steps.bump.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apps/synod-server/package.json apps/synod-server/package-lock.json
+          git add server/package.json server/package-lock.json
           if git diff --cached --quiet; then
             echo "No version change detected."
             exit 1
           fi
-          git commit -m "chore(release): synod-server v${VERSION}"
-          git tag "synod-server-v${VERSION}"
+          git commit -m "chore(release): synod v${VERSION}"
+          git tag "synod-v${VERSION}"
           git push origin HEAD
-          git push origin "synod-server-v${VERSION}"
+          git push origin "synod-v${VERSION}"
 
       - name: Trigger publish workflow
         uses: actions/github-script@v7
@@ -99,9 +99,9 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'synod-server-publish.yml',
+              workflow_id: 'synod-publish.yml',
               ref: context.payload.repository.default_branch,
               inputs: {
-                release_tag: `synod-server-v${{ steps.bump.outputs.version }}`,
+                release_tag: `synod-v${{ steps.bump.outputs.version }}`,
               },
             });

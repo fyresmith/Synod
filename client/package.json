@@ -1,6 +1,6 @@
 {
   "name": "@fyresmith/synod-client",
-  "version": "4.0.1",
+  "version": "0.0.1",
   "private": true,
   "description": "Real-time collaborative Obsidian vault via Discord auth and Yjs CRDTs",
   "main": "main.js",
@@ -9,6 +9,7 @@
     "build": "npm run build:styles && node esbuild.config.mjs",
     "dev": "npm run build:styles && node esbuild.config.mjs dev",
     "check:brat": "node scripts/check-brat.mjs",
+    "build:checksums": "node scripts/build-checksums.mjs",
     "build:brat": "npm run build && npm run check:brat",
     "verify": "npm run build:brat",
     "assert-tag-version": "node scripts/assert-tag-version.mjs"

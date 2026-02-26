@@ -50,6 +50,58 @@ export interface AwarenessUser {
   color: string;
 }
 
+export interface UpdateReleaseInfo {
+  version: string;
+  prerelease: boolean;
+  publishedAt: string;
+  assets: {
+    'manifest.json': string;
+    'main.js': string;
+    'styles.css': string;
+  };
+  checksums: {
+    'manifest.json': string;
+    'main.js': string;
+    'styles.css': string;
+  };
+}
+
+export type UpdateCheckResult =
+  | {
+    status: 'up_to_date';
+    currentVersion: string;
+    latestRelease: UpdateReleaseInfo;
+    checkedAt: string;
+    message: string;
+  }
+  | {
+    status: 'update_available';
+    currentVersion: string;
+    latestRelease: UpdateReleaseInfo;
+    checkedAt: string;
+    message: string;
+  }
+  | {
+    status: 'error';
+    currentVersion: string;
+    checkedAt: string;
+    message: string;
+  };
+
+export type InstallResult =
+  | {
+    status: 'success';
+    fromVersion: string;
+    toVersion: string;
+    message: string;
+  }
+  | {
+    status: 'rolled_back' | 'failed';
+    fromVersion: string;
+    toVersion: string;
+    message: string;
+  };
+
 export type ConnectionStatus =
   | 'connected'
   | 'disconnected'

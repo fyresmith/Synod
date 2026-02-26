@@ -3,7 +3,8 @@
   "private": true,
   "description": "Unified monorepo for Synod server and client",
   "workspaces": [
-    "apps/*",
+    "server",
+    "client",
     "packages/*"
   ],
   "scripts": {

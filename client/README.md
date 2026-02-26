@@ -48,6 +48,12 @@ Build and verify BRAT-ready assets locally:
 npm run build:brat
 ```
 
+Build release checksums (used by the in-app updater):
+
+```bash
+npm run build:checksums
+```
+
 ## BRAT Beta Releases
 
 This monorepo is configured to release BRAT-compatible assets from GitHub Releases:
@@ -55,6 +61,7 @@ This monorepo is configured to release BRAT-compatible assets from GitHub Releas
 - `manifest.json`
 - `main.js`
 - `styles.css`
+- `checksums.txt`
 
 Release workflow:
 
@@ -64,3 +71,12 @@ Release workflow:
 4. Tag triggers `synod-client-publish`, which builds and attaches release assets.
 
 Testers can then install via BRAT using this repository URL.
+
+## In-App Update Button
+
+Settings now includes `Check for Synod updates`.
+
+- Checks latest stable `synod-client` GitHub release.
+- Verifies `manifest.json`, `main.js`, and `styles.css` against `checksums.txt`.
+- Installs with staged writes and rollback on failure.
+- Prompts the user to reload the plugin after a successful install.

@@ -4,10 +4,10 @@ import { dirname, join, relative, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const ROOT = resolve(fileURLToPath(new URL('../../', import.meta.url)));
-const CLIENT_ROOT = join(ROOT, 'apps', 'synod-client');
+const CLIENT_ROOT = join(ROOT, 'client');
 const ARTIFACTS_ROOT = join(ROOT, 'artifacts', 'synod-client');
 const LOCK_PATH = join(ROOT, 'release', 'synod-client.lock.json');
-const LEGACY_SERVER_ASSETS_ROOT = join(ROOT, 'apps', 'synod-server', 'assets', 'plugin', 'synod');
+const LEGACY_SERVER_ASSETS_ROOT = join(ROOT, 'server', 'assets', 'plugin', 'synod');
 
 const SOURCE_FILES = {
   mainJs: 'main.js',
@@ -72,7 +72,7 @@ async function main() {
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
     source: {
-      workspace: 'apps/synod-client',
+      workspace: 'client',
       packageName: String(pkg.name ?? ''),
     },
     client: {
