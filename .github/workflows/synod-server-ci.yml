@@ -1,0 +1,50 @@
+name: synod-server-ci
+
+on:
+  pull_request:
+    paths:
+      - 'apps/synod-server/**'
+      - 'packages/contracts/**'
+      - 'release/synod-client.lock.json'
+      - 'artifacts/synod-client/**'
+      - 'tools/synod-client/**'
+      - '.github/workflows/synod-server-ci.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/synod-server/**'
+      - 'packages/contracts/**'
+      - 'release/synod-client.lock.json'
+      - 'artifacts/synod-client/**'
+      - 'tools/synod-client/**'
+      - '.github/workflows/synod-server-ci.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: apps/synod-server/package-lock.json
+
+      - name: Verify pinned synod-client artifacts
+        run: node tools/synod-client/verify-lock.mjs
+
+      - name: Install synod-server dependencies
+        working-directory: apps/synod-server
+        run: npm ci --workspaces=false
+
+      - name: Build server package
+        working-directory: apps/synod-server
+        run: npm run build

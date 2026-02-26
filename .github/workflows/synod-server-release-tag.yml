@@ -1,0 +1,107 @@
+name: synod-server-release-tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Semver bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+          - custom
+      custom_version:
+        description: 'Required when release_type=custom (example: 1.2.3)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/synod-server/package-lock.json
+
+      - name: Ensure default branch
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "${{ github.event.repository.default_branch }}" ]; then
+            echo "Run this workflow from the default branch (${{ github.event.repository.default_branch }})."
+            exit 1
+          fi
+
+      - name: Verify client lock
+        run: node tools/synod-client/verify-lock.mjs
+
+      - name: Install dependencies
+        working-directory: apps/synod-server
+        run: npm ci --workspaces=false
+
+      - name: Build server package
+        working-directory: apps/synod-server
+        run: npm run build
+
+      - name: Bump server version
+        id: bump
+        shell: bash
+        run: |
+          set -euo pipefail
+          RELEASE_TYPE="${{ github.event.inputs.release_type }}"
+          CUSTOM_VERSION="${{ github.event.inputs.custom_version }}"
+          if [ "$RELEASE_TYPE" = "custom" ]; then
+            if [ -z "$CUSTOM_VERSION" ]; then
+              echo "custom_version is required when release_type=custom"
+              exit 1
+            fi
+            npm --prefix apps/synod-server version "$CUSTOM_VERSION" --no-git-tag-version
+          else
+            npm --prefix apps/synod-server version "$RELEASE_TYPE" --no-git-tag-version
+          fi
+          VERSION=$(node -p "require('./apps/synod-server/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push version + tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.bump.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/synod-server/package.json apps/synod-server/package-lock.json
+          if git diff --cached --quiet; then
+            echo "No version change detected."
+            exit 1
+          fi
+          git commit -m "chore(release): synod-server v${VERSION}"
+          git tag "synod-server-v${VERSION}"
+          git push origin HEAD
+          git push origin "synod-server-v${VERSION}"
+
+      - name: Trigger publish workflow
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'synod-server-publish.yml',
+              ref: context.payload.repository.default_branch,
+              inputs: {
+                release_tag: `synod-server-v${{ steps.bump.outputs.version }}`,
+              },
+            });

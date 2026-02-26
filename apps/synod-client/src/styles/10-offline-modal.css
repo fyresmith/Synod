@@ -1,0 +1,163 @@
+   Offline modal
+   ============================================================ */
+
+#synod-offline-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.08), transparent 48%),
+    var(--background-modifier-cover, rgba(0, 0, 0, 0.5));
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+}
+
+#synod-offline-modal {
+  width: min(480px, 100%);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 18px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.38);
+  padding: 24px 24px 20px;
+  text-align: center;
+}
+
+#synod-offline-modal .synod-offline-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text-accent) 12%, transparent);
+  color: var(--text-accent);
+}
+
+#synod-offline-modal .synod-offline-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+#synod-offline-modal .synod-offline-title {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+#synod-offline-modal .synod-offline-subtitle {
+  margin: 10px auto 0;
+  color: var(--text-muted);
+  line-height: 1.4;
+  max-width: 40ch;
+}
+
+#synod-offline-modal .synod-offline-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+#synod-offline-modal button {
+  min-width: 156px;
+}
+
+#synod-offline-modal.is-connecting .synod-offline-actions {
+  margin-top: 18px;
+}
+
+.synod-offline-loader {
+  margin: 14px auto 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 18px;
+}
+
+.synod-offline-loader-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--text-accent);
+  opacity: 0.35;
+  animation: synod-offline-bounce 0.9s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.synod-offline-loader-dot:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.synod-offline-loader-dot:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+@keyframes synod-offline-bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.28;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 0.92;
+  }
+}
+
+/* Inline settings panel inside offline modal */
+.synod-offline-settings {
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--background-modifier-border);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.synod-offline-settings-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.synod-offline-settings input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.synod-offline-user-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.synod-offline-user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.synod-offline-user-name {
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.synod-offline-not-signed-in {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ============================================================

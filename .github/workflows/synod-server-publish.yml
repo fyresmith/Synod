@@ -1,0 +1,68 @@
+name: synod-server-publish
+
+on:
+  push:
+    tags:
+      - 'synod-server-v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to publish (example: synod-server-v1.2.3)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.release_tag || github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+          cache-dependency-path: apps/synod-server/package-lock.json
+
+      - name: Verify pinned synod-client artifacts
+        run: node tools/synod-client/verify-lock.mjs
+
+      - name: Install dependencies
+        working-directory: apps/synod-server
+        run: npm ci --workspaces=false
+
+      - name: Verify
+        working-directory: apps/synod-server
+        run: npm run verify
+
+      - name: Validate npm package contents
+        working-directory: apps/synod-server
+        run: npm pack --dry-run
+
+      - name: Ensure tag version matches package.json
+        working-directory: apps/synod-server
+        run: node scripts/assert-tag-version.mjs "${{ env.RELEASE_TAG }}"
+
+      - name: Publish to npm
+        working-directory: apps/synod-server
+        run: npm publish --access public
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          target_commitish: ${{ github.event.repository.default_branch }}
+          generate_release_notes: true
+          name: 'synod-server ${{ env.RELEASE_TAG }}'

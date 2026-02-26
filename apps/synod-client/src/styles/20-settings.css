@@ -1,0 +1,84 @@
+   Settings panel
+   ============================================================ */
+
+.synod-settings .synod-settings-card {
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.synod-settings .synod-status-label {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--background-modifier-hover);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.synod-settings .synod-status-label[data-status="connected"] {
+  background: color-mix(in srgb, var(--color-green) 15%, transparent);
+  color: var(--color-green);
+}
+
+.synod-settings .synod-status-label[data-status="connecting"] {
+  background: color-mix(in srgb, var(--color-yellow) 15%, transparent);
+  color: var(--color-yellow);
+}
+
+.synod-settings .synod-status-label[data-status="auth-required"] {
+  background: color-mix(in srgb, var(--color-orange) 15%, transparent);
+  color: var(--color-orange);
+}
+
+.synod-settings .synod-status-label[data-status="disconnected"] {
+  background: color-mix(in srgb, var(--color-red) 15%, transparent);
+  color: var(--color-red);
+}
+
+.synod-settings .synod-user-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.synod-settings .synod-user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.synod-settings .synod-user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.synod-settings .synod-user-name {
+  font-weight: 600;
+}
+
+.synod-settings .synod-user-empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.synod-settings .synod-settings-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.synod-settings hr.synod-section-divider {
+  border: none;
+  border-top: 1px solid var(--background-modifier-border);
+  margin: 20px 0 8px;
+}
+

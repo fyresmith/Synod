@@ -1,0 +1,41 @@
+   Claim Badge in File Tree
+   ============================================================ */
+
+.synod-claim-badge {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 7px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  z-index: 1;
+}
+
+.nav-file-title.has-synod-claim {
+  padding-right: 22px;
+}
+
+/* When both avatars and a claim badge are present */
+.nav-file-title.has-synod-avatars.has-synod-claim {
+  padding-right: 100px;
+}
+
+/* ============================================================
+   Accessibility — reduced motion additions
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .synod-reconnect-dots {
+    animation: none;
+  }
+}

@@ -1,0 +1,13 @@
+.DS_Store
+node_modules/
+
+# Workspace outputs
+apps/*/node_modules/
+apps/*/.env
+
+# Plugin runtime state
+apps/synod-client/data.json
+
+# Logs
+yarn-error.log*
+npm-debug.log*

@@ -1,0 +1,54 @@
+   Reconnect Banner
+   ============================================================ */
+
+#synod-reconnect-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: color-mix(in srgb, var(--color-yellow) 18%, var(--background-primary));
+  border-bottom: 1px solid color-mix(in srgb, var(--color-yellow) 40%, transparent);
+  color: var(--color-yellow);
+  font-size: 13px;
+}
+
+.synod-reconnect-text {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.synod-reconnect-dots {
+  display: inline-block;
+  animation: synod-reconnect-dots 1.2s step-end infinite;
+  min-width: 1.5ch;
+}
+
+@keyframes synod-reconnect-dots {
+  0%   { content: '.'; }
+  33%  { content: '..'; }
+  66%  { content: '...'; }
+  100% { content: ''; }
+}
+
+.synod-reconnect-btn {
+  padding: 3px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-yellow) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-yellow) 50%, transparent);
+  color: var(--color-yellow);
+  cursor: pointer;
+}
+
+.synod-reconnect-btn:hover {
+  background: color-mix(in srgb, var(--color-yellow) 30%, transparent);
+}
+
+/* ============================================================

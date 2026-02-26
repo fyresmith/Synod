@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-02-26T05:52:16.079Z",
+  "source": {
+    "workspace": "apps/synod-client",
+    "packageName": "@fyresmith/synod-client"
+  },
+  "client": {
+    "id": "synod",
+    "version": "4.0.1",
+    "minAppVersion": "1.4.0"
+  },
+  "artifacts": {
+    "mainJs": {
+      "path": "artifacts/synod-client/4.0.1/main.js",
+      "sha256": "68f068a950ad9067ff7f2d7723d5f12e4dbf770ef08de1e70fd25491e494fbe4",
+      "sizeBytes": 491111
+    },
+    "manifestJson": {
+      "path": "artifacts/synod-client/4.0.1/manifest.json",
+      "sha256": "817026c26fbea33dee8d1e4c1f2f3d0cc8c168bd95459735a0b3ce63a234fbc9",
+      "sizeBytes": 229
+    },
+    "stylesCss": {
+      "path": "artifacts/synod-client/4.0.1/styles.css",
+      "sha256": "10ca533ecae08116d5623241a4289a0021189f7d573a4a5bc358619df539e939",
+      "sizeBytes": 22696
+    }
+  }
+}

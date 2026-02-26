@@ -1,0 +1,11 @@
+services:
+  synod:
+    build: .
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file: .env
+    environment:
+      VAULT_PATH: /vault
+    volumes:
+      - ${HOST_VAULT_PATH:-./vault}:/vault
+    restart: unless-stopped

@@ -1,0 +1,7 @@
+{
+  "name": "@fyresmith/synod-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared contracts for synod-server and synod-client"
+}

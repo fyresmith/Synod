@@ -1,0 +1,70 @@
+   File tree avatar chips
+   ============================================================ */
+
+.synod-avatars {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  max-width: 88px;
+  justify-content: flex-end;
+}
+
+.nav-file-title.has-synod-avatars {
+  padding-right: 76px;
+}
+
+.synod-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  margin-left: -4px;
+  object-fit: cover;
+  background: var(--background-secondary);
+}
+
+.synod-avatar:first-child {
+  margin-left: 0;
+}
+
+.synod-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+}
+
+.synod-avatar-overflow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--background-modifier-hover);
+  border: 2px solid var(--background-modifier-border);
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-left: -4px;
+  flex-shrink: 0;
+}
+
+.synod-avatar.is-typing {
+  animation: synod-pulse 1.2s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes synod-pulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.1); }
+}
+
+/* ============================================================

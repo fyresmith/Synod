@@ -1,0 +1,120 @@
+name: synod-client-release-tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Semver bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+          - custom
+      custom_version:
+        description: 'Required when release_type=custom (example: 1.2.3-beta.1)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/synod-client/package-lock.json
+
+      - name: Ensure default branch
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "${{ github.event.repository.default_branch }}" ]; then
+            echo "Run this workflow from the default branch (${{ github.event.repository.default_branch }})."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        working-directory: apps/synod-client
+        run: npm ci --workspaces=false
+
+      - name: Build and validate BRAT assets
+        working-directory: apps/synod-client
+        run: npm run build:brat
+
+      - name: Bump client version
+        id: bump
+        shell: bash
+        run: |
+          set -euo pipefail
+          RELEASE_TYPE="${{ github.event.inputs.release_type }}"
+          CUSTOM_VERSION="${{ github.event.inputs.custom_version }}"
+          if [ "$RELEASE_TYPE" = "custom" ]; then
+            if [ -z "$CUSTOM_VERSION" ]; then
+              echo "custom_version is required when release_type=custom"
+              exit 1
+            fi
+            npm --prefix apps/synod-client version "$CUSTOM_VERSION" --no-git-tag-version
+          else
+            npm --prefix apps/synod-client version "$RELEASE_TYPE" --no-git-tag-version
+          fi
+          VERSION=$(node -p "require('./apps/synod-client/package.json').version")
+          node -e "const fs=require('fs');const m=JSON.parse(fs.readFileSync('apps/synod-client/manifest.json','utf8'));m.version=process.argv[1];fs.writeFileSync('apps/synod-client/manifest.json',JSON.stringify(m,null,2)+'\\n');" "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Validate BRAT metadata after version bump
+        working-directory: apps/synod-client
+        run: npm run check:brat
+
+      - name: Pin client artifacts
+        run: node tools/synod-client/pin-release.mjs
+
+      - name: Commit and push version + tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.bump.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            apps/synod-client/package.json \
+            apps/synod-client/package-lock.json \
+            apps/synod-client/manifest.json \
+            release/synod-client.lock.json \
+            artifacts/synod-client \
+            apps/synod-server/assets/plugin/synod/main.js \
+            apps/synod-server/assets/plugin/synod/manifest.json \
+            apps/synod-server/assets/plugin/synod/styles.css
+          if git diff --cached --quiet; then
+            echo "No version change detected."
+            exit 1
+          fi
+          git commit -m "chore(release): synod-client v${VERSION}"
+          git tag "synod-client-v${VERSION}"
+          git push origin HEAD
+          git push origin "synod-client-v${VERSION}"
+
+      - name: Trigger publish workflow
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'synod-client-publish.yml',
+              ref: context.payload.repository.default_branch,
+              inputs: {
+                release_tag: `synod-client-v${{ steps.bump.outputs.version }}`,
+              },
+            });

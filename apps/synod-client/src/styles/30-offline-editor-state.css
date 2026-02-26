@@ -1,0 +1,14 @@
+/* Offline editor state */
+.vault-offline .cm-content {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.vault-offline .cm-cursor {
+  display: none !important;
+}
+
+.vault-offline .workspace {
+  filter: grayscale(0.15);
+}
+

@@ -1,0 +1,23 @@
+{
+  "name": "synod",
+  "private": true,
+  "description": "Unified monorepo for Synod server and client",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "npm run build --workspace @fyresmith/synod-server",
+    "build:client": "npm run build:brat --workspace @fyresmith/synod-client",
+    "verify": "npm run verify:server && npm run verify:client",
+    "verify:server": "npm run verify --workspace @fyresmith/synod-server",
+    "verify:client": "npm run build:brat --workspace @fyresmith/synod-client",
+    "install-synod": "npm run install-synod --workspace @fyresmith/synod-server",
+    "artifacts:pin-client": "node tools/synod-client/pin-release.mjs",
+    "artifacts:verify-client": "node tools/synod-client/verify-lock.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

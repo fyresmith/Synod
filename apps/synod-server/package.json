@@ -1,0 +1,54 @@
+{
+  "name": "@fyresmith/synod-server",
+  "version": "5.0.0",
+  "type": "module",
+  "description": "Collaborative Obsidian vault server",
+  "main": "index.js",
+  "files": [
+    "bin",
+    "cli",
+    "assets",
+    "lib",
+    "server",
+    "routes",
+    "index.js",
+    "README.md"
+  ],
+  "bin": {
+    "synod": "bin/synod.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "build": "npm run verify && npm pack --dry-run",
+    "status": "node bin/synod.js status",
+    "verify": "node scripts/verify.mjs",
+    "install-synod": "node scripts/install-synod.mjs",
+    "test": "npm run verify"
+  },
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "chokidar": "^3.6.0",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.5",
+    "execa": "^9.6.0",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "prompts": "^2.4.2",
+    "socket.io": "^4.7.5",
+    "which": "^6.0.0",
+    "ws": "^8.17.1",
+    "y-websocket": "^1.5.4",
+    "yazl": "^2.5.1",
+    "yjs": "^13.6.18"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.3"
+  }
+}
