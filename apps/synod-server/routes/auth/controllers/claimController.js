@@ -13,6 +13,12 @@ import {
   setInviteDownloadTicket,
   loadManagedState,
 } from '../../../lib/managedState.js';
+import {
+  checkRateLimit,
+  getAuthRateLimitConfig,
+  getClientIp,
+  normalizeRateLimitIdentity,
+} from '../../../lib/httpRateLimit.js';
 import { loadInviteOrThrow } from '../services/inviteGuard.js';
 import {
   clearClaimSessionCookie,
@@ -43,6 +49,17 @@ export function registerClaimRoutes(router) {
     const email = String(req.body?.email ?? '').trim();
     const password = String(req.body?.password ?? '');
     const displayName = String(req.body?.displayName ?? '').trim();
+    const rateLimitConfig = getAuthRateLimitConfig();
+    const rateLimit = checkRateLimit({
+      bucket: 'claim-signup',
+      key: `${getClientIp(req)}|${normalizeRateLimitIdentity(email, 'unknown-email')}|claim/signup`,
+      limit: rateLimitConfig.signupMax,
+      windowMs: rateLimitConfig.windowMs,
+    });
+    if (!rateLimit.allowed) {
+      res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds));
+      return res.status(429).send(errorPage('Too many requests. Please wait a few minutes and try again.'));
+    }
 
     try {
       await loadInviteOrThrow(code);
@@ -64,6 +81,17 @@ export function registerClaimRoutes(router) {
     const code = String(req.body?.code ?? '').trim();
     const email = String(req.body?.email ?? '').trim();
     const password = String(req.body?.password ?? '');
+    const rateLimitConfig = getAuthRateLimitConfig();
+    const rateLimit = checkRateLimit({
+      bucket: 'claim-signin',
+      key: `${getClientIp(req)}|${normalizeRateLimitIdentity(email, 'unknown-email')}|claim/signin`,
+      limit: rateLimitConfig.signinMax,
+      windowMs: rateLimitConfig.windowMs,
+    });
+    if (!rateLimit.allowed) {
+      res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds));
+      return res.status(429).send(errorPage('Too many requests. Please wait a few minutes and try again.'));
+    }
 
     try {
       await loadInviteOrThrow(code);

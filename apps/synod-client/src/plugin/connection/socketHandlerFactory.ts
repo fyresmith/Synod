@@ -6,6 +6,7 @@ import type { WriteInterceptor } from '../../writeInterceptor';
 import type { PresenceManager } from '../../presenceManager';
 import type { CollabWorkspaceManager } from '../../main/collabWorkspaceManager';
 import { bindSynodSocketEvents } from '../../main/socketEvents';
+import type { OfflineFlushResult } from './offlineQueueFlusher';
 
 interface BindPluginSocketHandlersOptions {
   socket: SocketClient;
@@ -21,7 +22,8 @@ interface BindPluginSocketHandlersOptions {
   teardownConnection: (unlockGuard: boolean) => void;
   showReconnectBanner: () => void;
   onDisconnectGracePeriodEnd: () => void;
-  flushOfflineQueue: () => Promise<Set<string>>;
+  flushOfflineQueue: () => Promise<OfflineFlushResult>;
+  clearOfflineQueue: () => void;
   saveSettings: () => Promise<void>;
   setFollowTarget: (userId: string | null) => void;
   getFollowTarget: () => string | null;
@@ -43,6 +45,7 @@ export function bindPluginSocketHandlers(options: BindPluginSocketHandlersOption
     showReconnectBanner,
     onDisconnectGracePeriodEnd,
     flushOfflineQueue,
+    clearOfflineQueue,
     saveSettings,
     setFollowTarget,
     getFollowTarget,
@@ -56,8 +59,8 @@ export function bindPluginSocketHandlers(options: BindPluginSocketHandlersOption
       unlockOffline();
 
       try {
-        const skipPaths = await flushOfflineQueue();
-        const syncSummary = await getSyncEngine()?.initialSync(skipPaths);
+        const replay = await flushOfflineQueue();
+        const syncSummary = await getSyncEngine()?.initialSync(replay.syncedPaths);
         await saveSettings();
 
         if (!syncSummary) return;
@@ -74,6 +77,13 @@ export function bindPluginSocketHandlers(options: BindPluginSocketHandlersOption
         }
         if (syncSummary.quarantined > 0 && syncSummary.quarantinePath) {
           new Notice(`Synod: Local-only files were moved to ${syncSummary.quarantinePath}`, 9000);
+        }
+        if (replay.failedOps.length > 0 || replay.remainingOps.length > 0) {
+          const pending = replay.failedOps.length + replay.remainingOps.length;
+          new Notice(
+            `Synod: Replay paused (${pending} offline op${pending !== 1 ? 's' : ''} pending). Remaining ops will retry on reconnect.`,
+            9000,
+          );
         }
       } catch (err) {
         console.error('[Synod] Initial sync failed:', err);
@@ -100,6 +110,7 @@ export function bindPluginSocketHandlers(options: BindPluginSocketHandlersOption
       lockOffline('disconnected');
 
       if (msg.includes('Invalid token') || msg.includes('No token')) {
+        clearOfflineQueue();
         teardownConnection(false);
         setStatus('auth-required');
         lockOffline('auth-required');

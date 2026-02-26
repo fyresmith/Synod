@@ -1,12 +1,29 @@
 import jwt from 'jsonwebtoken';
 import { consumeMemberBootstrapSecretByToken } from '../../../lib/managedState.js';
 import { hashToken } from '../../../lib/authTokens.js';
+import {
+  checkRateLimit,
+  getAuthRateLimitConfig,
+  getClientIp,
+  normalizeRateLimitIdentity,
+} from '../../../lib/httpRateLimit.js';
 import { getServerUrl, getVaultPath } from '../utils/requestContext.js';
 
 export function registerBootstrapRoutes(router) {
   router.post('/bootstrap/exchange', async (req, res) => {
     const bootstrapToken = String(req.body?.bootstrapToken ?? '').trim();
     const vaultId = String(req.body?.vaultId ?? '').trim();
+    const rateLimitConfig = getAuthRateLimitConfig();
+    const rateLimit = checkRateLimit({
+      bucket: 'bootstrap-exchange',
+      key: `${getClientIp(req)}|${normalizeRateLimitIdentity(vaultId, 'unknown-vault')}|bootstrap/exchange`,
+      limit: rateLimitConfig.bootstrapMax,
+      windowMs: rateLimitConfig.windowMs,
+    });
+    if (!rateLimit.allowed) {
+      res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds));
+      return res.status(429).json({ ok: false, error: 'Too many requests. Please wait a few minutes and try again.' });
+    }
 
     if (!bootstrapToken || !vaultId) {
       return res.status(400).json({ ok: false, error: 'bootstrapToken and vaultId are required' });

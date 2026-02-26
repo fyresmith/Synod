@@ -28,6 +28,10 @@ export class OfflineQueue {
     return this.ops;
   }
 
+  replaceOps(ops: readonly QueuedOp[]): void {
+    this.ops = [...ops];
+  }
+
   getAffectedPaths(): Set<string> {
     const paths = new Set<string>();
     for (const op of this.ops) {

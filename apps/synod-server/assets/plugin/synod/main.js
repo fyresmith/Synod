@@ -4130,6 +4130,9 @@ var OfflineQueue = class {
   getOps() {
     return this.ops;
   }
+  replaceOps(ops) {
+    this.ops = [...ops];
+  }
   getAffectedPaths() {
     const paths = /* @__PURE__ */ new Set();
     for (const op of this.ops) {
@@ -4651,28 +4654,50 @@ async function exchangeBootstrapToken(options) {
 // src/plugin/connection/offlineQueueFlusher.ts
 async function flushOfflineQueue(socket, offlineQueue) {
   if (offlineQueue.isEmpty || !(socket == null ? void 0 : socket.connected)) {
-    return /* @__PURE__ */ new Set();
+    return {
+      syncedPaths: /* @__PURE__ */ new Set(),
+      failedOps: [],
+      remainingOps: []
+    };
   }
-  const affectedPaths = offlineQueue.getAffectedPaths();
-  const ops = offlineQueue.getOps();
+  const syncedPaths = /* @__PURE__ */ new Set();
+  const ops = [...offlineQueue.getOps()];
   console.log(`[Synod] Flushing ${ops.length} offline op(s)...`);
-  for (const op of ops) {
+  for (let i = 0; i < ops.length; i += 1) {
+    const op = ops[i];
     try {
       if (op.type === "modify") {
         await socket.request("file-write", { relPath: op.path, content: op.content });
+        syncedPaths.add(op.path);
       } else if (op.type === "create") {
         await socket.request("file-create", { relPath: op.path, content: op.content });
+        syncedPaths.add(op.path);
       } else if (op.type === "delete") {
         await socket.request("file-delete", op.path);
+        syncedPaths.add(op.path);
       } else if (op.type === "rename") {
         await socket.request("file-rename", { oldPath: op.oldPath, newPath: op.newPath });
+        syncedPaths.add(op.oldPath);
+        syncedPaths.add(op.newPath);
       }
     } catch (err) {
       console.error(`[Synod] Failed to flush offline op (${op.type}):`, err);
+      const failedOps = [op];
+      const remainingOps = ops.slice(i + 1);
+      offlineQueue.replaceOps([...failedOps, ...remainingOps]);
+      return {
+        syncedPaths,
+        failedOps,
+        remainingOps
+      };
     }
   }
-  offlineQueue.clear();
-  return affectedPaths;
+  offlineQueue.replaceOps([]);
+  return {
+    syncedPaths,
+    failedOps: [],
+    remainingOps: []
+  };
 }
 
 // src/plugin/connection/connectionStatus.ts
@@ -4743,6 +4768,7 @@ function bindPluginSocketHandlers(options) {
     showReconnectBanner,
     onDisconnectGracePeriodEnd,
     flushOfflineQueue: flushOfflineQueue2,
+    clearOfflineQueue,
     saveSettings,
     setFollowTarget,
     getFollowTarget
@@ -4755,8 +4781,8 @@ function bindPluginSocketHandlers(options) {
       setStatus("connected");
       unlockOffline();
       try {
-        const skipPaths = await flushOfflineQueue2();
-        const syncSummary = await ((_a = getSyncEngine()) == null ? void 0 : _a.initialSync(skipPaths));
+        const replay = await flushOfflineQueue2();
+        const syncSummary = await ((_a = getSyncEngine()) == null ? void 0 : _a.initialSync(replay.syncedPaths));
         await saveSettings();
         if (!syncSummary) return;
         const total = syncSummary.updated + syncSummary.created + syncSummary.deleted;
@@ -4771,6 +4797,13 @@ function bindPluginSocketHandlers(options) {
         }
         if (syncSummary.quarantined > 0 && syncSummary.quarantinePath) {
           new import_obsidian7.Notice(`Synod: Local-only files were moved to ${syncSummary.quarantinePath}`, 9e3);
+        }
+        if (replay.failedOps.length > 0 || replay.remainingOps.length > 0) {
+          const pending = replay.failedOps.length + replay.remainingOps.length;
+          new import_obsidian7.Notice(
+            `Synod: Replay paused (${pending} offline op${pending !== 1 ? "s" : ""} pending). Remaining ops will retry on reconnect.`,
+            9e3
+          );
         }
       } catch (err) {
         console.error("[Synod] Initial sync failed:", err);
@@ -4793,6 +4826,7 @@ function bindPluginSocketHandlers(options) {
       setIsConnecting(false);
       lockOffline("disconnected");
       if (msg.includes("Invalid token") || msg.includes("No token")) {
+        clearOfflineQueue();
         teardownConnection(false);
         setStatus("auth-required");
         lockOffline("auth-required");
@@ -16467,6 +16501,7 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
         }, this.DISCONNECT_GRACE_MS);
       },
       flushOfflineQueue: () => this.flushOfflineQueue(),
+      clearOfflineQueue: () => this.offlineQueue.clear(),
       saveSettings: () => this.saveSettings(),
       setFollowTarget: (userId) => this.setFollowTarget(userId),
       getFollowTarget: () => this.followTargetId
@@ -16550,7 +16585,6 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
   teardownConnection(unlockGuard) {
     var _a, _b, _c, _d, _e;
     this.isConnecting = false;
-    this.offlineQueue.clear();
     (_a = this.collabWorkspace) == null ? void 0 : _a.resetSyncState();
     (_b = this.writeInterceptor) == null ? void 0 : _b.unregister();
     this.writeInterceptor = null;
@@ -16625,6 +16659,7 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
   async logout() {
     var _a;
     this.isConnecting = false;
+    this.offlineQueue.clear();
     this.settings.token = null;
     this.settings.bootstrapToken = null;
     this.settings.user = null;

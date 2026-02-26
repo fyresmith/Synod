@@ -122,6 +122,10 @@ Optional env overrides:
 - `SYNOD_BOOTSTRAP_TOKEN_TTL_HOURS` (default `24`)
 - `SYNOD_BUNDLE_DENY_PATHS` (comma-separated deny list for bundle policy)
 - `SYNOD_BUNDLE_STRICT_CLIENT_LOCK` (`true|false`, default `false`)
+- `SYNOD_RATE_LIMIT_WINDOW_MS` (default `300000`)
+- `SYNOD_RATE_LIMIT_SIGNUP_MAX` (default `8`)
+- `SYNOD_RATE_LIMIT_SIGNIN_MAX` (default `8`)
+- `SYNOD_RATE_LIMIT_BOOTSTRAP_MAX` (default `20`)
 
 ### Bundled Client Artifacts
 

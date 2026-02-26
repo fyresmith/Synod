@@ -21,7 +21,7 @@ import {
   readManagedBinding,
 } from '../main/managedVault';
 import { exchangeBootstrapToken } from './auth/bootstrapExchange';
-import { flushOfflineQueue } from './connection/offlineQueueFlusher';
+import { flushOfflineQueue, OfflineFlushResult } from './connection/offlineQueueFlusher';
 import { getManagedStatusLabel, getUnmanagedStatusLabel } from './connection/connectionStatus';
 import { bindPluginSocketHandlers } from './connection/socketHandlerFactory';
 import { setupManagedRuntime as configureManagedRuntime } from './runtime/managedRuntimeSetup';
@@ -238,6 +238,7 @@ export default class SynodPlugin extends Plugin {
         }, this.DISCONNECT_GRACE_MS);
       },
       flushOfflineQueue: () => this.flushOfflineQueue(),
+      clearOfflineQueue: () => this.offlineQueue.clear(),
       saveSettings: () => this.saveSettings(),
       setFollowTarget: (userId) => this.setFollowTarget(userId),
       getFollowTarget: () => this.followTargetId,
@@ -326,7 +327,6 @@ export default class SynodPlugin extends Plugin {
 
   private teardownConnection(unlockGuard: boolean): void {
     this.isConnecting = false;
-    this.offlineQueue.clear();
     this.collabWorkspace?.resetSyncState();
 
     this.writeInterceptor?.unregister();
@@ -349,7 +349,7 @@ export default class SynodPlugin extends Plugin {
     }
   }
 
-  private async flushOfflineQueue(): Promise<Set<string>> {
+  private async flushOfflineQueue(): Promise<OfflineFlushResult> {
     return flushOfflineQueue(this.socket, this.offlineQueue);
   }
 
@@ -416,6 +416,7 @@ export default class SynodPlugin extends Plugin {
 
   async logout(): Promise<void> {
     this.isConnecting = false;
+    this.offlineQueue.clear();
     this.settings.token = null;
     this.settings.bootstrapToken = null;
     this.settings.user = null;

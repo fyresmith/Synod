@@ -17,6 +17,12 @@ import { getServerUrl, getVaultPath } from '../utils/requestContext.js';
 
 export function registerBundleRoutes(router) {
   router.get('/bundle', async (req, res) => {
+    return res.status(405).send(
+      errorPage('Download must be started from the claim success page button.'),
+    );
+  });
+
+  router.post('/bundle', async (req, res) => {
     const ticket = getDownloadTicket(req);
     if (!ticket) {
       return res.status(400).send(errorPage('Missing download ticket.'));
@@ -43,6 +49,7 @@ export function registerBundleRoutes(router) {
 
       const bundleState = await loadManagedState(getVaultPath());
 
+      res.setHeader('Cache-Control', 'no-store');
       await sendInviteShellBundle(res, {
         serverUrl: getServerUrl(req),
         vaultId: consumed.vaultId,
