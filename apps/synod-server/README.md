@@ -5,7 +5,7 @@ Synod server now ships with a first-class `synod` operations CLI for install, se
 ## Install
 
 ```bash
-npm i -g @fyresmith/synod-server
+npm i -g @fyresmith/synod
 ```
 
 The global install exposes:
@@ -32,7 +32,7 @@ This monorepo includes a release pipeline for `synod-server`:
 
 Configure npm Trusted Publisher for this repo/workflow:
 
-- Package: `synod-server`
+- Package: `@fyresmith/synod`
 - Provider: GitHub Actions
 - Repository: this repository
 - Workflow file: `.github/workflows/synod-server-publish.yml`

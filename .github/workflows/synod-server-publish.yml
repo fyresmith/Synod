@@ -55,9 +55,9 @@ jobs:
         working-directory: apps/synod-server
         run: node scripts/assert-tag-version.mjs "${{ env.RELEASE_TAG }}"
 
-      - name: Publish to npm
+      - name: Publish to npm (Trusted Publishing + provenance)
         working-directory: apps/synod-server
-        run: npm publish --access public
+        run: npm publish --access public --provenance
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2

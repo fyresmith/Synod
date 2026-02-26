@@ -1,5 +1,5 @@
 {
-  "name": "@fyresmith/synod-server",
+  "name": "@fyresmith/synod",
   "version": "5.0.0",
   "type": "module",
   "description": "Collaborative Obsidian vault server",
