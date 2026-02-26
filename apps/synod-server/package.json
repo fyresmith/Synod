@@ -1,6 +1,6 @@
 {
   "name": "@fyresmith/synod",
-  "version": "5.0.0",
+  "version": "0.0.1",
   "type": "module",
   "description": "Collaborative Obsidian vault server",
   "main": "index.js",
