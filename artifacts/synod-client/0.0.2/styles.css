@@ -1,0 +1,1085 @@
+/* AUTO-GENERATED FILE. */
+/* Edit src/styles/*.css and run npm run build:styles. */
+/* ============================================================
+   Synod — plugin styles
+   ============================================================ */
+
+/* ============================================================
+
+   Offline modal
+   ============================================================ */
+
+#synod-offline-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.08), transparent 48%),
+    var(--background-modifier-cover, rgba(0, 0, 0, 0.5));
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+}
+
+#synod-offline-modal {
+  width: min(480px, 100%);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 18px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.38);
+  padding: 24px 24px 20px;
+  text-align: center;
+}
+
+#synod-offline-modal .synod-offline-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text-accent) 12%, transparent);
+  color: var(--text-accent);
+}
+
+#synod-offline-modal .synod-offline-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+#synod-offline-modal .synod-offline-title {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+#synod-offline-modal .synod-offline-subtitle {
+  margin: 10px auto 0;
+  color: var(--text-muted);
+  line-height: 1.4;
+  max-width: 40ch;
+}
+
+#synod-offline-modal .synod-offline-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+#synod-offline-modal button {
+  min-width: 156px;
+}
+
+#synod-offline-modal.is-connecting .synod-offline-actions {
+  margin-top: 18px;
+}
+
+.synod-offline-loader {
+  margin: 14px auto 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 18px;
+}
+
+.synod-offline-loader-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--text-accent);
+  opacity: 0.35;
+  animation: synod-offline-bounce 0.9s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.synod-offline-loader-dot:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.synod-offline-loader-dot:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+@keyframes synod-offline-bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.28;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 0.92;
+  }
+}
+
+/* Inline settings panel inside offline modal */
+.synod-offline-settings {
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--background-modifier-border);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.synod-offline-settings-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.synod-offline-settings input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.synod-offline-user-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.synod-offline-user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.synod-offline-user-name {
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.synod-offline-not-signed-in {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ============================================================
+
+/* Settings panel
+   ============================================================ */
+
+.synod-settings .synod-settings-card {
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.synod-settings .synod-status-label {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--background-modifier-hover);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.synod-settings .synod-status-label[data-status="connected"] {
+  background: color-mix(in srgb, var(--color-green) 15%, transparent);
+  color: var(--color-green);
+}
+
+.synod-settings .synod-status-label[data-status="connecting"] {
+  background: color-mix(in srgb, var(--color-yellow) 15%, transparent);
+  color: var(--color-yellow);
+}
+
+.synod-settings .synod-status-label[data-status="auth-required"] {
+  background: color-mix(in srgb, var(--color-orange) 15%, transparent);
+  color: var(--color-orange);
+}
+
+.synod-settings .synod-status-label[data-status="disconnected"] {
+  background: color-mix(in srgb, var(--color-red) 15%, transparent);
+  color: var(--color-red);
+}
+
+.synod-settings .synod-user-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.synod-settings .synod-user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.synod-settings .synod-user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.synod-settings .synod-user-name {
+  font-weight: 600;
+}
+
+.synod-settings .synod-user-empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.synod-settings .synod-settings-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.synod-settings hr.synod-section-divider {
+  border: none;
+  border-top: 1px solid var(--background-modifier-border);
+  margin: 20px 0 8px;
+}
+
+.synod-settings .synod-update-status {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.synod-settings .synod-update-status[data-state="up_to_date"] {
+  color: var(--color-green);
+}
+
+.synod-settings .synod-update-status[data-state="update_available"] {
+  color: var(--color-yellow);
+}
+
+.synod-settings .synod-update-status[data-state="error"] {
+  color: var(--color-red);
+}
+
+.synod-settings .synod-update-status[data-state="cached"] {
+  color: var(--color-green);
+}
+
+.synod-settings .synod-update-meta {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.synod-settings .synod-update-cache-ready[data-state="cached"] {
+  color: var(--color-green);
+}
+
+/* Offline editor state */
+.vault-offline .cm-content {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.vault-offline .cm-cursor {
+  display: none !important;
+}
+
+.vault-offline .workspace {
+  filter: grayscale(0.15);
+}
+
+/* Per-editor collab loading gate */
+.synod-collab-container {
+  position: relative;
+}
+
+.synod-collab-lock .cm-editor {
+  pointer-events: none;
+}
+
+.synod-collab-loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--background-primary) 65%, transparent);
+  z-index: 25;
+}
+
+.synod-collab-loading-overlay.is-visible {
+  display: flex;
+}
+
+.synod-collab-loading-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.synod-collab-loading-text {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.synod-collab-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--background-modifier-border);
+  border-top-color: var(--text-accent);
+  animation: synod-spin 0.8s linear infinite;
+  will-change: transform;
+}
+
+@keyframes synod-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+
+   File tree avatar chips
+   ============================================================ */
+
+.synod-avatars {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  max-width: 88px;
+  justify-content: flex-end;
+}
+
+.nav-file-title.has-synod-avatars {
+  padding-right: 76px;
+}
+
+.synod-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  margin-left: -4px;
+  object-fit: cover;
+  background: var(--background-secondary);
+}
+
+.synod-avatar:first-child {
+  margin-left: 0;
+}
+
+.synod-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+}
+
+.synod-avatar-overflow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--background-modifier-hover);
+  border: 2px solid var(--background-modifier-border);
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-left: -4px;
+  flex-shrink: 0;
+}
+
+.synod-avatar.is-typing {
+  animation: synod-pulse 1.2s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes synod-pulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.1); }
+}
+
+/* ============================================================
+
+   Yjs in-editor presence — selections and cursor labels
+   ============================================================ */
+
+/* Shared selection highlight */
+.cm-ySelection {
+  opacity: 0.2;
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+/* Remote caret */
+.cm-ySelectionCaret {
+  position: relative;
+  border-left-width: 2px !important;
+  border-right-width: 0 !important;
+  margin-left: -1px;
+  border-radius: 0;
+  filter: none;
+}
+
+.cm-ySelectionCaretDot {
+  display: none !important;
+}
+
+.cm-ySelectionCaret::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 5px;
+  height: 5px;
+  background-color: inherit;
+  border-radius: 1px;
+}
+
+/* Cursor name label */
+.cm-editor .cm-ySelectionInfo {
+  position: absolute;
+  top: -2.05em;
+  left: -1px;
+  font-family: var(--font-interface, system-ui, -apple-system, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 7px;
+  border-radius: 6px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  box-shadow: none;
+  letter-spacing: 0;
+  line-height: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: opacity 0.14s ease;
+}
+
+.cm-ySelectionCaret:hover > .cm-ySelectionInfo {
+  opacity: 1;
+}
+
+.cm-ySelectionInfo.synod-caret-profile-info {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  padding: 0;
+  overflow: hidden;
+  background: transparent !important;
+  border: 0;
+}
+
+.synod-caret-profile-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: inherit;
+  border: 2px solid var(--synod-caret-color, #fff);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.26);
+}
+
+.cm-ySelectionCaret:hover > .cm-ySelectionInfo.synod-caret-profile-info {
+  opacity: 1;
+}
+
+/* ============================================================
+   Accessibility — reduced motion
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .synod-offline-loader-dot,
+  .synod-collab-spinner,
+  .synod-avatar.is-typing {
+    animation: none;
+  }
+}
+
+/* ============================================================
+
+   Reconnect Banner
+   ============================================================ */
+
+#synod-reconnect-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: color-mix(in srgb, var(--color-yellow) 18%, var(--background-primary));
+  border-bottom: 1px solid color-mix(in srgb, var(--color-yellow) 40%, transparent);
+  color: var(--color-yellow);
+  font-size: 13px;
+}
+
+.synod-reconnect-text {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.synod-reconnect-dots {
+  display: inline-block;
+  animation: synod-reconnect-dots 1.2s step-end infinite;
+  min-width: 1.5ch;
+}
+
+@keyframes synod-reconnect-dots {
+  0%   { content: '.'; }
+  33%  { content: '..'; }
+  66%  { content: '...'; }
+  100% { content: ''; }
+}
+
+.synod-reconnect-btn {
+  padding: 3px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-yellow) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-yellow) 50%, transparent);
+  color: var(--color-yellow);
+  cursor: pointer;
+}
+
+.synod-reconnect-btn:hover {
+  background: color-mix(in srgb, var(--color-yellow) 30%, transparent);
+}
+
+/* ============================================================
+
+   Users Panel (sidebar ItemView)
+   ============================================================ */
+
+.synod-users-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* ── Connection header ─────────────────────────────────────── */
+
+.synod-panel-conn-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+}
+
+.synod-conn-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-red);
+  opacity: 0.6;
+}
+
+.synod-conn-dot.is-connected {
+  background: var(--color-green);
+  opacity: 1;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-green) 22%, transparent);
+}
+
+.synod-conn-dot.is-connecting {
+  background: var(--color-yellow);
+  opacity: 1;
+}
+
+/* ── Section layout ────────────────────────────────────────── */
+
+.synod-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 10px 8px;
+}
+
+.synod-panel-section + .synod-panel-section {
+  padding-top: 10px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.synod-panel-section-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  margin-bottom: 2px;
+}
+
+.synod-panel-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--background-modifier-hover);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+.synod-panel-empty-hint {
+  padding: 8px 2px 4px;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* ── Self card ─────────────────────────────────────────────── */
+
+.synod-self-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 9px;
+}
+
+.synod-self-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.synod-self-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+
+/* ── Remote user cards ─────────────────────────────────────── */
+
+.synod-user-card {
+  position: relative;
+  padding: 9px 10px 9px 14px;
+  border-radius: 9px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  overflow: hidden;
+  transition: border-color 0.12s;
+}
+
+/* Colored left accent bar */
+.synod-user-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--user-color, var(--text-muted));
+  opacity: 0.75;
+}
+
+.synod-user-card.is-following {
+  border-color: color-mix(in srgb, var(--user-color, var(--text-accent)) 45%, transparent);
+  background: color-mix(in srgb, var(--user-color, var(--text-accent)) 5%, var(--background-secondary));
+}
+
+.synod-user-card.is-following::before {
+  opacity: 1;
+}
+
+.synod-user-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Avatar — shared between self and remote */
+.synod-user-card-avatar,
+.synod-user-avatar-fallback {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.synod-user-card-avatar {
+  object-fit: cover;
+  background: var(--background-modifier-hover);
+}
+
+.synod-user-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  background: var(--text-muted); /* overridden by inline style */
+}
+
+.synod-user-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.synod-user-card-name {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+/* Action buttons (icon buttons, right side of header) */
+.synod-user-card-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.synod-user-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  transition: background 0.1s, color 0.1s;
+}
+
+.synod-user-card-action svg {
+  width: 14px;
+  height: 14px;
+}
+
+.synod-user-card-action:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.synod-user-card-action.is-active {
+  color: var(--user-color, var(--text-accent));
+  background: color-mix(in srgb, var(--user-color, var(--text-accent)) 12%, transparent);
+}
+
+.synod-user-card-action.is-active:hover {
+  background: color-mix(in srgb, var(--user-color, var(--text-accent)) 20%, transparent);
+}
+
+/* ── File chips ────────────────────────────────────────────── */
+
+.synod-user-card-files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.synod-file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 3px 7px 3px 5px;
+  border-radius: 5px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: border-color 0.1s, color 0.1s;
+}
+
+.synod-file-chip:hover {
+  border-color: color-mix(in srgb, var(--user-color, var(--text-accent)) 60%, transparent);
+  color: var(--text-normal);
+}
+
+.synod-file-chip-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--text-faint);
+}
+
+.synod-file-chip-icon svg {
+  width: 11px;
+  height: 11px;
+}
+
+.synod-file-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ── Disconnected / empty state ────────────────────────────── */
+
+.synod-panel-disconnected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 16px 20px;
+  text-align: center;
+}
+
+.synod-panel-disconnected-icon {
+  color: var(--text-faint);
+  opacity: 0.5;
+}
+
+.synod-panel-disconnected-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.synod-panel-disconnected-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 22ch;
+}
+
+.synod-panel-connect-btn {
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 999px;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  cursor: pointer;
+}
+
+.synod-panel-connect-btn:hover {
+  background: var(--interactive-accent-hover);
+}
+
+/* ============================================================
+
+   Active Editor Banner
+   ============================================================ */
+
+.synod-active-editors-banner {
+  display: none;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 8px 4px 10px;
+  background: color-mix(in srgb, var(--background-modifier-border) 40%, var(--background-primary));
+  border-bottom: 1px solid var(--background-modifier-border);
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+
+.synod-active-editors-banner.is-visible { display: flex; }
+.synod-active-editors-banner.is-dismissed { display: none !important; }
+
+.synod-active-editors-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+.synod-active-editors-avatars {
+  display: flex;
+  align-items: center;
+  gap: -4px; /* stacked via negative margin on children */
+  flex: 1;
+}
+
+.synod-active-editors-avatar,
+.synod-active-editors-avatar-fallback {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-left: -4px;
+  border: 2px solid var(--background-primary);
+}
+
+.synod-active-editors-avatar {
+  object-fit: cover;
+}
+
+.synod-active-editors-avatar:first-child,
+.synod-active-editors-avatar-fallback:first-child {
+  margin-left: 0;
+}
+
+.synod-active-editors-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--text-muted);
+}
+
+.synod-active-editors-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint);
+  padding: 0;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.synod-active-editors-dismiss svg {
+  width: 12px;
+  height: 12px;
+}
+
+.synod-active-editors-dismiss:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-muted);
+}
+
+/* ============================================================
+
+   Scrollbar Cursor Markers
+   ============================================================ */
+
+.synod-scrollbar-markers {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 6px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.synod-scrollbar-marker {
+  position: absolute;
+  right: 0;
+  width: 6px;
+  height: 3px;
+  border-radius: 1px;
+  transform: translateY(-50%);
+}
+
+/* ============================================================
+
+   Claim Badge in File Tree
+   ============================================================ */
+
+.synod-claim-badge {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 7px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  z-index: 1;
+}
+
+.nav-file-title.has-synod-claim {
+  padding-right: 22px;
+}
+
+/* When both avatars and a claim badge are present */
+.nav-file-title.has-synod-avatars.has-synod-claim {
+  padding-right: 100px;
+}
+
+/* ============================================================
+   Accessibility — reduced motion additions
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .synod-reconnect-dots {
+    animation: none;
+  }
+}
