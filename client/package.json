@@ -8,6 +8,7 @@
     "build:styles": "node scripts/build-styles.mjs",
     "build": "npm run build:styles && node esbuild.config.mjs",
     "dev": "npm run build:styles && node esbuild.config.mjs dev",
+    "test:canvas-sync": "node scripts/test-canvas-sync.mjs",
     "check:brat": "node scripts/check-brat.mjs",
     "build:checksums": "node scripts/build-checksums.mjs",
     "build:brat": "npm run build && npm run check:brat",

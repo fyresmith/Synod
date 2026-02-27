@@ -2,6 +2,18 @@ import * as vault from '../../vaultManager.js';
 import { isAllowedPath, rejectPath, respond } from '../utils.js';
 
 export function registerFileCrudHandlers(io, socket, user, getActiveRooms, forceCloseRoom) {
+  const rejectActiveCanvasWrite = (relPath, cb) => {
+    const docName = encodeURIComponent(relPath);
+    if (!String(relPath).toLowerCase().endsWith('.canvas')) return false;
+    if (!getActiveRooms().has(docName)) return false;
+    respond(cb, {
+      ok: false,
+      code: 'canvas_collab_active',
+      error: 'Live canvas collaboration is active for this file. Please upgrade your client.',
+    });
+    return true;
+  };
+
   socket.on('file-read', async (relPath, cb) => {
     if (!isAllowedPath(relPath)) {
       rejectPath(cb, relPath);
@@ -24,6 +36,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
       rejectPath(cb, relPath);
       return;
     }
+    if (rejectActiveCanvasWrite(relPath, cb)) return;
     try {
       await vault.writeFile(relPath, content);
       const hash = vault.hashContent(content);
@@ -43,6 +56,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
       rejectPath(cb, relPath);
       return;
     }
+    if (rejectActiveCanvasWrite(relPath, cb)) return;
     try {
       await vault.writeFile(relPath, content);
       socket.broadcast.emit('file-created', { relPath, user });

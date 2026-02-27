@@ -1,9 +1,9 @@
-import { readFileSync } from 'fs';
 import * as vault from '../vaultManager.js';
 import { docs, getYDoc, setupWSConnection } from './shared.js';
 import { getOrCreateRoomState } from './roomStateStore.js';
 import { observeRoom } from './persistence.js';
 import { trackRoomClient } from './lifecycle.js';
+import { getCodecByKind, resolveRoomKind } from './codecs/index.js';
 
 export function registerConnectionHandler(wss) {
   // Auth is verified in the HTTP upgrade handler (activateRealtime.js) before
@@ -35,26 +35,39 @@ export function registerConnectionHandler(wss) {
       return;
     }
 
+    const kind = resolveRoomKind(relPath);
+    if (!kind) {
+      conn.close(4006, 'Unsupported room type');
+      return;
+    }
+    const codec = getCodecByKind(kind);
+    if (!codec) {
+      conn.close(4006, 'Unsupported room type');
+      return;
+    }
+
     const isNewRoom = !docs.has(rawDocName);
 
     if (isNewRoom) {
       const ydoc = getYDoc(rawDocName, true);
-      const yText = ydoc.getText('content');
-      if (yText.length === 0) {
+      try {
+        codec.hydrateFromDisk(ydoc, relPath);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error(`[yjs] Room bootstrap error (${relPath}): ${message}`);
+        docs.delete(rawDocName);
         try {
-          const absPath = vault.safePath(relPath);
-          const content = readFileSync(absPath, 'utf-8');
-          if (content) {
-            yText.insert(0, content);
-          }
+          ydoc.destroy();
         } catch {
-          // File doesn't exist yet — start with empty document
+          // ignore destroy failures
         }
+        conn.close(4005, 'Invalid room payload');
+        return;
       }
     }
 
     setupWSConnection(conn, req, { docName: rawDocName, gc: true });
-    const state = getOrCreateRoomState(rawDocName, relPath);
+    const state = getOrCreateRoomState(rawDocName, relPath, kind, codec);
     observeRoom(state);
     trackRoomClient(state, conn);
 

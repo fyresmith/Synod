@@ -40,7 +40,11 @@ export class SocketClient {
       const callback = (res: any) => {
         clearTimeout(timer);
         if (res?.ok === false) {
-          reject(new Error(res.error ?? 'Server error'));
+          const err = new Error(res.error ?? 'Server error') as Error & { code?: string };
+          if (typeof res.code === 'string') {
+            err.code = res.code;
+          }
+          reject(err);
         } else {
           resolve(res as T);
         }

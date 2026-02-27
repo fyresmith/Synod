@@ -12,11 +12,12 @@ export async function flushRoomState(state) {
       state.dirty = false;
       const ydoc = docs.get(state.docName);
       if (!ydoc) break;
+      if (!state.codec) break;
 
-      const text = ydoc.getText('content').toString();
+      const serialized = state.codec.serialize(ydoc);
       try {
-        await vault.writeFile(state.relPath, text);
-        const hash = vault.hashContent(text);
+        await vault.writeFile(state.relPath, serialized);
+        const hash = vault.hashContent(serialized);
         state.lastPersistAt = Date.now();
         state.lastPersistHash = hash;
         state.lastPersistError = null;
@@ -48,9 +49,10 @@ export function observeRoom(state) {
   if (state.observed) return;
   const ydoc = docs.get(state.docName);
   if (!ydoc) return;
+  if (!state.codec) return;
 
   state.observed = true;
-  ydoc.getText('content').observe(() => {
+  state.codec.observe(state, ydoc, () => {
     if (state.closed) return;
     scheduleRoomPersist(state);
   });

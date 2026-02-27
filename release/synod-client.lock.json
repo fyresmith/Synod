@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-02-27T00:23:05.283Z",
+  "generatedAt": "2026-02-27T20:52:02.986Z",
   "source": {
     "workspace": "client",
     "packageName": "@fyresmith/synod-client"
@@ -13,8 +13,8 @@
   "artifacts": {
     "mainJs": {
       "path": "artifacts/synod-client/1.0.0/main.js",
-      "sha256": "49def72893c29ac73dcd6004c7fb94001d6b0165ea00c86e63c330cd099e07be",
-      "sizeBytes": 522036
+      "sha256": "ab3fa08f0156b3b724513d1d527dde6d6b218b69dc35d60e6b96898f4832882b",
+      "sizeBytes": 554001
     },
     "manifestJson": {
       "path": "artifacts/synod-client/1.0.0/manifest.json",
@@ -23,8 +23,8 @@
     },
     "stylesCss": {
       "path": "artifacts/synod-client/1.0.0/styles.css",
-      "sha256": "8ba25b9e05d7ddae25975a729c8ace2a4e1ed9fbce2f11d249f3acac0eb35b2f",
-      "sizeBytes": 23568
+      "sha256": "9bb4f59237a342814d3e7d7771919dd46b715e06fee1e3f4c4d3647d82cce4ec",
+      "sizeBytes": 25192
     }
   }
 }

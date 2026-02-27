@@ -1,6 +1,6 @@
 import { roomStates } from './state.js';
 
-export function getOrCreateRoomState(docName, relPath) {
+export function getOrCreateRoomState(docName, relPath, kind, codec) {
   let state = roomStates.get(docName);
   if (!state) {
     state = {
@@ -16,10 +16,14 @@ export function getOrCreateRoomState(docName, relPath) {
       lastPersistAt: null,
       lastPersistHash: null,
       lastPersistError: null,
+      kind,
+      codec,
     };
     roomStates.set(docName, state);
   } else {
     state.relPath = relPath;
+    state.kind = kind;
+    state.codec = codec;
   }
   return state;
 }

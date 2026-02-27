@@ -6,6 +6,9 @@
 import 'dotenv/config';
 import { io } from 'socket.io-client';
 import jwt from 'jsonwebtoken';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+import { loadManagedState } from './lib/managedState.js';
 
 const SERVER_URL = `http://localhost:${process.env.PORT ?? 3000}`;
 
@@ -32,9 +35,9 @@ function makeToken(overrides = {}) {
 }
 
 /** Connect a socket and return it. */
-function connect(token) {
+function connect(token, vaultId) {
   return io(SERVER_URL, {
-    auth: { token },
+    auth: { token, vaultId },
     reconnection: false,
   });
 }
@@ -43,11 +46,16 @@ function connect(token) {
 function req(socket, event, data) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(`Timeout: ${event}`)), 8000);
-    const cb = (res) => {
-      clearTimeout(timer);
-      if (res?.ok === false) reject(new Error(res.error ?? 'Server error'));
-      else resolve(res);
-    };
+      const cb = (res) => {
+        clearTimeout(timer);
+        if (res?.ok === false) {
+          const err = new Error(res.error ?? 'Server error');
+          if (typeof res.code === 'string') err.code = res.code;
+          reject(err);
+          return;
+        }
+        else resolve(res);
+      };
     if (data !== undefined) socket.emit(event, data, cb);
     else socket.emit(event, cb);
   });
@@ -61,19 +69,47 @@ function waitFor(socket, event, timeoutMs = 5000) {
 }
 
 const TEST_FILE = '_socket-test/hello.md';
+const TEST_CANVAS_FILE = '_socket-test/hello.canvas';
 const TEST_CONTENT = `# Socket Test\n\nCreated at ${new Date().toISOString()}`;
 const UPDATED_CONTENT = `# Socket Test\n\nUpdated at ${new Date().toISOString()}`;
+const CANVAS_CONTENT = {
+  nodes: [{ id: 'n1', type: 'text', text: 'hello', x: 0, y: 0 }],
+  edges: [],
+};
+
+function serverToWsUrl(serverUrl) {
+  return serverUrl
+    .replace(/^https:\/\//, 'wss://')
+    .replace(/^http:\/\//, 'ws://');
+}
+
+async function waitForProviderSync(provider, timeoutMs = 8000) {
+  if (provider.synced) return;
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Timeout waiting for provider sync')), timeoutMs);
+    provider.on('sync', (isSynced) => {
+      if (!isSynced) return;
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
 
 async function run() {
   console.log(`\n=== Socket.IO Tests ===`);
   console.log(`Server: ${SERVER_URL}\n`);
+  const managedState = await loadManagedState(process.env.VAULT_PATH);
+  if (!managedState?.vaultId) {
+    throw new Error('Managed vault state missing: cannot run socket tests without vaultId');
+  }
+  const vaultId = managedState.vaultId;
 
   // -------------------------------------------------------------------------
   // Auth rejection
   // -------------------------------------------------------------------------
   console.log('[ Auth ]');
   await new Promise((resolve) => {
-    const bad = connect('not-a-valid-token');
+    const bad = connect('not-a-valid-token', vaultId);
     bad.on('connect_error', (err) => {
       assert('rejects invalid token', err.message.includes('Invalid token') || err.message.includes('invalid'));
       bad.disconnect();
@@ -92,7 +128,7 @@ async function run() {
   // -------------------------------------------------------------------------
   console.log('\n[ Connect ]');
   const token = makeToken();
-  const clientA = connect(token);
+  const clientA = connect(token, vaultId);
 
   await new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('connect timeout')), 8000);
@@ -119,7 +155,7 @@ async function run() {
   // -------------------------------------------------------------------------
   console.log('\n[ file-create + broadcast ]');
   const tokenB = makeToken({ id: '987654321', username: 'observer' });
-  const clientB = connect(tokenB);
+  const clientB = connect(tokenB, vaultId);
   await new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('clientB connect timeout')), 8000);
     clientB.on('connect', () => { clearTimeout(t); resolve(); });
@@ -133,6 +169,16 @@ async function run() {
     assert('file-create succeeds', res.ok === true);
   } catch (err) {
     assert('file-create succeeds', false, err.message);
+  }
+
+  try {
+    const res = await req(clientA, 'file-create', {
+      relPath: TEST_CANVAS_FILE,
+      content: `${JSON.stringify(CANVAS_CONTENT, null, 2)}\n`,
+    });
+    assert('canvas file-create succeeds', res.ok === true);
+  } catch (err) {
+    assert('canvas file-create succeeds', false, err.message);
   }
 
   try {
@@ -173,6 +219,48 @@ async function run() {
     assert('file-updated broadcasts to other clients', broadcast.relPath === TEST_FILE);
   } catch (err) {
     assert('file-updated broadcasts to other clients', false, err.message);
+  }
+
+  // -------------------------------------------------------------------------
+  // canvas file-write (inactive room)
+  // -------------------------------------------------------------------------
+  console.log('\n[ canvas file-write (inactive room) ]');
+  try {
+    const updated = {
+      ...CANVAS_CONTENT,
+      nodes: [...CANVAS_CONTENT.nodes, { id: 'n2', type: 'text', text: 'world', x: 120, y: 40 }],
+    };
+    const res = await req(clientA, 'file-write', {
+      relPath: TEST_CANVAS_FILE,
+      content: `${JSON.stringify(updated, null, 2)}\n`,
+    });
+    assert('canvas file-write succeeds when room inactive', typeof res.hash === 'string');
+  } catch (err) {
+    assert('canvas file-write succeeds when room inactive', false, err.message);
+  }
+
+  // -------------------------------------------------------------------------
+  // canvas file-write blocked while yjs room active
+  // -------------------------------------------------------------------------
+  console.log('\n[ canvas file-write blocked when room active ]');
+  const wsUrl = `${serverToWsUrl(SERVER_URL)}/yjs`;
+  const roomName = encodeURIComponent(TEST_CANVAS_FILE);
+  const ydoc = new Y.Doc();
+  const provider = new WebsocketProvider(wsUrl, roomName, ydoc, {
+    params: { token, vaultId },
+  });
+  try {
+    await waitForProviderSync(provider);
+    await req(clientA, 'file-write', {
+      relPath: TEST_CANVAS_FILE,
+      content: `${JSON.stringify({ ...CANVAS_CONTENT, nodes: [] }, null, 2)}\n`,
+    });
+    assert('canvas file-write rejects when room active', false, 'expected rejection');
+  } catch (err) {
+    assert('canvas file-write rejects when room active', err.code === 'canvas_collab_active', String(err.message));
+  } finally {
+    provider.destroy();
+    ydoc.destroy();
   }
 
   // -------------------------------------------------------------------------
@@ -218,7 +306,7 @@ async function run() {
   // file-delete (reconnect first)
   // -------------------------------------------------------------------------
   console.log('\n[ file-delete ]');
-  const clientC = connect(makeToken({ id: '111', username: 'cleaner' }));
+  const clientC = connect(makeToken({ id: '111', username: 'cleaner' }), vaultId);
   await new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('clientC connect timeout')), 8000);
     clientC.on('connect', () => { clearTimeout(t); resolve(); });
@@ -232,6 +320,13 @@ async function run() {
     assert('file-delete succeeds', res.ok === true);
   } catch (err) {
     assert('file-delete succeeds', false, err.message);
+  }
+
+  try {
+    const res = await req(clientC, 'file-delete', TEST_CANVAS_FILE);
+    assert('canvas file-delete succeeds', res.ok === true);
+  } catch (err) {
+    assert('canvas file-delete succeeds', false, err.message);
   }
 
   try {

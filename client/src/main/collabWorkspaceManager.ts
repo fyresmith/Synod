@@ -1,13 +1,25 @@
 import { App, MarkdownView, TFile, WorkspaceLeaf } from 'obsidian';
 import { CollabEditor } from '../collab-editor';
+import { CanvasCollabEditor } from '../canvas-collab';
+import type { CollabRoom } from '../collab-room';
 import { SynodUser } from '../types';
 import { getEditorMode } from '../obsidianInternal';
 
+type CollabFileKind = 'markdown' | 'canvas';
+
 interface CollabBinding {
   key: string;
+  kind: CollabFileKind;
   path: string;
   leaf: WorkspaceLeaf;
-  view: MarkdownView;
+  view: any;
+}
+
+interface OpenCollabLeaf {
+  kind: CollabFileKind;
+  leaf: WorkspaceLeaf;
+  view: any;
+  file: TFile;
 }
 
 interface CollabSessionConfig {
@@ -29,7 +41,7 @@ interface CollabWorkspaceManagerOptions {
 
 export class CollabWorkspaceManager {
   private collabBindings = new Map<string, CollabBinding>();
-  private collabRooms = new Map<string, CollabEditor>();
+  private collabRooms = new Map<string, CollabRoom>();
   private leafKeys = new WeakMap<WorkspaceLeaf, string>();
   private nextLeafKey = 1;
   private syncingOpenLeaves = false;
@@ -56,17 +68,21 @@ export class CollabWorkspaceManager {
     if (!leaf) return;
 
     const view = leaf.view;
-    if (!(view instanceof MarkdownView)) return;
-    if (!this.isSourceMode(view)) {
+    const file = (view as any)?.file as TFile | null;
+    if (!file) return;
+
+    if (this.isMarkdownView(view, file.path)) {
+      if (!this.isSourceMode(view)) {
+        this.scheduleOpenLeavesSync();
+        return;
+      }
       this.scheduleOpenLeavesSync();
       return;
     }
 
-    const file = view.file;
-    if (!file || !file.path.endsWith('.md')) return;
-    // Avoid per-event attach races while users switch tabs quickly.
-    // A single open-leaves sync pass is the source of truth.
-    this.scheduleOpenLeavesSync();
+    if (this.isCanvasView(view, file.path)) {
+      this.scheduleOpenLeavesSync();
+    }
   }
 
   handleLayoutChange(): void {
@@ -77,14 +93,14 @@ export class CollabWorkspaceManager {
   async syncOpenLeavesNow(): Promise<void> {
     if (!this.options.isSocketConnected()) return;
 
-    const openLeaves = this.getOpenMarkdownLeaves();
+    const openLeaves = this.getOpenCollabLeaves();
     const activeKeys = new Set<string>();
 
-    for (const { leaf, view, file } of openLeaves) {
-      const key = this.makeBindingKey(leaf, file.path);
+    for (const entry of openLeaves) {
+      const key = this.makeBindingKey(entry.leaf, entry.file.path);
       activeKeys.add(key);
       if (!this.collabBindings.has(key)) {
-        await this.attachCollabEditor(leaf, view, file);
+        await this.attachCollabRoom(entry);
       }
     }
 
@@ -174,51 +190,96 @@ export class CollabWorkspaceManager {
     return mode !== 'preview';
   }
 
-  private getOpenMarkdownLeaves(): Array<{ leaf: WorkspaceLeaf; view: MarkdownView; file: TFile }> {
-    const leaves: Array<{ leaf: WorkspaceLeaf; view: MarkdownView; file: TFile }> = [];
+  private isMarkdownView(view: any, path: string): view is MarkdownView {
+    if (!path.endsWith('.md')) return false;
+    return view instanceof MarkdownView;
+  }
+
+  private isCanvasView(view: any, path: string): boolean {
+    if (!path.endsWith('.canvas')) return false;
+    if (typeof view?.getViewType === 'function' && view.getViewType() !== 'canvas') return false;
+    return true;
+  }
+
+  private getOpenCollabLeaves(): OpenCollabLeaf[] {
+    const leaves: OpenCollabLeaf[] = [];
     this.options.app.workspace.iterateAllLeaves((leaf) => {
-      const view = leaf.view;
-      if (!(view instanceof MarkdownView)) return;
-      if (!this.isSourceMode(view)) return;
-      const file = view.file;
-      if (!file || !file.path.endsWith('.md')) return;
-      leaves.push({ leaf, view, file });
+      const view = leaf.view as any;
+      const file = view?.file;
+      if (!(file instanceof TFile)) return;
+
+      if (this.isMarkdownView(view, file.path)) {
+        if (!this.isSourceMode(view)) return;
+        leaves.push({ kind: 'markdown', leaf, view, file });
+        return;
+      }
+
+      if (this.isCanvasView(view, file.path)) {
+        leaves.push({ kind: 'canvas', leaf, view, file });
+      }
     });
     return leaves;
   }
 
-  private async attachCollabEditor(
-    leaf: WorkspaceLeaf,
-    view: MarkdownView,
-    file: TFile,
-  ): Promise<void> {
-    const config = this.options.getSessionConfig();
-    if (!config.token || !config.user) return;
-
-    const key = this.makeBindingKey(leaf, file.path);
-    if (this.collabBindings.has(key)) return;
-    const hadPathBinding = this.hasCollabPath(file.path);
-
-    let room = this.collabRooms.get(file.path);
-    if (!room) {
-      room = new CollabEditor(
+  private createRoom(kind: CollabFileKind, filePath: string, config: CollabSessionConfig): CollabRoom {
+    if (kind === 'markdown') {
+      return new CollabEditor(
         config.serverUrl,
         config.vaultId,
-        file.path,
-        config.user,
-        config.token,
+        filePath,
+        config.user!,
+        config.token!,
         config.cursorColor,
         config.useProfileForCursor,
       );
-      room.attach();
-      this.collabRooms.set(file.path, room);
     }
 
-    room.attachView(key, view);
-    this.collabBindings.set(key, { key, path: file.path, leaf, view });
+    return new CanvasCollabEditor(
+      config.serverUrl,
+      config.vaultId,
+      filePath,
+      config.user!,
+      config.token!,
+      config.cursorColor,
+      config.useProfileForCursor,
+    );
+  }
+
+  private async attachCollabRoom(entry: OpenCollabLeaf): Promise<void> {
+    const config = this.options.getSessionConfig();
+    if (!config.token || !config.user) return;
+
+    const key = this.makeBindingKey(entry.leaf, entry.file.path);
+    if (this.collabBindings.has(key)) return;
+
+    const hadPathBinding = this.hasCollabPath(entry.file.path);
+    let room = this.collabRooms.get(entry.file.path);
+    const createdRoom = !room;
+    if (!room) {
+      room = this.createRoom(entry.kind, entry.file.path, config);
+      room.attach();
+      this.collabRooms.set(entry.file.path, room);
+    }
+
+    room.attachView(key, entry.view);
+    if (room.isEmpty()) {
+      if (createdRoom) {
+        room.destroy();
+        this.collabRooms.delete(entry.file.path);
+      }
+      return;
+    }
+
+    this.collabBindings.set(key, {
+      key,
+      kind: entry.kind,
+      path: entry.file.path,
+      leaf: entry.leaf,
+      view: entry.view,
+    });
 
     if (!hadPathBinding && this.options.isSocketConnected()) {
-      this.options.onPresenceFileOpened(file.path);
+      this.options.onPresenceFileOpened(entry.file.path);
     }
   }
 

@@ -12,6 +12,7 @@ const PLUGIN_ASSET_ROOT = join(ROOT, 'assets', 'plugin', 'synod');
 const CLIENT_LOCK_VERIFY_SCRIPT = join(MONOREPO_ROOT, 'tools', 'synod-client', 'verify-lock.mjs');
 const PLUGIN_ASSET_FILES = ['main.js', 'manifest.json', 'styles.css'];
 const SMOKE_COMMANDS = [
+  ['node', ['scripts/test-canvas-codec.mjs']],
   ['node', ['bin/synod.js', '--help']],
   ['node', ['bin/synod.js', 'up', '--help']],
   ['node', ['bin/synod.js', 'down', '--help']],

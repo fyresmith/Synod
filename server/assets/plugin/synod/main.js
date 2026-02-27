@@ -36,9 +36,9 @@ __export(main_exports, {
 module.exports = __toCommonJS(main_exports);
 
 // src/plugin/SynodPlugin.ts
-var import_obsidian12 = require("obsidian");
+var import_obsidian13 = require("obsidian");
 
-// node_modules/engine.io-parser/build/esm/commons.js
+// ../node_modules/engine.io-parser/build/esm/commons.js
 var PACKET_TYPES = /* @__PURE__ */ Object.create(null);
 PACKET_TYPES["open"] = "0";
 PACKET_TYPES["close"] = "1";
@@ -53,7 +53,7 @@ Object.keys(PACKET_TYPES).forEach((key) => {
 });
 var ERROR_PACKET = { type: "error", data: "parser error" };
 
-// node_modules/engine.io-parser/build/esm/encodePacket.browser.js
+// ../node_modules/engine.io-parser/build/esm/encodePacket.browser.js
 var withNativeBlob = typeof Blob === "function" || typeof Blob !== "undefined" && Object.prototype.toString.call(Blob) === "[object BlobConstructor]";
 var withNativeArrayBuffer = typeof ArrayBuffer === "function";
 var isView = (obj) => {
@@ -107,7 +107,7 @@ function encodePacketToBinary(packet, callback) {
   });
 }
 
-// node_modules/engine.io-parser/build/esm/contrib/base64-arraybuffer.js
+// ../node_modules/engine.io-parser/build/esm/contrib/base64-arraybuffer.js
 var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 var lookup = typeof Uint8Array === "undefined" ? [] : new Uint8Array(256);
 for (let i = 0; i < chars.length; i++) {
@@ -134,7 +134,7 @@ var decode = (base64) => {
   return arraybuffer;
 };
 
-// node_modules/engine.io-parser/build/esm/decodePacket.browser.js
+// ../node_modules/engine.io-parser/build/esm/decodePacket.browser.js
 var withNativeArrayBuffer2 = typeof ArrayBuffer === "function";
 var decodePacket = (encodedPacket, binaryType) => {
   if (typeof encodedPacket !== "string") {
@@ -187,7 +187,7 @@ var mapBinary = (data, binaryType) => {
   }
 };
 
-// node_modules/engine.io-parser/build/esm/index.js
+// ../node_modules/engine.io-parser/build/esm/index.js
 var SEPARATOR = String.fromCharCode(30);
 var encodePayload = (packets, callback) => {
   const length2 = packets.length;
@@ -329,7 +329,7 @@ function createPacketDecoderStream(maxPayload, binaryType) {
 }
 var protocol = 4;
 
-// node_modules/@socket.io/component-emitter/lib/esm/index.js
+// ../node_modules/@socket.io/component-emitter/lib/esm/index.js
 function Emitter(obj) {
   if (obj) return mixin(obj);
 }
@@ -401,7 +401,7 @@ Emitter.prototype.hasListeners = function(event) {
   return !!this.listeners(event).length;
 };
 
-// node_modules/engine.io-client/build/esm/globals.js
+// ../node_modules/engine.io-client/build/esm/globals.js
 var nextTick = (() => {
   const isPromiseAvailable = typeof Promise === "function" && typeof Promise.resolve === "function";
   if (isPromiseAvailable) {
@@ -423,7 +423,7 @@ var defaultBinaryType = "arraybuffer";
 function createCookieJar() {
 }
 
-// node_modules/engine.io-client/build/esm/util.js
+// ../node_modules/engine.io-client/build/esm/util.js
 function pick(obj, ...attr) {
   return attr.reduce((acc, k) => {
     if (obj.hasOwnProperty(k)) {
@@ -471,7 +471,7 @@ function randomString() {
   return Date.now().toString(36).substring(3) + Math.random().toString(36).substring(2, 5);
 }
 
-// node_modules/engine.io-client/build/esm/contrib/parseqs.js
+// ../node_modules/engine.io-client/build/esm/contrib/parseqs.js
 function encode(obj) {
   let str = "";
   for (let i in obj) {
@@ -493,7 +493,7 @@ function decode2(qs) {
   return qry;
 }
 
-// node_modules/engine.io-client/build/esm/transport.js
+// ../node_modules/engine.io-client/build/esm/transport.js
 var TransportError = class extends Error {
   constructor(reason, description, context) {
     super(reason);
@@ -624,7 +624,7 @@ var Transport = class extends Emitter {
   }
 };
 
-// node_modules/engine.io-client/build/esm/transports/polling.js
+// ../node_modules/engine.io-client/build/esm/transports/polling.js
 var Polling = class extends Transport {
   constructor() {
     super(...arguments);
@@ -756,7 +756,7 @@ var Polling = class extends Transport {
   }
 };
 
-// node_modules/engine.io-client/build/esm/contrib/has-cors.js
+// ../node_modules/engine.io-client/build/esm/contrib/has-cors.js
 var value = false;
 try {
   value = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
@@ -764,7 +764,7 @@ try {
 }
 var hasCORS = value;
 
-// node_modules/engine.io-client/build/esm/transports/polling-xhr.js
+// ../node_modules/engine.io-client/build/esm/transports/polling-xhr.js
 function empty() {
 }
 var BaseXHR = class extends Polling {
@@ -1005,7 +1005,7 @@ function newRequest(opts) {
   }
 }
 
-// node_modules/engine.io-client/build/esm/transports/websocket.js
+// ../node_modules/engine.io-client/build/esm/transports/websocket.js
 var isReactNative = typeof navigator !== "undefined" && typeof navigator.product === "string" && navigator.product.toLowerCase() === "reactnative";
 var BaseWS = class extends Transport {
   get name() {
@@ -1099,7 +1099,7 @@ var WS = class extends BaseWS {
   }
 };
 
-// node_modules/engine.io-client/build/esm/transports/webtransport.js
+// ../node_modules/engine.io-client/build/esm/transports/webtransport.js
 var WT = class extends Transport {
   get name() {
     return "webtransport";
@@ -1162,14 +1162,14 @@ var WT = class extends Transport {
   }
 };
 
-// node_modules/engine.io-client/build/esm/transports/index.js
+// ../node_modules/engine.io-client/build/esm/transports/index.js
 var transports = {
   websocket: WS,
   webtransport: WT,
   polling: XHR
 };
 
-// node_modules/engine.io-client/build/esm/contrib/parseuri.js
+// ../node_modules/engine.io-client/build/esm/contrib/parseuri.js
 var re = /^(?:(?![^:@\/?#]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@\/?#]*)(?::([^:@\/?#]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
 var parts = [
   "source",
@@ -1229,7 +1229,7 @@ function queryKey(uri, query) {
   return data;
 }
 
-// node_modules/engine.io-client/build/esm/socket.js
+// ../node_modules/engine.io-client/build/esm/socket.js
 var withEventListeners = typeof addEventListener === "function" && typeof removeEventListener === "function";
 var OFFLINE_EVENT_LISTENERS = [];
 if (withEventListeners) {
@@ -1796,10 +1796,10 @@ var Socket = class extends SocketWithUpgrade {
   }
 };
 
-// node_modules/engine.io-client/build/esm/index.js
+// ../node_modules/engine.io-client/build/esm/index.js
 var protocol2 = Socket.protocol;
 
-// node_modules/socket.io-client/build/esm/url.js
+// ../node_modules/socket.io-client/build/esm/url.js
 function url(uri, path = "", loc) {
   let obj = uri;
   loc = loc || typeof location !== "undefined" && location;
@@ -1837,7 +1837,7 @@ function url(uri, path = "", loc) {
   return obj;
 }
 
-// node_modules/socket.io-parser/build/esm/index.js
+// ../node_modules/socket.io-parser/build/esm/index.js
 var esm_exports = {};
 __export(esm_exports, {
   Decoder: () => Decoder,
@@ -1847,7 +1847,7 @@ __export(esm_exports, {
   protocol: () => protocol3
 });
 
-// node_modules/socket.io-parser/build/esm/is-binary.js
+// ../node_modules/socket.io-parser/build/esm/is-binary.js
 var withNativeArrayBuffer3 = typeof ArrayBuffer === "function";
 var isView2 = (obj) => {
   return typeof ArrayBuffer.isView === "function" ? ArrayBuffer.isView(obj) : obj.buffer instanceof ArrayBuffer;
@@ -1884,7 +1884,7 @@ function hasBinary(obj, toJSON) {
   return false;
 }
 
-// node_modules/socket.io-parser/build/esm/binary.js
+// ../node_modules/socket.io-parser/build/esm/binary.js
 function deconstructPacket(packet) {
   const buffers = [];
   const packetData = packet.data;
@@ -1946,7 +1946,7 @@ function _reconstructPacket(data, buffers) {
   return data;
 }
 
-// node_modules/socket.io-parser/build/esm/index.js
+// ../node_modules/socket.io-parser/build/esm/index.js
 var RESERVED_EVENTS = [
   "connect",
   // used on the client side
@@ -2235,7 +2235,7 @@ function isPacketValid(packet) {
   return isNamespaceValid(packet.nsp) && isAckIdValid(packet.id) && isDataValid(packet.type, packet.data);
 }
 
-// node_modules/socket.io-client/build/esm/on.js
+// ../node_modules/socket.io-client/build/esm/on.js
 function on(obj, ev, fn) {
   obj.on(ev, fn);
   return function subDestroy() {
@@ -2243,7 +2243,7 @@ function on(obj, ev, fn) {
   };
 }
 
-// node_modules/socket.io-client/build/esm/socket.js
+// ../node_modules/socket.io-client/build/esm/socket.js
 var RESERVED_EVENTS2 = Object.freeze({
   connect: 1,
   connect_error: 1,
@@ -3016,7 +3016,7 @@ var Socket2 = class extends Emitter {
   }
 };
 
-// node_modules/socket.io-client/build/esm/contrib/backo2.js
+// ../node_modules/socket.io-client/build/esm/contrib/backo2.js
 function Backoff(opts) {
   opts = opts || {};
   this.ms = opts.min || 100;
@@ -3047,7 +3047,7 @@ Backoff.prototype.setJitter = function(jitter) {
   this.jitter = jitter;
 };
 
-// node_modules/socket.io-client/build/esm/manager.js
+// ../node_modules/socket.io-client/build/esm/manager.js
 var Manager = class extends Emitter {
   constructor(uri, opts) {
     var _a;
@@ -3397,7 +3397,7 @@ var Manager = class extends Emitter {
   }
 };
 
-// node_modules/socket.io-client/build/esm/index.js
+// ../node_modules/socket.io-client/build/esm/index.js
 var cache = {};
 function lookup2(uri, opts) {
   if (typeof uri === "object") {
@@ -3467,7 +3467,11 @@ var SocketClient = class {
         var _a;
         clearTimeout(timer);
         if ((res == null ? void 0 : res.ok) === false) {
-          reject(new Error((_a = res.error) != null ? _a : "Server error"));
+          const err = new Error((_a = res.error) != null ? _a : "Server error");
+          if (typeof res.code === "string") {
+            err.code = res.code;
+          }
+          reject(err);
         } else {
           resolve(res);
         }
@@ -3704,6 +3708,9 @@ var SyncEngine = class {
 
 // src/writeInterceptor.ts
 var import_obsidian = require("obsidian");
+function isCanvasCollabActiveError(err) {
+  return typeof err === "object" && err !== null && err.code === "canvas_collab_active";
+}
 var WriteInterceptor = class {
   constructor(socket, vault, syncEngine, getCollabPaths, offlineQueue) {
     this.socket = socket;
@@ -3750,6 +3757,10 @@ var WriteInterceptor = class {
       });
       this.syncEngine.fileCache.set(file.path, content);
     } catch (err) {
+      if (isCanvasCollabActiveError(err)) {
+        new import_obsidian.Notice("Synod: Live canvas collaboration is active; this client must use canvas CRDT mode.");
+        return;
+      }
       console.error(`[intercept] modify error (${file.path}):`, err);
       await this.revertFile(file, `Synod: Write failed \u2014 reverting. ${err.message}`);
     }
@@ -3772,6 +3783,10 @@ var WriteInterceptor = class {
       await this.socket.request("file-create", { relPath: file.path, content });
       this.syncEngine.fileCache.set(file.path, content);
     } catch (err) {
+      if (isCanvasCollabActiveError(err)) {
+        new import_obsidian.Notice("Synod: Live canvas collaboration is active; this client must use canvas CRDT mode.");
+        return;
+      }
       console.error(`[intercept] create error (${file.path}):`, err);
       new import_obsidian.Notice(`Synod: Create failed. ${err.message}`);
     }
@@ -5320,6 +5335,9 @@ async function flushOfflineQueue(socket, offlineQueue) {
         syncedPaths.add(op.newPath);
       }
     } catch (err) {
+      if (typeof err === "object" && err !== null && err.code === "canvas_collab_active") {
+        console.warn("[Synod] Offline replay blocked by active canvas collab room. Client upgrade required.");
+      }
       console.error(`[Synod] Failed to flush offline op (${op.type}):`, err);
       const failedOps = [op];
       const remainingOps = ops.slice(i + 1);
@@ -5559,7 +5577,7 @@ function bindPluginSocketHandlers(options) {
 }
 
 // src/plugin/runtime/managedRuntimeSetup.ts
-var import_obsidian11 = require("obsidian");
+var import_obsidian12 = require("obsidian");
 
 // src/offline-guard/inputBlocker.ts
 function createInputBlocker(isLocked, modalId) {
@@ -5736,9 +5754,9 @@ var OfflineGuard = class {
 };
 
 // src/main/collabWorkspaceManager.ts
-var import_obsidian10 = require("obsidian");
+var import_obsidian11 = require("obsidian");
 
-// node_modules/lib0/map.js
+// ../node_modules/lib0/map.js
 var create = () => /* @__PURE__ */ new Map();
 var copy = (m) => {
   const r = create();
@@ -5770,10 +5788,10 @@ var any = (m, f) => {
   return false;
 };
 
-// node_modules/lib0/set.js
+// ../node_modules/lib0/set.js
 var create2 = () => /* @__PURE__ */ new Set();
 
-// node_modules/lib0/array.js
+// ../node_modules/lib0/array.js
 var last = (arr) => arr[arr.length - 1];
 var appendTo = (dest, src) => {
   for (let i = 0; i < src.length; i++) {
@@ -5806,7 +5824,7 @@ var unfold = (len, f) => {
 };
 var isArray = Array.isArray;
 
-// node_modules/lib0/observable.js
+// ../node_modules/lib0/observable.js
 var ObservableV2 = class {
   constructor() {
     this._observers = create();
@@ -5928,7 +5946,7 @@ var Observable = class {
   }
 };
 
-// node_modules/lib0/math.js
+// ../node_modules/lib0/math.js
 var floor = Math.floor;
 var abs = Math.abs;
 var min = (a, b) => a < b ? a : b;
@@ -5937,7 +5955,7 @@ var isNaN = Number.isNaN;
 var pow = Math.pow;
 var isNegativeZero = (n) => n !== 0 ? n < 0 : 1 / n < 0;
 
-// node_modules/lib0/binary.js
+// ../node_modules/lib0/binary.js
 var BIT1 = 1;
 var BIT2 = 2;
 var BIT3 = 4;
@@ -5979,7 +5997,7 @@ var BITS29 = BIT30 - 1;
 var BITS30 = BIT31 - 1;
 var BITS31 = 2147483647;
 
-// node_modules/lib0/number.js
+// ../node_modules/lib0/number.js
 var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER;
 var MIN_SAFE_INTEGER = Number.MIN_SAFE_INTEGER;
 var LOWEST_INT32 = 1 << 31;
@@ -5987,7 +6005,7 @@ var isInteger2 = Number.isInteger || ((num) => typeof num === "number" && isFini
 var isNaN2 = Number.isNaN;
 var parseInt2 = Number.parseInt;
 
-// node_modules/lib0/string.js
+// ../node_modules/lib0/string.js
 var fromCharCode = String.fromCharCode;
 var fromCodePoint = String.fromCodePoint;
 var MAX_UTF16_CHARACTER = fromCharCode(65535);
@@ -6018,7 +6036,7 @@ if (utf8TextDecoder && utf8TextDecoder.decode(new Uint8Array()).length === 1) {
 }
 var repeat = (source, n) => unfold(n, () => source).join("");
 
-// node_modules/lib0/encoding.js
+// ../node_modules/lib0/encoding.js
 var Encoder2 = class {
   constructor() {
     this.cpos = 0;
@@ -6325,7 +6343,7 @@ var StringEncoder = class {
   }
 };
 
-// node_modules/lib0/error.js
+// ../node_modules/lib0/error.js
 var create3 = (s) => new Error(s);
 var methodUnimplemented = () => {
   throw create3("Method unimplemented");
@@ -6334,7 +6352,7 @@ var unexpectedCase = () => {
   throw create3("Unexpected case");
 };
 
-// node_modules/lib0/decoding.js
+// ../node_modules/lib0/decoding.js
 var errorUnexpectedEndOfArray = create3("Unexpected end of array");
 var errorIntegerOutOfRange = create3("Integer out of Range");
 var Decoder2 = class {
@@ -6577,11 +6595,11 @@ var StringDecoder = class {
   }
 };
 
-// node_modules/lib0/webcrypto.js
+// ../node_modules/lib0/webcrypto.js
 var subtle = crypto.subtle;
 var getRandomValues = crypto.getRandomValues.bind(crypto);
 
-// node_modules/lib0/random.js
+// ../node_modules/lib0/random.js
 var uint32 = () => getRandomValues(new Uint32Array(1))[0];
 var uuidv4Template = "10000000-1000-4000-8000" + -1e11;
 var uuidv4 = () => uuidv4Template.replace(
@@ -6590,20 +6608,20 @@ var uuidv4 = () => uuidv4Template.replace(
   (c) => (c ^ uint32() & 15 >> c / 4).toString(16)
 );
 
-// node_modules/lib0/time.js
+// ../node_modules/lib0/time.js
 var getUnixTime = Date.now;
 
-// node_modules/lib0/promise.js
+// ../node_modules/lib0/promise.js
 var create4 = (f) => (
   /** @type {Promise<T>} */
   new Promise(f)
 );
 var all = Promise.all.bind(Promise);
 
-// node_modules/lib0/conditions.js
+// ../node_modules/lib0/conditions.js
 var undefinedToNull = (v) => v === void 0 ? null : v;
 
-// node_modules/lib0/storage.js
+// ../node_modules/lib0/storage.js
 var VarStoragePolyfill = class {
   constructor() {
     this.map = /* @__PURE__ */ new Map();
@@ -6643,14 +6661,14 @@ var offChange = (eventHandler) => usePolyfill || removeEventListener(
   eventHandler
 );
 
-// node_modules/lib0/trait/equality.js
+// ../node_modules/lib0/trait/equality.js
 var EqualityTraitSymbol = Symbol("Equality");
 var equals = (a, b) => {
   var _a;
   return a === b || !!((_a = a == null ? void 0 : a[EqualityTraitSymbol]) == null ? void 0 : _a.call(a, b)) || false;
 };
 
-// node_modules/lib0/object.js
+// ../node_modules/lib0/object.js
 var isObject2 = (o) => typeof o === "object";
 var assign = Object.assign;
 var keys = Object.keys;
@@ -6694,7 +6712,7 @@ var deepFreeze = (o) => {
   return freeze(o);
 };
 
-// node_modules/lib0/function.js
+// ../node_modules/lib0/function.js
 var callAll = (fs, args2, i = 0) => {
   try {
     for (; i < fs.length; i++) {
@@ -6782,7 +6800,7 @@ var equalityDeep = (a, b) => {
 };
 var isOneOf = (value2, options) => options.includes(value2);
 
-// node_modules/lib0/environment.js
+// ../node_modules/lib0/environment.js
 var isNode = typeof process !== "undefined" && process.release && /node|io\.js/.test(process.release.name) && Object.prototype.toString.call(typeof process !== "undefined" ? process : 0) === "[object process]";
 var isBrowser = typeof window !== "undefined" && typeof document !== "undefined" && !isNode;
 var isMac = typeof navigator !== "undefined" ? /Mac/.test(navigator.platform) : false;
@@ -6836,7 +6854,7 @@ var forceColor = isNode && isOneOf(process.env.FORCE_COLOR, ["true", "1", "2"]);
 var supportsColor = forceColor || !hasParam("--no-colors") && // @todo deprecate --no-colors
 !hasConf("no-color") && (!isNode || process.stdout.isTTY) && (!isNode || hasParam("--color") || getVariable("COLORTERM") !== null || (getVariable("TERM") || "").includes("color"));
 
-// node_modules/lib0/buffer.js
+// ../node_modules/lib0/buffer.js
 var createUint8ArrayFromLen = (len) => new Uint8Array(len);
 var createUint8ArrayViewFromArrayBuffer = (buffer, byteOffset, length2) => new Uint8Array(buffer, byteOffset, length2);
 var createUint8ArrayFromArrayBuffer = (buffer) => new Uint8Array(buffer);
@@ -6868,7 +6886,7 @@ var copyUint8Array = (uint8Array) => {
   return newBuf;
 };
 
-// node_modules/lib0/pair.js
+// ../node_modules/lib0/pair.js
 var Pair = class {
   /**
    * @param {L} left
@@ -6882,7 +6900,7 @@ var Pair = class {
 var create5 = (left, right) => new Pair(left, right);
 var forEach2 = (arr, f) => arr.forEach((p) => f(p.left, p.right));
 
-// node_modules/lib0/prng.js
+// ../node_modules/lib0/prng.js
 var bool = (gen) => gen.next() >= 0.5;
 var int53 = (gen, min2, max2) => floor(gen.next() * (max2 + 1 - min2) + min2);
 var int32 = (gen, min2, max2) => floor(gen.next() * (max2 + 1 - min2) + min2);
@@ -6898,7 +6916,7 @@ var word = (gen, minLen = 0, maxLen = 20) => {
 };
 var oneOf = (gen, array) => array[int31(gen, 0, array.length - 1)];
 
-// node_modules/lib0/schema.js
+// ../node_modules/lib0/schema.js
 var schemaSymbol = Symbol("0schema");
 var ValidationError = class {
   constructor() {
@@ -7635,7 +7653,7 @@ var random = (gen, schema) => (
   _random($(schema), gen)
 );
 
-// node_modules/lib0/dom.js
+// ../node_modules/lib0/dom.js
 var doc = (
   /** @type {Document} */
   typeof document !== "undefined" ? document : {}
@@ -7686,10 +7704,10 @@ var DOCUMENT_TYPE_NODE = doc.DOCUMENT_TYPE_NODE;
 var DOCUMENT_FRAGMENT_NODE = doc.DOCUMENT_FRAGMENT_NODE;
 var $node = $custom((el) => el.nodeType === DOCUMENT_NODE);
 
-// node_modules/lib0/symbol.js
+// ../node_modules/lib0/symbol.js
 var create6 = Symbol;
 
-// node_modules/lib0/logging.common.js
+// ../node_modules/lib0/logging.common.js
 var BOLD = create6();
 var UNBOLD = create6();
 var BLUE = create6();
@@ -7732,7 +7750,7 @@ var computeNoColorLoggingArgs = (args2) => {
 };
 var lastLoggingTime = getUnixTime();
 
-// node_modules/lib0/logging.js
+// ../node_modules/lib0/logging.js
 var _browserStyleMap = {
   [BOLD]: create5("font-weight", "bold"),
   [UNBOLD]: create5("font-weight", "normal"),
@@ -7803,7 +7821,7 @@ var warn = (...args2) => {
 };
 var vconsoles = create2();
 
-// node_modules/lib0/iterator.js
+// ../node_modules/lib0/iterator.js
 var createIterator = (next) => ({
   /**
    * @return {IterableIterator<T>}
@@ -7826,7 +7844,7 @@ var iteratorMap = (iterator, fmap) => createIterator(() => {
   return { done, value: done ? void 0 : fmap(value2) };
 });
 
-// node_modules/yjs/dist/yjs.mjs
+// ../node_modules/yjs/dist/yjs.mjs
 var DeleteItem = class {
   /**
    * @param {number} clock
@@ -14855,7 +14873,7 @@ if (glo[importIdentifier] === true) {
 }
 glo[importIdentifier] = true;
 
-// node_modules/lib0/broadcastchannel.js
+// ../node_modules/lib0/broadcastchannel.js
 var channels = /* @__PURE__ */ new Map();
 var LocalStoragePolyfill = class {
   /**
@@ -14906,7 +14924,7 @@ var publish = (room, data, origin = null) => {
   c.subs.forEach((sub) => sub(data, origin));
 };
 
-// node_modules/y-protocols/sync.js
+// ../node_modules/y-protocols/sync.js
 var messageYjsSyncStep1 = 0;
 var messageYjsSyncStep2 = 1;
 var messageYjsUpdate = 2;
@@ -14954,7 +14972,7 @@ var readSyncMessage = (decoder, encoder, doc2, transactionOrigin, errorHandler) 
   return messageType;
 };
 
-// node_modules/y-protocols/auth.js
+// ../node_modules/y-protocols/auth.js
 var messagePermissionDenied = 0;
 var readAuthMessage = (decoder, y, permissionDeniedHandler2) => {
   switch (readVarUint(decoder)) {
@@ -14963,7 +14981,7 @@ var readAuthMessage = (decoder, y, permissionDeniedHandler2) => {
   }
 };
 
-// node_modules/y-protocols/awareness.js
+// ../node_modules/y-protocols/awareness.js
 var outdatedTimeout = 3e4;
 var Awareness = class extends Observable {
   /**
@@ -15165,10 +15183,10 @@ var applyAwarenessUpdate = (awareness, update, origin) => {
   }
 };
 
-// node_modules/lib0/url.js
+// ../node_modules/lib0/url.js
 var encodeQueryParams = (params2) => map2(params2, (val, key) => `${encodeURIComponent(key)}=${encodeURIComponent(val)}`).join("&");
 
-// node_modules/y-websocket/src/y-websocket.js
+// ../node_modules/y-websocket/src/y-websocket.js
 var messageSync = 0;
 var messageQueryAwareness = 3;
 var messageAwareness = 1;
@@ -15512,11 +15530,11 @@ var WebsocketProvider = class extends Observable {
   }
 };
 
-// node_modules/y-codemirror.next/src/index.js
+// ../node_modules/y-codemirror.next/src/index.js
 var cmView4 = __toESM(require("@codemirror/view"), 1);
 var cmState4 = __toESM(require("@codemirror/state"), 1);
 
-// node_modules/y-codemirror.next/src/y-range.js
+// ../node_modules/y-codemirror.next/src/y-range.js
 var YRange = class _YRange {
   /**
    * @param {Y.RelativePosition} yanchor
@@ -15544,7 +15562,7 @@ var YRange = class _YRange {
   }
 };
 
-// node_modules/y-codemirror.next/src/y-sync.js
+// ../node_modules/y-codemirror.next/src/y-sync.js
 var cmState = __toESM(require("@codemirror/state"), 1);
 var cmView = __toESM(require("@codemirror/view"), 1);
 var YSyncConfig = class {
@@ -15681,7 +15699,7 @@ var YSyncPluginValue = class {
 };
 var ySync = cmView.ViewPlugin.fromClass(YSyncPluginValue);
 
-// node_modules/y-codemirror.next/src/y-remote-selections.js
+// ../node_modules/y-codemirror.next/src/y-remote-selections.js
 var cmView2 = __toESM(require("@codemirror/view"), 1);
 var cmState2 = __toESM(require("@codemirror/state"), 1);
 var yRemoteSelectionsTheme = cmView2.EditorView.baseTheme({
@@ -15908,11 +15926,11 @@ var yRemoteSelections = cmView2.ViewPlugin.fromClass(YRemoteSelectionsPluginValu
   decorations: (v) => v.decorations
 });
 
-// node_modules/y-codemirror.next/src/y-undomanager.js
+// ../node_modules/y-codemirror.next/src/y-undomanager.js
 var cmState3 = __toESM(require("@codemirror/state"), 1);
 var cmView3 = __toESM(require("@codemirror/view"), 1);
 
-// node_modules/lib0/mutex.js
+// ../node_modules/lib0/mutex.js
 var createMutex = () => {
   let token = true;
   return (f, g) => {
@@ -15929,7 +15947,7 @@ var createMutex = () => {
   };
 };
 
-// node_modules/y-codemirror.next/src/y-undomanager.js
+// ../node_modules/y-codemirror.next/src/y-undomanager.js
 var YUndoManagerConfig = class {
   /**
    * @param {Y.UndoManager} undoManager
@@ -16025,7 +16043,7 @@ var yUndoManagerKeymap = [
   { key: "Mod-Shift-z", run: redo, preventDefault: true }
 ];
 
-// node_modules/y-codemirror.next/src/index.js
+// ../node_modules/y-codemirror.next/src/index.js
 var yCollab = (ytext, awareness, { undoManager = new UndoManager(ytext) } = {}) => {
   const ySyncConfig = new YSyncConfig(ytext, awareness);
   const plugins = [
@@ -16730,6 +16748,856 @@ var CollabEditor = class {
   }
 };
 
+// src/canvas-collab/index.ts
+var import_obsidian10 = require("obsidian");
+
+// src/canvas-collab/snapshot.ts
+function isPlainObject(value2) {
+  return !!value2 && typeof value2 === "object" && !Array.isArray(value2);
+}
+function normalizeValue(value2) {
+  if (Array.isArray(value2)) {
+    return value2.map((item) => normalizeValue(item));
+  }
+  if (isPlainObject(value2)) {
+    const out = {};
+    const keys2 = Object.keys(value2).sort();
+    for (const key of keys2) {
+      out[key] = normalizeValue(value2[key]);
+    }
+    return out;
+  }
+  return value2;
+}
+function normalizeEntities(source) {
+  if (!Array.isArray(source)) return [];
+  const entities = [];
+  for (const entry of source) {
+    if (!isPlainObject(entry)) continue;
+    if (typeof entry.id !== "string" || !entry.id.trim()) continue;
+    entities.push(normalizeValue(entry));
+  }
+  entities.sort((a, b) => a.id.localeCompare(b.id));
+  return entities;
+}
+function extractMeta(raw) {
+  const meta = {};
+  for (const [key, value2] of Object.entries(raw)) {
+    if (key === "nodes" || key === "edges") continue;
+    if (key === "meta" && isPlainObject(value2)) {
+      for (const [innerKey, innerValue] of Object.entries(value2)) {
+        meta[innerKey] = normalizeValue(innerValue);
+      }
+      continue;
+    }
+    meta[key] = normalizeValue(value2);
+  }
+  return meta;
+}
+function canonicalizeCanvasData(raw) {
+  if (!isPlainObject(raw)) {
+    return { nodes: [], edges: [], meta: {} };
+  }
+  return {
+    nodes: normalizeEntities(raw.nodes),
+    edges: normalizeEntities(raw.edges),
+    meta: extractMeta(raw)
+  };
+}
+function stableSnapshotString(snapshot) {
+  const payload = {
+    nodes: snapshot.nodes,
+    edges: snapshot.edges,
+    meta: snapshot.meta
+  };
+  return JSON.stringify(payload);
+}
+
+// src/canvas-collab/sync.ts
+function toYValue(value2) {
+  if (Array.isArray(value2)) {
+    const yArray = new YArray();
+    yArray.push(value2.map((item) => toYValue(item)));
+    return yArray;
+  }
+  if (value2 && typeof value2 === "object") {
+    const yMap = new YMap();
+    for (const [key, inner] of Object.entries(value2)) {
+      yMap.set(key, toYValue(inner));
+    }
+    return yMap;
+  }
+  return value2;
+}
+function toPlainValue(value2) {
+  if (value2 instanceof YArray) {
+    return value2.toArray().map((entry) => toPlainValue(entry));
+  }
+  if (value2 instanceof YMap) {
+    const out = {};
+    const keys2 = [...value2.keys()].sort();
+    for (const key of keys2) {
+      out[key] = toPlainValue(value2.get(key));
+    }
+    return out;
+  }
+  return value2;
+}
+function clearMap(map3) {
+  for (const key of [...map3.keys()]) {
+    map3.delete(key);
+  }
+}
+function getOrCreateMap(parent, key) {
+  const value2 = parent.get(key);
+  if (value2 instanceof YMap) return value2;
+  const out = new YMap();
+  parent.set(key, out);
+  return out;
+}
+function writeEntities(target, entities) {
+  clearMap(target);
+  for (const entity of entities) {
+    target.set(entity.id, toYValue(entity));
+  }
+}
+function writeMeta(target, meta) {
+  clearMap(target);
+  for (const [key, value2] of Object.entries(meta)) {
+    target.set(key, toYValue(value2));
+  }
+}
+function readEntities(source) {
+  return [...source.keys()].sort().map((id2) => toPlainValue(source.get(id2))).filter((entry) => !!entry && typeof entry === "object" && typeof entry.id === "string");
+}
+function getCanvasRoot(ydoc) {
+  const root = ydoc.getMap("canvas");
+  getOrCreateMap(root, "nodes");
+  getOrCreateMap(root, "edges");
+  getOrCreateMap(root, "meta");
+  return root;
+}
+function snapshotFromYDoc(ydoc) {
+  const root = getCanvasRoot(ydoc);
+  const nodes = readEntities(getOrCreateMap(root, "nodes"));
+  const edges = readEntities(getOrCreateMap(root, "edges"));
+  const meta = toPlainValue(getOrCreateMap(root, "meta"));
+  return canonicalizeCanvasData({ nodes, edges, meta });
+}
+function applySnapshotToYDoc(ydoc, snapshot) {
+  const root = getCanvasRoot(ydoc);
+  const nodesMap = getOrCreateMap(root, "nodes");
+  const edgesMap = getOrCreateMap(root, "edges");
+  const metaMap = getOrCreateMap(root, "meta");
+  ydoc.transact(() => {
+    writeEntities(nodesMap, snapshot.nodes);
+    writeEntities(edgesMap, snapshot.edges);
+    writeMeta(metaMap, snapshot.meta);
+  });
+}
+function observeCanvasDoc(ydoc, onChange2) {
+  const root = getCanvasRoot(ydoc);
+  const handler = () => onChange2();
+  root.observeDeep(handler);
+  return () => {
+    root.unobserveDeep(handler);
+  };
+}
+
+// src/canvas-collab/viewAdapter.ts
+function asNumber(value2) {
+  return typeof value2 === "number" && Number.isFinite(value2) ? value2 : null;
+}
+function uniqueSorted(ids) {
+  return [...new Set(ids)].sort((a, b) => a.localeCompare(b));
+}
+function parseSelectionItems(items) {
+  var _a;
+  const nodes = [];
+  const edges = [];
+  if (!items) return { nodes, edges };
+  const iterable = items instanceof Set ? [...items] : Array.isArray(items) ? items : [];
+  for (const item of iterable) {
+    if (!item || typeof item !== "object") continue;
+    const id2 = typeof item.id === "string" ? item.id : null;
+    if (!id2) continue;
+    const type = String((_a = item.type) != null ? _a : "");
+    if (type === "edge" || typeof item.fromNode === "string" || typeof item.toNode === "string") {
+      edges.push(id2);
+    } else {
+      nodes.push(id2);
+    }
+  }
+  return { nodes: uniqueSorted(nodes), edges: uniqueSorted(edges) };
+}
+function parseSelection(canvas) {
+  var _a, _b, _c;
+  const source = (_c = (_b = canvas == null ? void 0 : canvas.selection) != null ? _b : (_a = canvas == null ? void 0 : canvas.getSelection) == null ? void 0 : _a.call(canvas)) != null ? _c : null;
+  if (!source) return { nodes: [], edges: [] };
+  if (source && typeof source === "object") {
+    const nodeItems = source.nodes;
+    const edgeItems = source.edges;
+    if (nodeItems || edgeItems) {
+      const nodes = parseSelectionItems(nodeItems).nodes;
+      const edges = parseSelectionItems(edgeItems).edges;
+      return { nodes, edges };
+    }
+  }
+  return parseSelectionItems(source);
+}
+function parseViewport(canvas) {
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+  const raw = (_c = (_b = (_a = canvas == null ? void 0 : canvas.getViewport) == null ? void 0 : _a.call(canvas)) != null ? _b : canvas == null ? void 0 : canvas.viewport) != null ? _c : null;
+  if (raw && typeof raw === "object") {
+    const x2 = (_e = (_d = asNumber(raw.x)) != null ? _d : asNumber(raw.centerX)) != null ? _e : asNumber(raw.tx);
+    const y2 = (_g = (_f = asNumber(raw.y)) != null ? _f : asNumber(raw.centerY)) != null ? _g : asNumber(raw.ty);
+    const zoom2 = (_i = (_h = asNumber(raw.zoom)) != null ? _h : asNumber(raw.scale)) != null ? _i : asNumber(raw.tz);
+    if (x2 !== null && y2 !== null && zoom2 !== null) {
+      return { x: x2, y: y2, zoom: zoom2 };
+    }
+  }
+  const x = asNumber(canvas == null ? void 0 : canvas.tx);
+  const y = asNumber(canvas == null ? void 0 : canvas.ty);
+  const zoom = asNumber(canvas == null ? void 0 : canvas.zoom);
+  if (x !== null && y !== null && zoom !== null) {
+    return { x, y, zoom };
+  }
+  return null;
+}
+function projectViewport(canvas, viewport) {
+  try {
+    if (typeof (canvas == null ? void 0 : canvas.viewportToScreen) === "function") {
+      const point = canvas.viewportToScreen(viewport.x, viewport.y);
+      if (point && typeof point === "object") {
+        const x = asNumber(point.x);
+        const y = asNumber(point.y);
+        if (x !== null && y !== null) return { x, y };
+      }
+    }
+    if (typeof (canvas == null ? void 0 : canvas.canvasToScreen) === "function") {
+      const point = canvas.canvasToScreen(viewport.x, viewport.y);
+      if (point && typeof point === "object") {
+        const x = asNumber(point.x);
+        const y = asNumber(point.y);
+        if (x !== null && y !== null) return { x, y };
+      }
+    }
+  } catch (e) {
+  }
+  return null;
+}
+function subscribeEmitter(target, eventNames, handler) {
+  if (!target || typeof target.on !== "function" || typeof target.off !== "function") {
+    return null;
+  }
+  const attached = [];
+  for (const name of eventNames) {
+    try {
+      target.on(name, handler);
+      attached.push(name);
+    } catch (e) {
+    }
+  }
+  if (attached.length === 0) return null;
+  return () => {
+    for (const name of attached) {
+      try {
+        target.off(name, handler);
+      } catch (e) {
+      }
+    }
+  };
+}
+function resolveCanvas(view) {
+  var _a, _b, _c;
+  return (_c = (_b = (_a = view == null ? void 0 : view.canvas) != null ? _a : view == null ? void 0 : view._canvas) != null ? _b : view == null ? void 0 : view.canvasView) != null ? _c : null;
+}
+function getContainer(view, canvas) {
+  var _a, _b, _c;
+  const container = (_c = (_b = (_a = view == null ? void 0 : view.containerEl) != null ? _a : canvas == null ? void 0 : canvas.wrapperEl) != null ? _b : canvas == null ? void 0 : canvas.canvasEl) != null ? _c : null;
+  return container instanceof HTMLElement ? container : null;
+}
+function getRawData(view, canvas) {
+  if (typeof (canvas == null ? void 0 : canvas.getData) === "function") {
+    return canvas.getData();
+  }
+  if ((canvas == null ? void 0 : canvas.data) && typeof canvas.data === "object") {
+    return canvas.data;
+  }
+  if (typeof (view == null ? void 0 : view.getViewData) === "function") {
+    const raw = view.getViewData();
+    if (typeof raw === "string" && raw.trim()) {
+      try {
+        return JSON.parse(raw);
+      } catch (e) {
+        return null;
+      }
+    }
+  }
+  return null;
+}
+function applyRawData(view, canvas, payload) {
+  if (typeof (canvas == null ? void 0 : canvas.setData) === "function") {
+    canvas.setData(payload);
+    return;
+  }
+  if (typeof (view == null ? void 0 : view.setViewData) === "function") {
+    void view.setViewData(JSON.stringify(payload, null, 2), false);
+    return;
+  }
+  if (canvas && typeof canvas === "object") {
+    canvas.data = payload;
+    if (typeof (canvas == null ? void 0 : canvas.requestSave) === "function") {
+      canvas.requestSave();
+    }
+    if (typeof (canvas == null ? void 0 : canvas.render) === "function") {
+      canvas.render();
+    }
+    return;
+  }
+  throw new Error("Native canvas setData API unavailable");
+}
+function createCanvasViewAdapter(view) {
+  const canvas = resolveCanvas(view);
+  if (!canvas) return null;
+  return {
+    getSnapshot: () => {
+      const raw = getRawData(view, canvas);
+      if (!raw) return null;
+      return canonicalizeCanvasData(raw);
+    },
+    applySnapshot: (snapshot) => {
+      applyRawData(view, canvas, snapshot);
+    },
+    getSelection: () => parseSelection(canvas),
+    getViewport: () => parseViewport(canvas),
+    getContainer: () => getContainer(view, canvas),
+    projectViewport: (viewport) => projectViewport(canvas, viewport),
+    subscribeDataChange: (onChange2) => {
+      return subscribeEmitter(canvas, ["change", "changed", "data-changed", "node-changed", "edge-changed"], onChange2);
+    },
+    subscribeCursorChange: (onChange2) => {
+      const offCanvas = subscribeEmitter(canvas, ["selection-change", "viewport-change", "change"], onChange2);
+      const offView = subscribeEmitter(view, ["layout-change"], onChange2);
+      if (!offCanvas && !offView) return null;
+      return () => {
+        offCanvas == null ? void 0 : offCanvas();
+        offView == null ? void 0 : offView();
+      };
+    }
+  };
+}
+
+// src/canvas-collab/overlay.ts
+var NODE_SELECTORS = ['.canvas-node[data-node-id="%ID%"]', '.canvas-node[data-id="%ID%"]', '[data-node-id="%ID%"]'];
+var EDGE_SELECTORS = ['.canvas-edge[data-edge-id="%ID%"]', '.canvas-edge[data-id="%ID%"]', '[data-edge-id="%ID%"]'];
+function ensureLayer(container) {
+  let layer = container.querySelector(".synod-canvas-presence-layer");
+  if (layer) return layer;
+  layer = document.createElement("div");
+  layer.className = "synod-canvas-presence-layer";
+  container.appendChild(layer);
+  return layer;
+}
+function clearHighlights(container) {
+  container.querySelectorAll(".synod-canvas-remote-node-selected").forEach((el) => {
+    el.classList.remove("synod-canvas-remote-node-selected");
+  });
+  container.querySelectorAll(".synod-canvas-remote-edge-selected").forEach((el) => {
+    el.classList.remove("synod-canvas-remote-edge-selected");
+  });
+}
+function highlightIds(container, selectors, ids, className) {
+  for (const id2 of ids) {
+    for (const template of selectors) {
+      const selector = template.replace("%ID%", CSS.escape(id2));
+      container.querySelectorAll(selector).forEach((el) => {
+        el.classList.add(className);
+      });
+    }
+  }
+}
+function renderLegendItem(presence) {
+  const item = document.createElement("div");
+  item.className = "synod-canvas-presence-item";
+  const dot = document.createElement("span");
+  dot.className = "synod-canvas-presence-dot";
+  if (presence.user.color) {
+    dot.style.backgroundColor = presence.user.color;
+  }
+  item.appendChild(dot);
+  const label = document.createElement("span");
+  label.className = "synod-canvas-presence-label";
+  const name = presence.user.name ? `@${presence.user.name}` : "Remote";
+  label.textContent = `${name} \xB7 ${presence.selection.nodes.length}N/${presence.selection.edges.length}E`;
+  item.appendChild(label);
+  if (presence.viewport) {
+    const coords = document.createElement("span");
+    coords.className = "synod-canvas-presence-coords";
+    coords.textContent = `${Math.round(presence.viewport.x)}, ${Math.round(presence.viewport.y)} @ ${presence.viewport.zoom.toFixed(2)}x`;
+    item.appendChild(coords);
+  }
+  return item;
+}
+function clearCanvasPresenceOverlay(container) {
+  var _a;
+  if (!container) return;
+  clearHighlights(container);
+  (_a = container.querySelector(".synod-canvas-presence-layer")) == null ? void 0 : _a.remove();
+}
+function renderCanvasPresenceOverlay(container, presences) {
+  clearHighlights(container);
+  const layer = ensureLayer(container);
+  layer.replaceChildren();
+  const legend = document.createElement("div");
+  legend.className = "synod-canvas-presence-legend";
+  layer.appendChild(legend);
+  for (const presence of presences) {
+    legend.appendChild(renderLegendItem(presence));
+    highlightIds(container, NODE_SELECTORS, presence.selection.nodes, "synod-canvas-remote-node-selected");
+    highlightIds(container, EDGE_SELECTORS, presence.selection.edges, "synod-canvas-remote-edge-selected");
+  }
+}
+
+// src/canvas-collab/index.ts
+var CanvasCollabEditor = class {
+  constructor(serverUrl, vaultId, filePath, user, token, cursorColor, useProfileForCursor, onLiveChange) {
+    this.serverUrl = serverUrl;
+    this.vaultId = vaultId;
+    this.filePath = filePath;
+    this.user = user;
+    this.token = token;
+    this.cursorColor = cursorColor;
+    this.useProfileForCursor = useProfileForCursor;
+    this.onLiveChange = onLiveChange;
+    this.ydoc = null;
+    this.provider = null;
+    this.live = false;
+    this.destroyed = false;
+    this.invalidPayloadNotified = false;
+    this.unsupportedNotified = false;
+    this.views = /* @__PURE__ */ new Map();
+    this.docUnsubscribe = null;
+    this.localCommitTimer = null;
+    this.remoteApplyTimer = null;
+    this.syncWatchdogTimer = null;
+    this.awarenessTimer = null;
+    this.syncWatchdogRetries = 0;
+    this.isApplyingRemote = false;
+    this.lastLocalSnapshot = "";
+    this.lastRenderedSnapshot = "";
+    this.lastAwarenessPayload = "";
+    this.SYNC_WATCHDOG_MS = 4e3;
+    this.SYNC_WATCHDOG_MAX_RETRIES = 3;
+    this.LOCAL_DEBOUNCE_MS = 50;
+    this.REMOTE_THROTTLE_MS = 33;
+    this.FALLBACK_POLL_MS = 120;
+    this.AWARENESS_INTERVAL_MS = 66;
+  }
+  clearSyncWatchdog() {
+    if (!this.syncWatchdogTimer) return;
+    clearTimeout(this.syncWatchdogTimer);
+    this.syncWatchdogTimer = null;
+  }
+  scheduleSyncWatchdog() {
+    if (this.destroyed || this.live || !this.provider) return;
+    if (this.views.size === 0) return;
+    if (this.syncWatchdogTimer) return;
+    this.syncWatchdogTimer = setTimeout(() => {
+      var _a, _b, _c, _d;
+      this.syncWatchdogTimer = null;
+      if (this.destroyed || this.live || !this.provider) return;
+      if (this.views.size === 0) return;
+      if (this.syncWatchdogRetries >= this.SYNC_WATCHDOG_MAX_RETRIES) {
+        console.warn(`[canvas-collab] Sync timeout persists: ${this.filePath}`);
+        this.setLoadingForAll(false);
+        return;
+      }
+      this.syncWatchdogRetries += 1;
+      console.warn(
+        `[canvas-collab] Sync timeout reconnect (${this.syncWatchdogRetries}/${this.SYNC_WATCHDOG_MAX_RETRIES}): ${this.filePath}`
+      );
+      try {
+        (_b = (_a = this.provider).disconnect) == null ? void 0 : _b.call(_a);
+        (_d = (_c = this.provider).connect) == null ? void 0 : _d.call(_c);
+      } catch (e) {
+      }
+      this.scheduleSyncWatchdog();
+    }, this.SYNC_WATCHDOG_MS);
+  }
+  setLive(live) {
+    var _a;
+    if (this.live === live) return;
+    this.live = live;
+    if (live) {
+      this.clearSyncWatchdog();
+      this.syncWatchdogRetries = 0;
+      this.updateCanvasAwareness(true);
+    } else {
+      this.scheduleSyncWatchdog();
+    }
+    (_a = this.onLiveChange) == null ? void 0 : _a.call(this, live);
+  }
+  getBindingContainer(binding) {
+    const container = binding.adapter.getContainer();
+    return container instanceof HTMLElement ? container : null;
+  }
+  ensureLoadingOverlay(binding) {
+    const container = this.getBindingContainer(binding);
+    if (!container) return;
+    container.classList.add("synod-canvas-collab-container");
+    if (!binding.loadingEl) {
+      const overlay = document.createElement("div");
+      overlay.className = "synod-canvas-collab-loading-overlay";
+      overlay.innerHTML = `
+        <div class="synod-canvas-collab-loading-card">
+          <div class="synod-collab-spinner" aria-hidden="true"></div>
+          <div class="synod-canvas-collab-loading-text">Connecting to live canvas room...</div>
+        </div>
+      `;
+      container.appendChild(overlay);
+      binding.loadingEl = overlay;
+    }
+    container.classList.toggle("synod-canvas-collab-lock", binding.loading);
+    binding.loadingEl.classList.toggle("is-visible", binding.loading);
+  }
+  setLoading(bindingKey, loading) {
+    const binding = this.views.get(bindingKey);
+    if (!binding) return;
+    binding.loading = loading;
+    this.ensureLoadingOverlay(binding);
+  }
+  setLoadingForAll(loading) {
+    for (const key of this.views.keys()) {
+      this.setLoading(key, loading);
+    }
+  }
+  getPrimaryBinding() {
+    for (const [, binding] of this.views) {
+      return binding;
+    }
+    return null;
+  }
+  getCurrentSnapshot() {
+    const binding = this.getPrimaryBinding();
+    if (!binding) return null;
+    const snapshot = binding.adapter.getSnapshot();
+    if (!snapshot) return null;
+    return canonicalizeCanvasData(snapshot);
+  }
+  queueLocalCommit() {
+    if (this.destroyed || !this.live || this.isApplyingRemote || !this.ydoc) return;
+    if (this.localCommitTimer) clearTimeout(this.localCommitTimer);
+    this.localCommitTimer = setTimeout(() => {
+      this.localCommitTimer = null;
+      this.flushLocalCommit();
+    }, this.LOCAL_DEBOUNCE_MS);
+  }
+  flushLocalCommit() {
+    if (this.destroyed || !this.live || this.isApplyingRemote || !this.ydoc) return;
+    const snapshot = this.getCurrentSnapshot();
+    if (!snapshot) return;
+    const encoded = stableSnapshotString(snapshot);
+    if (encoded === this.lastRenderedSnapshot) return;
+    this.lastLocalSnapshot = encoded;
+    applySnapshotToYDoc(this.ydoc, snapshot);
+  }
+  scheduleRemoteApply() {
+    if (this.destroyed || !this.live) return;
+    if (this.remoteApplyTimer) return;
+    this.remoteApplyTimer = setTimeout(() => {
+      this.remoteApplyTimer = null;
+      this.applyRemoteSnapshot();
+    }, this.REMOTE_THROTTLE_MS);
+  }
+  applyRemoteSnapshot() {
+    if (this.destroyed || !this.ydoc) return;
+    const snapshot = snapshotFromYDoc(this.ydoc);
+    const encoded = stableSnapshotString(snapshot);
+    if (encoded === this.lastLocalSnapshot) return;
+    if (encoded === this.lastRenderedSnapshot) return;
+    this.isApplyingRemote = true;
+    try {
+      for (const [, binding] of this.views) {
+        try {
+          binding.adapter.applySnapshot(snapshot);
+        } catch (err) {
+          console.warn(`[canvas-collab] Failed applying remote snapshot (${this.filePath})`, err);
+        }
+      }
+      this.lastRenderedSnapshot = encoded;
+    } finally {
+      this.isApplyingRemote = false;
+    }
+  }
+  updateAwarenessUser() {
+    if (!this.provider) return;
+    const color = resolveUserColor(this.user.id, this.cursorColor);
+    this.provider.awareness.setLocalStateField("user", {
+      id: this.user.id,
+      name: this.user.username,
+      avatarUrl: this.user.avatarUrl,
+      color,
+      colorLight: toCursorHighlight(color)
+    });
+  }
+  normalizeSelection(value2) {
+    const nodes = Array.isArray(value2 == null ? void 0 : value2.nodes) ? value2.nodes.filter((id2) => typeof id2 === "string").sort() : [];
+    const edges = Array.isArray(value2 == null ? void 0 : value2.edges) ? value2.edges.filter((id2) => typeof id2 === "string").sort() : [];
+    return { nodes, edges };
+  }
+  normalizeViewport(value2) {
+    if (!value2 || typeof value2 !== "object") return null;
+    const x = typeof value2.x === "number" ? value2.x : null;
+    const y = typeof value2.y === "number" ? value2.y : null;
+    const zoom = typeof value2.zoom === "number" ? value2.zoom : null;
+    if (x === null || y === null || zoom === null) return null;
+    return { x, y, zoom };
+  }
+  getRemotePresences() {
+    const provider = this.provider;
+    if (!provider) return [];
+    const remotes = [];
+    provider.awareness.getStates().forEach((state, clientId) => {
+      var _a, _b;
+      if (clientId === provider.awareness.clientID) return;
+      const user = (_a = state == null ? void 0 : state.user) != null ? _a : {};
+      const canvas = (_b = state == null ? void 0 : state.canvas) != null ? _b : {};
+      remotes.push({
+        user: {
+          id: typeof user.id === "string" ? user.id : void 0,
+          name: typeof user.name === "string" ? user.name : void 0,
+          avatarUrl: typeof user.avatarUrl === "string" ? user.avatarUrl : void 0,
+          color: typeof user.color === "string" ? user.color : void 0
+        },
+        selection: this.normalizeSelection(canvas.selection),
+        viewport: this.normalizeViewport(canvas.viewport)
+      });
+    });
+    return remotes;
+  }
+  renderPresenceOverlays() {
+    const remotes = this.getRemotePresences();
+    for (const [, binding] of this.views) {
+      const container = this.getBindingContainer(binding);
+      if (!container) continue;
+      if (remotes.length === 0) {
+        clearCanvasPresenceOverlay(container);
+      } else {
+        renderCanvasPresenceOverlay(container, remotes);
+      }
+    }
+  }
+  updateCanvasAwareness(force = false) {
+    if (!this.provider || !this.live) return;
+    const binding = this.getPrimaryBinding();
+    if (!binding) return;
+    const payload = {
+      selection: binding.adapter.getSelection(),
+      viewport: binding.adapter.getViewport()
+    };
+    const encoded = JSON.stringify(payload);
+    if (!force && encoded === this.lastAwarenessPayload) return;
+    this.lastAwarenessPayload = encoded;
+    this.provider.awareness.setLocalStateField("canvas", payload);
+  }
+  startAwarenessLoop() {
+    if (this.awarenessTimer) clearInterval(this.awarenessTimer);
+    this.awarenessTimer = setInterval(() => {
+      this.updateCanvasAwareness(false);
+    }, this.AWARENESS_INTERVAL_MS);
+  }
+  stopAwarenessLoop() {
+    if (!this.awarenessTimer) return;
+    clearInterval(this.awarenessTimer);
+    this.awarenessTimer = null;
+  }
+  subscribeLocalData(binding) {
+    const onData = () => this.queueLocalCommit();
+    binding.dataUnsubscribe = binding.adapter.subscribeDataChange(onData);
+    if (!binding.dataUnsubscribe) {
+      binding.dataPollTimer = setInterval(onData, this.FALLBACK_POLL_MS);
+    }
+    const onCursor = () => this.updateCanvasAwareness(false);
+    binding.cursorUnsubscribe = binding.adapter.subscribeCursorChange(onCursor);
+    if (!binding.cursorUnsubscribe) {
+      binding.cursorPollTimer = setInterval(onCursor, this.FALLBACK_POLL_MS);
+    }
+  }
+  unsubscribeLocalData(binding) {
+    var _a, _b;
+    (_a = binding.dataUnsubscribe) == null ? void 0 : _a.call(binding);
+    binding.dataUnsubscribe = null;
+    (_b = binding.cursorUnsubscribe) == null ? void 0 : _b.call(binding);
+    binding.cursorUnsubscribe = null;
+    if (binding.dataPollTimer) {
+      clearInterval(binding.dataPollTimer);
+      binding.dataPollTimer = null;
+    }
+    if (binding.cursorPollTimer) {
+      clearInterval(binding.cursorPollTimer);
+      binding.cursorPollTimer = null;
+    }
+  }
+  activateView(bindingKey) {
+    const binding = this.views.get(bindingKey);
+    if (!binding) return;
+    if (!this.live) {
+      this.setLoading(bindingKey, true);
+      return;
+    }
+    this.setLoading(bindingKey, false);
+    this.scheduleRemoteApply();
+    this.updateCanvasAwareness(true);
+  }
+  activateAllViews() {
+    for (const key of this.views.keys()) {
+      this.activateView(key);
+    }
+  }
+  attach() {
+    if (this.destroyed || this.provider || this.ydoc) return;
+    const wsUrl = this.serverUrl.replace(/^https:\/\//, "wss://").replace(/^http:\/\//, "ws://") + "/yjs";
+    const roomName = encodeURIComponent(this.filePath);
+    this.ydoc = new Doc();
+    this.provider = new WebsocketProvider(wsUrl, roomName, this.ydoc, {
+      params: { token: this.token, vaultId: this.vaultId }
+    });
+    const provider = this.provider;
+    const activateIfSynced = () => {
+      if (!provider.synced) return false;
+      this.setLive(true);
+      this.activateAllViews();
+      return true;
+    };
+    this.updateAwarenessUser();
+    this.startAwarenessLoop();
+    this.docUnsubscribe = observeCanvasDoc(this.ydoc, () => this.scheduleRemoteApply());
+    this.scheduleSyncWatchdog();
+    provider.on("status", ({ status }) => {
+      if (this.destroyed) return;
+      if (status === "connected") {
+        if (activateIfSynced()) return;
+        setTimeout(() => {
+          if (this.destroyed) return;
+          if (!activateIfSynced()) this.scheduleSyncWatchdog();
+        }, 60);
+        return;
+      }
+      this.setLive(false);
+      this.setLoadingForAll(true);
+    });
+    provider.on("sync", (isSynced) => {
+      if (this.destroyed) return;
+      if (!isSynced) {
+        this.setLive(false);
+        this.setLoadingForAll(true);
+        return;
+      }
+      activateIfSynced();
+    });
+    provider.on("connection-close", (event) => {
+      if (this.destroyed) return;
+      if ((event == null ? void 0 : event.code) === 4005 && !this.invalidPayloadNotified) {
+        this.invalidPayloadNotified = true;
+        new import_obsidian10.Notice(`Synod: Invalid canvas JSON for ${this.filePath}. Using local mode.`);
+      }
+    });
+    provider.awareness.on("change", () => {
+      if (this.destroyed) return;
+      this.renderPresenceOverlays();
+    });
+    if (!activateIfSynced()) {
+      this.scheduleSyncWatchdog();
+    }
+  }
+  attachView(bindingKey, view) {
+    if (this.destroyed || this.views.has(bindingKey)) return;
+    const adapter = createCanvasViewAdapter(view);
+    if (!adapter) {
+      if (!this.unsupportedNotified) {
+        this.unsupportedNotified = true;
+        new import_obsidian10.Notice("Synod: Native canvas internals are unavailable on this Obsidian build. Falling back to file sync.");
+      }
+      return;
+    }
+    const binding = {
+      view,
+      adapter,
+      loading: true,
+      loadingEl: null,
+      dataUnsubscribe: null,
+      cursorUnsubscribe: null,
+      dataPollTimer: null,
+      cursorPollTimer: null
+    };
+    this.views.set(bindingKey, binding);
+    this.subscribeLocalData(binding);
+    this.setLoading(bindingKey, true);
+    this.activateView(bindingKey);
+    this.scheduleSyncWatchdog();
+    this.renderPresenceOverlays();
+  }
+  detachView(bindingKey) {
+    const binding = this.views.get(bindingKey);
+    if (!binding) return;
+    this.unsubscribeLocalData(binding);
+    clearCanvasPresenceOverlay(this.getBindingContainer(binding));
+    if (binding.loadingEl) {
+      binding.loadingEl.remove();
+      binding.loadingEl = null;
+    }
+    const container = this.getBindingContainer(binding);
+    if (container) {
+      container.classList.remove("synod-canvas-collab-container");
+      container.classList.remove("synod-canvas-collab-lock");
+    }
+    this.views.delete(bindingKey);
+    if (this.views.size === 0) {
+      this.clearSyncWatchdog();
+    } else {
+      this.updateCanvasAwareness(true);
+      this.renderPresenceOverlays();
+    }
+  }
+  isEmpty() {
+    return this.views.size === 0;
+  }
+  updateLocalCursorPreferences(color, useProfileForCursor) {
+    this.cursorColor = normalizeCursorColor(color);
+    this.useProfileForCursor = useProfileForCursor;
+    this.updateAwarenessUser();
+    this.updateCanvasAwareness(true);
+    this.renderPresenceOverlays();
+  }
+  destroy() {
+    var _a, _b, _c;
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.setLive(false);
+    this.clearSyncWatchdog();
+    this.stopAwarenessLoop();
+    (_a = this.docUnsubscribe) == null ? void 0 : _a.call(this);
+    this.docUnsubscribe = null;
+    if (this.localCommitTimer) {
+      clearTimeout(this.localCommitTimer);
+      this.localCommitTimer = null;
+    }
+    if (this.remoteApplyTimer) {
+      clearTimeout(this.remoteApplyTimer);
+      this.remoteApplyTimer = null;
+    }
+    const keys2 = [...this.views.keys()];
+    for (const key of keys2) {
+      this.detachView(key);
+    }
+    (_b = this.provider) == null ? void 0 : _b.destroy();
+    (_c = this.ydoc) == null ? void 0 : _c.destroy();
+    this.provider = null;
+    this.ydoc = null;
+  }
+};
+
 // src/main/collabWorkspaceManager.ts
 var CollabWorkspaceManager = class {
   constructor(options) {
@@ -16756,14 +17624,19 @@ var CollabWorkspaceManager = class {
     if (!this.options.isSocketConnected()) return;
     if (!leaf) return;
     const view = leaf.view;
-    if (!(view instanceof import_obsidian10.MarkdownView)) return;
-    if (!this.isSourceMode(view)) {
+    const file = view == null ? void 0 : view.file;
+    if (!file) return;
+    if (this.isMarkdownView(view, file.path)) {
+      if (!this.isSourceMode(view)) {
+        this.scheduleOpenLeavesSync();
+        return;
+      }
       this.scheduleOpenLeavesSync();
       return;
     }
-    const file = view.file;
-    if (!file || !file.path.endsWith(".md")) return;
-    this.scheduleOpenLeavesSync();
+    if (this.isCanvasView(view, file.path)) {
+      this.scheduleOpenLeavesSync();
+    }
   }
   handleLayoutChange() {
     if (!this.options.isSocketConnected()) return;
@@ -16771,13 +17644,13 @@ var CollabWorkspaceManager = class {
   }
   async syncOpenLeavesNow() {
     if (!this.options.isSocketConnected()) return;
-    const openLeaves = this.getOpenMarkdownLeaves();
+    const openLeaves = this.getOpenCollabLeaves();
     const activeKeys = /* @__PURE__ */ new Set();
-    for (const { leaf, view, file } of openLeaves) {
-      const key = this.makeBindingKey(leaf, file.path);
+    for (const entry of openLeaves) {
+      const key = this.makeBindingKey(entry.leaf, entry.file.path);
       activeKeys.add(key);
       if (!this.collabBindings.has(key)) {
-        await this.attachCollabEditor(leaf, view, file);
+        await this.attachCollabRoom(entry);
       }
     }
     const existingKeys = [...this.collabBindings.keys()];
@@ -16852,42 +17725,84 @@ var CollabWorkspaceManager = class {
     if (mode === null) return true;
     return mode !== "preview";
   }
-  getOpenMarkdownLeaves() {
+  isMarkdownView(view, path) {
+    if (!path.endsWith(".md")) return false;
+    return view instanceof import_obsidian11.MarkdownView;
+  }
+  isCanvasView(view, path) {
+    if (!path.endsWith(".canvas")) return false;
+    if (typeof (view == null ? void 0 : view.getViewType) === "function" && view.getViewType() !== "canvas") return false;
+    return true;
+  }
+  getOpenCollabLeaves() {
     const leaves = [];
     this.options.app.workspace.iterateAllLeaves((leaf) => {
       const view = leaf.view;
-      if (!(view instanceof import_obsidian10.MarkdownView)) return;
-      if (!this.isSourceMode(view)) return;
-      const file = view.file;
-      if (!file || !file.path.endsWith(".md")) return;
-      leaves.push({ leaf, view, file });
+      const file = view == null ? void 0 : view.file;
+      if (!(file instanceof import_obsidian11.TFile)) return;
+      if (this.isMarkdownView(view, file.path)) {
+        if (!this.isSourceMode(view)) return;
+        leaves.push({ kind: "markdown", leaf, view, file });
+        return;
+      }
+      if (this.isCanvasView(view, file.path)) {
+        leaves.push({ kind: "canvas", leaf, view, file });
+      }
     });
     return leaves;
   }
-  async attachCollabEditor(leaf, view, file) {
-    const config = this.options.getSessionConfig();
-    if (!config.token || !config.user) return;
-    const key = this.makeBindingKey(leaf, file.path);
-    if (this.collabBindings.has(key)) return;
-    const hadPathBinding = this.hasCollabPath(file.path);
-    let room = this.collabRooms.get(file.path);
-    if (!room) {
-      room = new CollabEditor(
+  createRoom(kind, filePath, config) {
+    if (kind === "markdown") {
+      return new CollabEditor(
         config.serverUrl,
         config.vaultId,
-        file.path,
+        filePath,
         config.user,
         config.token,
         config.cursorColor,
         config.useProfileForCursor
       );
-      room.attach();
-      this.collabRooms.set(file.path, room);
     }
-    room.attachView(key, view);
-    this.collabBindings.set(key, { key, path: file.path, leaf, view });
+    return new CanvasCollabEditor(
+      config.serverUrl,
+      config.vaultId,
+      filePath,
+      config.user,
+      config.token,
+      config.cursorColor,
+      config.useProfileForCursor
+    );
+  }
+  async attachCollabRoom(entry) {
+    const config = this.options.getSessionConfig();
+    if (!config.token || !config.user) return;
+    const key = this.makeBindingKey(entry.leaf, entry.file.path);
+    if (this.collabBindings.has(key)) return;
+    const hadPathBinding = this.hasCollabPath(entry.file.path);
+    let room = this.collabRooms.get(entry.file.path);
+    const createdRoom = !room;
+    if (!room) {
+      room = this.createRoom(entry.kind, entry.file.path, config);
+      room.attach();
+      this.collabRooms.set(entry.file.path, room);
+    }
+    room.attachView(key, entry.view);
+    if (room.isEmpty()) {
+      if (createdRoom) {
+        room.destroy();
+        this.collabRooms.delete(entry.file.path);
+      }
+      return;
+    }
+    this.collabBindings.set(key, {
+      key,
+      kind: entry.kind,
+      path: entry.file.path,
+      leaf: entry.leaf,
+      view: entry.view
+    });
     if (!hadPathBinding && this.options.isSocketConnected()) {
-      this.options.onPresenceFileOpened(file.path);
+      this.options.onPresenceFileOpened(entry.file.path);
     }
   }
   destroyCollabEditor(key) {
@@ -16949,7 +17864,7 @@ function setupManagedRuntime(options) {
     onReconnect,
     onDisable,
     onSaveUrl: async () => {
-      new import_obsidian11.Notice("Synod: Server URL is fixed by this Managed Vault.");
+      new import_obsidian12.Notice("Synod: Server URL is fixed by this Managed Vault.");
     },
     onLogout,
     getSnapshot: () => {
@@ -16973,7 +17888,7 @@ function setupManagedRuntime(options) {
   );
   registerEvent(
     app.vault.on("rename", (file, oldPath) => {
-      if (!(file instanceof import_obsidian11.TFile)) return;
+      if (!(file instanceof import_obsidian12.TFile)) return;
       if (!isAllowed(oldPath) && !isAllowed(file.path)) return;
       collabWorkspace.destroyCollabEditorsForPath(oldPath);
       collabWorkspace.scheduleOpenLeavesSync();
@@ -16981,7 +17896,7 @@ function setupManagedRuntime(options) {
   );
   registerEvent(
     app.workspace.on("file-menu", (menu, file) => {
-      if (!(file instanceof import_obsidian11.TFile)) return;
+      if (!(file instanceof import_obsidian12.TFile)) return;
       if (!isAllowed(file.path)) return;
       if (!isSocketConnected()) return;
       const claimed = hasClaim(file.path);
@@ -17014,7 +17929,7 @@ async function revealUsersPanel(app) {
 }
 
 // src/plugin/SynodPlugin.ts
-var SynodPlugin = class extends import_obsidian12.Plugin {
+var SynodPlugin = class extends import_obsidian13.Plugin {
   constructor() {
     super(...arguments);
     this.settingsTab = null;
@@ -17046,7 +17961,7 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
     }
     this.teardownConnection(true);
     (_a = this.offlineGuard) == null ? void 0 : _a.unlock();
-    new import_obsidian12.Notice("Synod: Please disable the plugin from Obsidian settings.");
+    new import_obsidian13.Notice("Synod: Please disable the plugin from Obsidian settings.");
   }
   openSettingsTab() {
     openSettingTab(this.app, this.manifest.id);
@@ -17368,11 +18283,11 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
   }
   async reconnectFromUi() {
     if (!this.isManagedVault()) {
-      new import_obsidian12.Notice("Synod: Open the managed vault package shared by your owner.");
+      new import_obsidian13.Notice("Synod: Open the managed vault package shared by your owner.");
       return;
     }
     if (this.status === "auth-required" || !this.settings.token) {
-      new import_obsidian12.Notice("Synod: Re-open your managed vault package or ask the owner for a new invite.");
+      new import_obsidian13.Notice("Synod: Re-open your managed vault package or ask the owner for a new invite.");
       return;
     }
     await this.connect();
@@ -17394,7 +18309,7 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
     } else {
       this.setStatus("auth-required");
     }
-    new import_obsidian12.Notice("Synod: Logged out.");
+    new import_obsidian13.Notice("Synod: Logged out.");
   }
   async saveSettings() {
     await this.saveData(this.settings);
@@ -17441,9 +18356,9 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
       await this.saveSettings();
       const result = outcome.result;
       if (result.status === "error") {
-        new import_obsidian12.Notice(`Synod: Update check/fetch failed \u2014 ${result.message}`);
+        new import_obsidian13.Notice(`Synod: Update check/fetch failed \u2014 ${result.message}`);
       } else {
-        new import_obsidian12.Notice(`Synod: ${result.message}`);
+        new import_obsidian13.Notice(`Synod: ${result.message}`);
       }
     } finally {
       this.checkingForUpdates = false;
@@ -17456,7 +18371,7 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
     const release = ((_a = this.updateResult) == null ? void 0 : _a.status) === "update_available" ? this.updateResult.latestRelease : null;
     const targetVersion = (_b = release == null ? void 0 : release.version) != null ? _b : this.settings.cachedUpdateVersion;
     if (!targetVersion) {
-      new import_obsidian12.Notice("Synod: No pending update to install.");
+      new import_obsidian13.Notice("Synod: No pending update to install.");
       return;
     }
     const confirmInstall = window.confirm(
@@ -17473,7 +18388,7 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
         currentVersion: this.getInstalledVersion(),
         cachedVersionHint: this.settings.cachedUpdateVersion
       });
-      new import_obsidian12.Notice(`Synod: ${result.message}`);
+      new import_obsidian13.Notice(`Synod: ${result.message}`);
       if (result.status === "success") {
         this.settings.cachedUpdateVersion = null;
         this.settings.cachedUpdateFetchedAt = null;
@@ -17506,7 +18421,7 @@ var SynodPlugin = class extends import_obsidian12.Plugin {
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      new import_obsidian12.Notice(`Synod: Update install failed \u2014 ${message}`);
+      new import_obsidian13.Notice(`Synod: Update install failed \u2014 ${message}`);
       this.updateResult = {
         status: "error",
         currentVersion: this.getInstalledVersion(),

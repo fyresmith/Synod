@@ -5,6 +5,7 @@ import { Compartment, EditorState, StateEffect } from '@codemirror/state';
 import { keymap, EditorView } from '@codemirror/view';
 import { MarkdownView, setIcon } from 'obsidian';
 import { SynodUser } from '../types';
+import type { CollabRoom } from '../collab-room';
 import { suppress, unsuppress } from '../suppressedPaths';
 import { normalizeCursorColor, resolveUserColor, toCursorHighlight } from '../cursorColor';
 import { ensureLoadingOverlay as ensureOverlay } from './loadingOverlay';
@@ -22,7 +23,7 @@ import { CollabViewBinding } from './types';
 // CollabEditor
 // ---------------------------------------------------------------------------
 
-export class CollabEditor {
+export class CollabEditor implements CollabRoom {
   private ydoc: Y.Doc | null = null;
   private provider: WebsocketProvider | null = null;
   private undoManager: Y.UndoManager | null = null;

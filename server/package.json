@@ -30,6 +30,7 @@
     "dev:run": "node --watch bin/synod.js run",
     "build": "npm run verify && npm pack --dry-run",
     "status": "node bin/synod.js status",
+    "test:canvas-codec": "node scripts/test-canvas-codec.mjs",
     "verify": "node scripts/verify.mjs",
     "install-synod": "node scripts/install-synod.mjs",
     "dev:plugin-sync": "node bin/synod.js dev sync-plugin --all --watch --source ../client",

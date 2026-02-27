@@ -41,6 +41,9 @@ export async function flushOfflineQueue(
         syncedPaths.add(op.newPath);
       }
     } catch (err) {
+      if (typeof err === 'object' && err !== null && (err as { code?: unknown }).code === 'canvas_collab_active') {
+        console.warn('[Synod] Offline replay blocked by active canvas collab room. Client upgrade required.');
+      }
       console.error(`[Synod] Failed to flush offline op (${op.type}):`, err);
       const failedOps = [op];
       const remainingOps = ops.slice(i + 1);

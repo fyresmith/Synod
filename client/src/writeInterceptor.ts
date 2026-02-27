@@ -4,6 +4,12 @@ import { SyncEngine, isAllowed } from './sync';
 import { isSuppressed, suppress, unsuppress } from './suppressedPaths';
 import { OfflineQueue } from './offlineQueue';
 
+function isCanvasCollabActiveError(err: unknown): boolean {
+  return typeof err === 'object'
+    && err !== null
+    && (err as { code?: unknown }).code === 'canvas_collab_active';
+}
+
 export class WriteInterceptor {
   private onModifyRef: (file: TFile) => void;
   private onCreateRef: (file: TFile) => void;
@@ -63,6 +69,10 @@ export class WriteInterceptor {
       });
       this.syncEngine.fileCache.set(file.path, content);
     } catch (err) {
+      if (isCanvasCollabActiveError(err)) {
+        new Notice('Synod: Live canvas collaboration is active; this client must use canvas CRDT mode.');
+        return;
+      }
       console.error(`[intercept] modify error (${file.path}):`, err);
       await this.revertFile(file, `Synod: Write failed — reverting. ${(err as Error).message}`);
     }
@@ -89,6 +99,10 @@ export class WriteInterceptor {
       await this.socket.request('file-create', { relPath: file.path, content });
       this.syncEngine.fileCache.set(file.path, content);
     } catch (err) {
+      if (isCanvasCollabActiveError(err)) {
+        new Notice('Synod: Live canvas collaboration is active; this client must use canvas CRDT mode.');
+        return;
+      }
       console.error(`[intercept] create error (${file.path}):`, err);
       new Notice(`Synod: Create failed. ${(err as Error).message}`);
     }
