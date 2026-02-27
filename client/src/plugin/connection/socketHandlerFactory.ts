@@ -1,9 +1,9 @@
 import { App, Notice } from 'obsidian';
 import type { ConnectionStatus } from '../../types';
 import type { SocketClient } from '../../socket';
-import type { SyncEngine } from '../../syncEngine';
+import type { SyncEngine } from '../../sync';
 import type { WriteInterceptor } from '../../writeInterceptor';
-import type { PresenceManager } from '../../presenceManager';
+import type { PresenceManager } from '../../presence';
 import type { CollabWorkspaceManager } from '../../main/collabWorkspaceManager';
 import { bindSynodSocketEvents } from '../../main/socketEvents';
 import type { OfflineFlushResult } from './offlineQueueFlusher';

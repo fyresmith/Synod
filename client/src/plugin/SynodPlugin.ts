@@ -6,10 +6,10 @@ import {
   UpdateCheckResult,
 } from '../types';
 import { SocketClient } from '../socket';
-import { SyncEngine } from '../syncEngine';
+import { SyncEngine } from '../sync';
 import { WriteInterceptor } from '../writeInterceptor';
-import { PresenceManager } from '../presenceManager';
-import { OfflineGuard } from '../offlineGuard';
+import { PresenceManager } from '../presence';
+import { OfflineGuard } from '../offline-guard';
 import { OfflineQueue } from '../offlineQueue';
 import { SynodSettingTab } from '../settings';
 import { getUserColor, normalizeCursorColor } from '../cursorColor';
@@ -17,7 +17,7 @@ import { migrateSettings } from '../main/migrateSettings';
 import { disablePlugin, openSettingTab } from '../obsidianInternal';
 import { CollabWorkspaceManager } from '../main/collabWorkspaceManager';
 import { ReconnectBanner } from '../ui/reconnectBanner';
-import { SynodUsersPanel, SYNOD_USERS_VIEW } from '../ui/usersPanel';
+import { SynodUsersPanel, SYNOD_USERS_VIEW } from '../ui/users-panel';
 import {
   readManagedBinding,
 } from '../main/managedVault';

@@ -1,5 +1,5 @@
 import { App, MarkdownView, TFile, WorkspaceLeaf } from 'obsidian';
-import { CollabEditor } from '../collabEditor';
+import { CollabEditor } from '../collab-editor';
 import { SynodUser } from '../types';
 import { getEditorMode } from '../obsidianInternal';
 

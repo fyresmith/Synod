@@ -1,9 +1,9 @@
 import { Notice, TFile, type App, type WorkspaceLeaf } from 'obsidian';
-import { OfflineGuard } from '../../offlineGuard';
-import { isAllowed } from '../../syncEngine';
+import { OfflineGuard } from '../../offline-guard';
+import { isAllowed } from '../../sync';
 import type { ManagedVaultBinding, PluginSettings } from '../../types';
 import { CollabWorkspaceManager } from '../../main/collabWorkspaceManager';
-import { SYNOD_USERS_VIEW } from '../../ui/usersPanel';
+import { SYNOD_USERS_VIEW } from '../../ui/users-panel';
 
 interface SetupManagedRuntimeOptions {
   app: App;

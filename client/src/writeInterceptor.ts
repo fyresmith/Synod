@@ -1,6 +1,6 @@
 import { TFile, Vault, Notice } from 'obsidian';
 import { SocketClient } from './socket';
-import { SyncEngine, isAllowed } from './syncEngine';
+import { SyncEngine, isAllowed } from './sync';
 import { isSuppressed, suppress, unsuppress } from './suppressedPaths';
 import { OfflineQueue } from './offlineQueue';
 

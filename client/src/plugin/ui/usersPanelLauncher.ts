@@ -1,5 +1,5 @@
 import type { App } from 'obsidian';
-import { SYNOD_USERS_VIEW } from '../../ui/usersPanel';
+import { SYNOD_USERS_VIEW } from '../../ui/users-panel';
 
 export async function revealUsersPanel(app: App): Promise<void> {
   const { workspace } = app;

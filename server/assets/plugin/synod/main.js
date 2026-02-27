@@ -16328,6 +16328,7 @@ var CollabEditor = class {
       if (this.views.size === 0) return;
       if (this.syncWatchdogRetries >= this.SYNC_WATCHDOG_MAX_RETRIES) {
         console.warn(`[collab] Sync timeout persists: ${this.filePath}`);
+        this.setLoadingForAll(false);
         return;
       }
       this.syncWatchdogRetries += 1;

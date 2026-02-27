@@ -1,1 +1,0 @@
-export { PresenceManager } from './presence';

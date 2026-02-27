@@ -7,6 +7,7 @@ import { registerManagedCommands } from '../commands/managed.js';
 import { registerRootCommands } from '../commands/root.js';
 import { registerServiceCommands } from '../commands/service.js';
 import { registerTunnelCommands } from '../commands/tunnel.js';
+import { registerDevCommands } from '../commands/dev.js';
 
 export class SynodCliApp {
   constructor() {
@@ -27,6 +28,7 @@ export class SynodCliApp {
     registerManagedCommands(program);
     registerTunnelCommands(program);
     registerServiceCommands(program);
+    registerDevCommands(program);
 
     return program;
   }
