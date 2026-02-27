@@ -15,6 +15,9 @@ export interface PluginSettings {
   followTargetId: string | null;
   statusMessage: string;
   syncHashCache: Record<string, SyncHashCacheEntry>;
+  lastUpdateCheckAt: string | null;
+  cachedUpdateVersion: string | null;
+  cachedUpdateFetchedAt: string | null;
 }
 
 export interface ManagedVaultBinding {
@@ -129,4 +132,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   followTargetId: null,
   statusMessage: '',
   syncHashCache: {},
+  lastUpdateCheckAt: null,
+  cachedUpdateVersion: null,
+  cachedUpdateFetchedAt: null,
 };

@@ -11,19 +11,18 @@ const { ZipFile } = require('yazl');
 const PLUGIN_ID = 'synod';
 const DEFAULT_DENY_PATHS = ['.git', '.synod', '.synod-quarantine', '.DS_Store', 'Thumbs.db'];
 
+const PACKAGE_ROOT = resolve(fileURLToPath(new URL('../', import.meta.url)));
+const WORKSPACE_ROOT = resolve(PACKAGE_ROOT, '..');
 const ASSETS_ROOT = resolve(fileURLToPath(new URL('../assets/', import.meta.url)));
 const TEMPLATE_ROOT = join(ASSETS_ROOT, 'template-vault');
-const LEGACY_PLUGIN_ROOT = join(ASSETS_ROOT, 'plugin', PLUGIN_ID);
-const MONOREPO_ROOT = resolve(fileURLToPath(new URL('../../', import.meta.url)));
-const CLIENT_LOCK_PATH = join(MONOREPO_ROOT, 'release', 'synod-client.lock.json');
+const PLUGIN_ASSET_ROOT = join(ASSETS_ROOT, 'plugin', PLUGIN_ID);
+const CLIENT_LOCK_PATHS = [
+  join(WORKSPACE_ROOT, 'release', 'synod-client.lock.json'),
+  join(PLUGIN_ASSET_ROOT, 'synod-client.lock.json'),
+];
 
 function hashBuffer(buffer) {
   return createHash('sha256').update(buffer).digest('hex');
-}
-
-function strictClientLockEnabled() {
-  const raw = String(process.env.SYNOD_BUNDLE_STRICT_CLIENT_LOCK ?? '').trim().toLowerCase();
-  return raw === '1' || raw === 'true' || raw === 'yes';
 }
 
 function parseJsonBuffer(buffer, label) {
@@ -35,15 +34,21 @@ function parseJsonBuffer(buffer, label) {
 }
 
 async function readClientLock() {
-  if (!existsSync(CLIENT_LOCK_PATH)) {
-    return null;
+  for (const lockPath of CLIENT_LOCK_PATHS) {
+    if (!existsSync(lockPath)) {
+      continue;
+    }
+    const raw = await readFile(lockPath);
+    const parsed = parseJsonBuffer(raw, lockPath);
+    if (Number(parsed?.schemaVersion) !== 1) {
+      throw new Error(`Unsupported client lock schema version at ${lockPath}`);
+    }
+    return {
+      lock: parsed,
+      lockPath,
+    };
   }
-  const raw = await readFile(CLIENT_LOCK_PATH);
-  const parsed = parseJsonBuffer(raw, CLIENT_LOCK_PATH);
-  if (Number(parsed?.schemaVersion) !== 1) {
-    throw new Error(`Unsupported client lock schema version at ${CLIENT_LOCK_PATH}`);
-  }
-  return parsed;
+  return null;
 }
 
 function lockRecordForFile(lock, filename) {
@@ -63,10 +68,28 @@ function lockRecordForFile(lock, filename) {
   return record;
 }
 
+function resolveLockArtifactPath(recordPath) {
+  const normalized = String(recordPath ?? '').trim();
+  if (!normalized) return null;
+
+  const absoluteCandidates = [
+    resolve(PACKAGE_ROOT, normalized),
+    resolve(WORKSPACE_ROOT, normalized),
+  ];
+
+  for (const candidate of absoluteCandidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return absoluteCandidates[0] ?? null;
+}
+
 async function readLockedPluginAsset(lock, filename) {
   const record = lockRecordForFile(lock, filename);
-  const abs = resolve(MONOREPO_ROOT, String(record.path ?? ''));
-  if (!existsSync(abs)) {
+  const abs = resolveLockArtifactPath(record.path);
+  if (!abs || !existsSync(abs)) {
     throw new Error(`Locked plugin artifact does not exist: ${abs}`);
   }
   const data = await readFile(abs);
@@ -85,61 +108,34 @@ function requireAssetPath(path, label) {
   return path;
 }
 
-async function readLegacyPluginAsset(filename) {
-  const root = requireAssetPath(LEGACY_PLUGIN_ROOT, 'plugin assets');
-  const abs = join(root, filename);
-  if (!existsSync(abs)) {
-    throw new Error(`Missing plugin asset at ${abs}`);
-  }
-  return readFile(abs);
-}
-
 function extractClientVersion(manifestBuffer) {
   const manifest = parseJsonBuffer(manifestBuffer, 'client manifest');
   return String(manifest?.version ?? '').trim() || 'unknown';
 }
 
 async function loadPluginAssets() {
-  const strictLock = strictClientLockEnabled();
-  try {
-    const lock = await readClientLock();
-    if (!lock) {
-      throw new Error(`Missing client lock at ${CLIENT_LOCK_PATH}`);
-    }
-    const mainJs = await readLockedPluginAsset(lock, 'main.js');
-    const manifestJson = await readLockedPluginAsset(lock, 'manifest.json');
-    const stylesCss = await readLockedPluginAsset(lock, 'styles.css');
-    const manifestVersion = extractClientVersion(manifestJson);
-    const lockVersion = String(lock?.client?.version ?? '').trim();
-    if (lockVersion && manifestVersion !== lockVersion) {
-      throw new Error(
-        `Client lock version mismatch (lock=${lockVersion} manifest=${manifestVersion})`,
-      );
-    }
-    return {
-      mainJs,
-      manifestJson,
-      stylesCss,
-      clientVersion: lockVersion || manifestVersion,
-      source: 'locked',
-    };
-  } catch (err) {
-    if (strictLock) {
-      throw err;
-    }
-    const message = err instanceof Error ? err.message : String(err);
-    console.warn(`[bundle] Falling back to legacy plugin assets: ${message}`);
-    const mainJs = await readLegacyPluginAsset('main.js');
-    const manifestJson = await readLegacyPluginAsset('manifest.json');
-    const stylesCss = await readLegacyPluginAsset('styles.css');
-    return {
-      mainJs,
-      manifestJson,
-      stylesCss,
-      clientVersion: extractClientVersion(manifestJson),
-      source: 'legacy',
-    };
+  const lockPayload = await readClientLock();
+  if (!lockPayload) {
+    throw new Error(`Missing client lock at ${CLIENT_LOCK_PATHS.join(' or ')}`);
   }
+  const { lock } = lockPayload;
+  const mainJs = await readLockedPluginAsset(lock, 'main.js');
+  const manifestJson = await readLockedPluginAsset(lock, 'manifest.json');
+  const stylesCss = await readLockedPluginAsset(lock, 'styles.css');
+  const manifestVersion = extractClientVersion(manifestJson);
+  const lockVersion = String(lock?.client?.version ?? '').trim();
+  if (lockVersion && manifestVersion !== lockVersion) {
+    throw new Error(
+      `Client lock version mismatch (lock=${lockVersion} manifest=${manifestVersion})`,
+    );
+  }
+  return {
+    mainJs,
+    manifestJson,
+    stylesCss,
+    clientVersion: lockVersion || manifestVersion,
+    source: 'locked',
+  };
 }
 
 async function readTemplateFiles() {

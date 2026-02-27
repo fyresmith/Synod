@@ -64,8 +64,8 @@ export class CollabWorkspaceManager {
 
     const file = view.file;
     if (!file || !file.path.endsWith('.md')) return;
-
-    await this.attachCollabEditor(leaf, view, file);
+    // Avoid per-event attach races while users switch tabs quickly.
+    // A single open-leaves sync pass is the source of truth.
     this.scheduleOpenLeavesSync();
   }
 

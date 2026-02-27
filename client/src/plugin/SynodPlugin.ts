@@ -22,7 +22,7 @@ import {
   readManagedBinding,
 } from '../main/managedVault';
 import { exchangeBootstrapToken } from './auth/bootstrapExchange';
-import { checkForClientUpdate, installClientUpdate } from './update';
+import { checkAndPrefetchClientUpdate, installClientUpdate } from './update';
 import { flushOfflineQueue, OfflineFlushResult } from './connection/offlineQueueFlusher';
 import { getManagedStatusLabel, getUnmanagedStatusLabel } from './connection/connectionStatus';
 import { bindPluginSocketHandlers } from './connection/socketHandlerFactory';
@@ -452,6 +452,18 @@ export default class SynodPlugin extends Plugin {
     return this.updateResult;
   }
 
+  getLastUpdateCheckAt(): string | null {
+    return this.settings.lastUpdateCheckAt;
+  }
+
+  getCachedUpdateVersion(): string | null {
+    return this.settings.cachedUpdateVersion;
+  }
+
+  getCachedUpdateFetchedAt(): string | null {
+    return this.settings.cachedUpdateFetchedAt;
+  }
+
   isCheckingForUpdates(): boolean {
     return this.checkingForUpdates;
   }
@@ -468,10 +480,23 @@ export default class SynodPlugin extends Plugin {
     this.refreshSettingsTab();
 
     try {
-      const result = await checkForClientUpdate(currentVersion);
-      this.updateResult = result;
+      const outcome = await checkAndPrefetchClientUpdate({
+        adapter: this.app.vault.adapter,
+        pluginId: this.manifest.id,
+        currentVersion,
+      });
+
+      this.updateResult = outcome.result;
+      this.settings.lastUpdateCheckAt = outcome.result.checkedAt;
+      if (outcome.result.status !== 'error') {
+        this.settings.cachedUpdateVersion = outcome.cachedVersion;
+        this.settings.cachedUpdateFetchedAt = outcome.cachedFetchedAt;
+      }
+      await this.saveSettings();
+
+      const result = outcome.result;
       if (result.status === 'error') {
-        new Notice(`Synod: Update check failed — ${result.message}`);
+        new Notice(`Synod: Update check/fetch failed — ${result.message}`);
       } else {
         new Notice(`Synod: ${result.message}`);
       }
@@ -483,14 +508,18 @@ export default class SynodPlugin extends Plugin {
 
   async installPendingUpdateFromUi(): Promise<void> {
     if (this.checkingForUpdates || this.installingUpdate) return;
-    if (!this.updateResult || this.updateResult.status !== 'update_available') {
+
+    const release = this.updateResult?.status === 'update_available'
+      ? this.updateResult.latestRelease
+      : null;
+    const targetVersion = release?.version ?? this.settings.cachedUpdateVersion;
+    if (!targetVersion) {
       new Notice('Synod: No pending update to install.');
       return;
     }
 
-    const release = this.updateResult.latestRelease;
     const confirmInstall = window.confirm(
-      `Install Synod update v${release.version}?`,
+      `Install Synod update v${targetVersion}?`,
     );
     if (!confirmInstall) return;
 
@@ -503,17 +532,28 @@ export default class SynodPlugin extends Plugin {
         pluginId: this.manifest.id,
         release,
         currentVersion: this.getInstalledVersion(),
+        cachedVersionHint: this.settings.cachedUpdateVersion,
       });
 
       new Notice(`Synod: ${result.message}`);
       if (result.status === 'success') {
-        this.updateResult = {
-          status: 'up_to_date',
-          currentVersion: result.toVersion,
-          latestRelease: release,
-          checkedAt: new Date().toISOString(),
-          message: `Synod is up to date (v${result.toVersion}).`,
-        };
+        this.settings.cachedUpdateVersion = null;
+        this.settings.cachedUpdateFetchedAt = null;
+        this.settings.lastUpdateCheckAt = new Date().toISOString();
+        await this.saveSettings();
+
+        if (release) {
+          this.updateResult = {
+            status: 'up_to_date',
+            currentVersion: result.toVersion,
+            latestRelease: release,
+            checkedAt: new Date().toISOString(),
+            message: `Synod is up to date (v${result.toVersion}).`,
+          };
+        } else {
+          this.updateResult = null;
+        }
+
         const reloadPrompt = window.confirm(
           'Synod updated successfully. Open plugin settings so you can disable and re-enable Synod now?',
         );

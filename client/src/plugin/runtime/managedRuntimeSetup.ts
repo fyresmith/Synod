@@ -96,6 +96,15 @@ export function setupManagedRuntime(options: SetupManagedRuntimeOptions): {
   );
 
   registerEvent(
+    app.vault.on('rename', (file, oldPath) => {
+      if (!(file instanceof TFile)) return;
+      if (!isAllowed(oldPath) && !isAllowed(file.path)) return;
+      collabWorkspace.destroyCollabEditorsForPath(oldPath);
+      collabWorkspace.scheduleOpenLeavesSync();
+    }),
+  );
+
+  registerEvent(
     app.workspace.on('file-menu', (menu, file) => {
       if (!(file instanceof TFile)) return;
       if (!isAllowed(file.path)) return;

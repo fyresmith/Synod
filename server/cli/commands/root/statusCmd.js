@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import { SYNOD_CONFIG_FILE } from '../../constants.js';
-import { section } from '../../output.js';
+import { box, kv, divider, statusDot } from '../../output.js';
 import { getSynodServiceStatus } from '../../service.js';
 import { cloudflaredServiceStatus } from '../../tunnel.js';
 import { resolveContext, resolveServiceConfig } from '../../core/context.js';
@@ -12,17 +12,22 @@ export function registerStatusCommand(program) {
     .option('--env-file <path>', 'env file path')
     .action(async (options) => {
       const { config, envFile } = await resolveContext(options);
-      section('Synod Status');
-      console.log(`Config: ${SYNOD_CONFIG_FILE}`);
-      console.log(`Env: ${envFile} ${existsSync(envFile) ? '' : '(missing)'}`);
-      if (config.domain) console.log(`Domain: ${config.domain}`);
-      if (config.tunnelName) console.log(`Tunnel: ${config.tunnelName}`);
 
       const svc = resolveServiceConfig(config);
       const serviceStatus = await getSynodServiceStatus(svc).catch(() => ({ active: false, detail: 'not installed' }));
-      console.log(`Service ${svc.serviceName}: ${serviceStatus.active ? 'active' : 'inactive'}`);
+      const tunnelActive = await cloudflaredServiceStatus().catch(() => false);
 
-      const tunnelSvc = await cloudflaredServiceStatus().catch(() => false);
-      console.log(`cloudflared service: ${tunnelSvc ? 'active' : 'inactive or unknown'}`);
+      const serviceState = serviceStatus.active ? 'running' : 'stopped';
+      const tunnelState  = tunnelActive ? 'running' : 'stopped';
+
+      box('Synod Status', () => {
+        kv('Config', SYNOD_CONFIG_FILE);
+        kv('Env file', `${envFile}${existsSync(envFile) ? '' : ' (missing)'}`);
+        if (config.domain)     kv('Domain', config.domain);
+        if (config.tunnelName) kv('Tunnel', config.tunnelName);
+        divider();
+        kv('Service',    `${statusDot(serviceState)} ${serviceState}  ${svc.serviceName}`);
+        kv('cloudflared', `${statusDot(tunnelState)} ${tunnelActive ? 'running' : 'unknown'}`);
+      });
     });
 }

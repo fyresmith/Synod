@@ -1,4 +1,4 @@
-import { section, success, fail } from '../output.js';
+import { box, kv, section, success, fail } from '../output.js';
 import { EXIT } from '../constants.js';
 import { CliError } from '../errors.js';
 import { loadEnvFile, normalizeEnv, promptForEnv, redactEnv, validateEnvValues } from '../env-file.js';
@@ -72,9 +72,12 @@ export function registerEnvCommands(program) {
       const { envFile } = await resolveContext(options);
       const values = normalizeEnv(await loadEnvFile(envFile));
       const redacted = redactEnv(values);
-      section(`Env (${envFile})`);
-      for (const [key, value] of Object.entries(redacted)) {
-        console.log(`${key}=${value}`);
-      }
+      const entries = Object.entries(redacted);
+
+      box(`Environment — ${envFile}`, () => {
+        for (const [key, value] of entries) {
+          kv(key, value, { labelWidth: 22 });
+        }
+      });
     });
 }

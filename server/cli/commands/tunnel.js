@@ -16,7 +16,7 @@ import {
   setupTunnel,
   tunnelStatus,
 } from '../tunnel.js';
-import { section, success, fail } from '../output.js';
+import { box, divider, kv, section, statusDot, success, fail } from '../output.js';
 import {
   loadValidatedEnv,
   parseInteger,
@@ -92,15 +92,17 @@ export function registerTunnelCommands(program) {
         config.cloudflaredConfigFile || DEFAULT_CLOUDFLARED_CONFIG
       );
       const status = await tunnelStatus({ tunnelName, configFile: cloudflaredConfigFile });
-      section('Tunnel Status');
-      console.log(`Name: ${tunnelName}`);
-      console.log(`Tunnel ID: ${status.tunnel?.id || '(not found)'}`);
-      console.log(`Config file: ${status.configFile} ${status.configExists ? '' : '(missing)'}`);
-      if (config.domain) {
-        console.log(`Domain: ${config.domain}`);
-      }
-      const svc = await cloudflaredServiceStatus().catch(() => false);
-      console.log(`cloudflared service: ${svc ? 'active' : 'inactive or unknown'}`);
+      const svcActive = await cloudflaredServiceStatus().catch(() => false);
+      const svcState = svcActive ? 'running' : 'stopped';
+
+      box('Tunnel Status', () => {
+        kv('Name',        tunnelName);
+        kv('Tunnel ID',   status.tunnel?.id || '(not found)');
+        kv('Config file', `${status.configFile}${status.configExists ? '' : ' (missing)'}`);
+        if (config.domain) kv('Domain', config.domain);
+        divider();
+        kv('cloudflared', `${statusDot(svcState)} ${svcActive ? 'running' : 'inactive or unknown'}`);
+      });
     });
 
   tunnel
@@ -127,22 +129,24 @@ export function registerTunnelCommands(program) {
     .description('Show cloudflared service status')
     .action(async () => {
       const active = await cloudflaredServiceStatus();
-      section('Tunnel Service Status');
-      console.log(active ? 'active' : 'inactive');
+      const state = active ? 'running' : 'stopped';
+
+      box('Tunnel Service Status', () => {
+        kv('cloudflared', `${statusDot(state)} ${active ? 'active' : 'inactive'}`);
+      });
+
       if (process.platform === 'darwin') {
         const listing = await run('launchctl', ['list']).catch(() => ({ stdout: '' }));
         const row = listing.stdout
           .split('\n')
           .find((line) => line.toLowerCase().includes('cloudflared'));
         if (row) {
-          console.log('');
           console.log(row.trim());
         }
       } else if (process.platform === 'linux') {
         const status = await run('sudo', ['systemctl', 'status', 'cloudflared', '--no-pager', '--lines', '20'])
           .catch(() => ({ stdout: '' }));
         if (status.stdout) {
-          console.log('');
           console.log(status.stdout);
         }
       }

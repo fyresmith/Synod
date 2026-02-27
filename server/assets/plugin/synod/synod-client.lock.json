@@ -12,17 +12,17 @@
   },
   "artifacts": {
     "mainJs": {
-      "path": "artifacts/synod-client/0.0.1/main.js",
+      "path": "assets/plugin/synod/main.js",
       "sha256": "7c2064c8f967e902599e2ed1d8220ae56c85531b62441f717329c118a9d2588c",
       "sizeBytes": 522220
     },
     "manifestJson": {
-      "path": "artifacts/synod-client/0.0.1/manifest.json",
+      "path": "assets/plugin/synod/manifest.json",
       "sha256": "f4c14f16f78c9b26c0f8ce830a6b5b4146bd5d70f301cd4866cca41f8d9f8297",
       "sizeBytes": 231
     },
     "stylesCss": {
-      "path": "artifacts/synod-client/0.0.1/styles.css",
+      "path": "assets/plugin/synod/styles.css",
       "sha256": "8ba25b9e05d7ddae25975a729c8ace2a4e1ed9fbce2f11d249f3acac0eb35b2f",
       "sizeBytes": 23568
     }

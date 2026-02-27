@@ -45,7 +45,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
     }
     try {
       await vault.writeFile(relPath, content);
-      io.emit('file-created', { relPath, user });
+      socket.broadcast.emit('file-created', { relPath, user });
       respond(cb, { ok: true });
       console.log(`[socket] file-create: ${relPath} by ${user.username}`);
     } catch (err) {
@@ -87,7 +87,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
         await forceCloseRoom(oldPath);
       }
       await vault.renameFile(oldPath, newPath);
-      io.emit('file-renamed', { oldPath, newPath, user });
+      socket.broadcast.emit('file-renamed', { oldPath, newPath, user });
       respond(cb, { ok: true });
       console.log(`[socket] file-rename: ${oldPath} → ${newPath} by ${user.username}`);
     } catch (err) {

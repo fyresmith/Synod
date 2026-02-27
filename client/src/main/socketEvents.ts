@@ -1,7 +1,7 @@
 import { SocketClient } from '../socket';
 import { FileClaimPayload, FileUnclaimPayload, UserStatusPayload } from '../types';
 
-type FilePathPayload = { relPath: string; user?: any };
+type FilePathPayload = { relPath: string; user?: any; event?: 'add' | 'change' | 'unlink' };
 type RenamePayload = { oldPath: string; newPath: string };
 type PresencePayload = { relPath: string; user: any };
 type UserPayload = { user: any };

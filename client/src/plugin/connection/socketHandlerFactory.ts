@@ -150,11 +150,17 @@ export function bindPluginSocketHandlers(options: BindPluginSocketHandlersOption
 
     onFileRenamed: ({ oldPath, newPath }) => {
       getCollabWorkspace()?.destroyCollabEditorsForPath(oldPath);
+      setTimeout(() => getCollabWorkspace()?.scheduleOpenLeavesSync(), 0);
       void getSyncEngine()?.deleteLocal(oldPath);
       void getSyncEngine()?.pullFile(newPath);
     },
 
-    onExternalUpdate: ({ relPath }) => {
+    onExternalUpdate: ({ relPath, event }) => {
+      if (event === 'unlink') {
+        getCollabWorkspace()?.destroyCollabEditorsForPath(relPath);
+        void getSyncEngine()?.deleteLocal(relPath);
+        return;
+      }
       if (getCollabWorkspace()?.hasCollabPath(relPath)) return;
       void getSyncEngine()?.pullFile(relPath);
     },

@@ -98,3 +98,20 @@
 .synod-settings .synod-update-status[data-state="error"] {
   color: var(--color-red);
 }
+
+.synod-settings .synod-update-status[data-state="cached"] {
+  color: var(--color-green);
+}
+
+.synod-settings .synod-update-meta {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.synod-settings .synod-update-cache-ready[data-state="cached"] {
+  color: var(--color-green);
+}

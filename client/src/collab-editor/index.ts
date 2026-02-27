@@ -29,6 +29,10 @@ export class CollabEditor {
   private yText: Y.Text | null = null;
   private live = false;
   private destroyed = false;
+  private syncWatchdogTimer: ReturnType<typeof setTimeout> | null = null;
+  private syncWatchdogRetries = 0;
+  private readonly SYNC_WATCHDOG_MS = 4000;
+  private readonly SYNC_WATCHDOG_MAX_RETRIES = 3;
 
   private views = new Map<string, CollabViewBinding>();
 
@@ -56,7 +60,56 @@ export class CollabEditor {
   private setLive(live: boolean): void {
     if (this.live === live) return;
     this.live = live;
+    if (live) {
+      this.clearSyncWatchdog();
+      this.syncWatchdogRetries = 0;
+    } else {
+      this.scheduleSyncWatchdog();
+    }
     this.onLiveChange?.(live);
+  }
+
+  private clearSyncWatchdog(): void {
+    if (!this.syncWatchdogTimer) return;
+    clearTimeout(this.syncWatchdogTimer);
+    this.syncWatchdogTimer = null;
+  }
+
+  private scheduleSyncWatchdog(): void {
+    if (this.destroyed || this.live) return;
+    if (!this.provider) return;
+    if (this.views.size === 0) return;
+    if (this.syncWatchdogTimer) return;
+
+    this.syncWatchdogTimer = setTimeout(() => {
+      this.syncWatchdogTimer = null;
+      if (this.destroyed || this.live) return;
+      const provider = this.provider as any;
+      if (!provider) return;
+      if (this.views.size === 0) return;
+      if (this.syncWatchdogRetries >= this.SYNC_WATCHDOG_MAX_RETRIES) {
+        console.warn(`[collab] Sync timeout persists: ${this.filePath}`);
+        // Remove the loading overlay so the user isn't permanently blocked.
+        // The editor stays read-only (no collab extensions attached) until the
+        // provider eventually syncs, at which point activateAllViews() will
+        // attach extensions and restore full editing.
+        this.setLoadingForAll(false);
+        return;
+      }
+
+      this.syncWatchdogRetries += 1;
+      console.warn(
+        `[collab] Sync timeout reconnect (${this.syncWatchdogRetries}/${this.SYNC_WATCHDOG_MAX_RETRIES}): ${this.filePath}`,
+      );
+      try {
+        provider.disconnect?.();
+        provider.connect?.();
+      } catch {
+        // Let provider auto-reconnect behavior continue.
+      }
+
+      this.scheduleSyncWatchdog();
+    }, this.SYNC_WATCHDOG_MS);
   }
 
   isEmpty(): boolean {
@@ -227,14 +280,30 @@ export class CollabEditor {
       params: { token: this.token, vaultId: this.vaultId },
     });
     const provider = this.provider;
+    const activateIfSynced = (): boolean => {
+      if (!(provider as any).synced) return false;
+      this.setLive(true);
+      this.activateAllViews();
+      return true;
+    };
     this.yText = this.ydoc.getText('content');
     this.undoManager = new Y.UndoManager(this.yText);
 
     this.updateAwarenessUser();
+    this.scheduleSyncWatchdog();
 
     provider.on('status', ({ status }: { status: string }) => {
       if (this.destroyed) return;
-      if (status === 'connected') return;
+      if (status === 'connected') {
+        if (activateIfSynced()) return;
+        setTimeout(() => {
+          if (this.destroyed) return;
+          if (!activateIfSynced()) {
+            this.scheduleSyncWatchdog();
+          }
+        }, 60);
+        return;
+      }
       this.setLive(false);
       this.setLoadingForAll(true);
       this.applyReadOnlyToAll(true);
@@ -281,13 +350,11 @@ export class CollabEditor {
         this.applyReadOnlyToAll(true);
         return;
       }
-      this.setLive(true);
-      this.activateAllViews();
+      activateIfSynced();
     });
 
-    if ((provider as any).synced) {
-      this.setLive(true);
-      this.activateAllViews();
+    if (!activateIfSynced()) {
+      this.scheduleSyncWatchdog();
     }
   }
 
@@ -350,6 +417,7 @@ export class CollabEditor {
     this.installInputGuard(bindingKey);
     this.setLoadingState(bindingKey, true);
     this.activateView(bindingKey);
+    this.scheduleSyncWatchdog();
   }
 
   detachView(bindingKey: string): void {
@@ -393,6 +461,9 @@ export class CollabEditor {
     }
 
     this.views.delete(bindingKey);
+    if (this.views.size === 0) {
+      this.clearSyncWatchdog();
+    }
   }
 
   private attachExtensions(bindingKey: string): void {
@@ -490,6 +561,7 @@ export class CollabEditor {
 
     this.provider?.destroy();
     this.ydoc?.destroy();
+    this.clearSyncWatchdog();
     this.provider = null;
     this.ydoc = null;
     this.yText = null;

@@ -1,13 +1,16 @@
 import { readFileSync } from 'fs';
 import * as vault from '../vaultManager.js';
-import * as auth from '../auth.js';
 import { docs, getYDoc, setupWSConnection } from './shared.js';
 import { getOrCreateRoomState } from './roomStateStore.js';
 import { observeRoom } from './persistence.js';
 import { trackRoomClient } from './lifecycle.js';
 
 export function registerConnectionHandler(wss) {
-  wss.on('connection', async (conn, req) => {
+  // Auth is verified in the HTTP upgrade handler (activateRealtime.js) before
+  // the WebSocket is accepted, so this handler can be synchronous and call
+  // setupWSConnection immediately — preventing the race where the client's
+  // initial sync step 1 message arrives before the 'message' listener is wired.
+  wss.on('connection', (conn, req) => {
     const url = new URL(req.url, 'http://localhost');
 
     const rawDocName = url.pathname
@@ -16,16 +19,6 @@ export function registerConnectionHandler(wss) {
 
     if (!rawDocName) {
       conn.close(4000, 'Missing room name');
-      return;
-    }
-
-    const token = url.searchParams.get('token');
-    const vaultId = url.searchParams.get('vaultId');
-    try {
-      await auth.verifyManagedWsAccess(token, vaultId);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unauthorized';
-      conn.close(4001, message);
       return;
     }
 

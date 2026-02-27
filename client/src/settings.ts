@@ -1,6 +1,13 @@
 import { App, PluginSettingTab } from 'obsidian';
 import type SynodPlugin from './main';
 
+function formatTimestamp(input: string | null): string {
+  if (!input) return 'never';
+  const date = new Date(input);
+  if (Number.isNaN(date.getTime())) return input;
+  return date.toLocaleString();
+}
+
 function statusLabel(status: ReturnType<SynodPlugin['getStatus']>): string {
   switch (status) {
     case 'connected':
@@ -25,28 +32,54 @@ export class SynodSettingTab extends PluginSettingTab {
     card.createEl('p', { text: `Installed: v${this.plugin.getInstalledVersion()}` });
 
     const result = this.plugin.getUpdateResult();
+    const lastCheckedAt = this.plugin.getLastUpdateCheckAt();
+    const cachedVersion = this.plugin.getCachedUpdateVersion();
+    const cachedFetchedAt = this.plugin.getCachedUpdateFetchedAt();
     const status = card.createEl('p', { cls: 'synod-update-status' });
+
     if (this.plugin.isCheckingForUpdates()) {
-      status.textContent = 'Checking GitHub releases...';
+      status.textContent = 'Checking and fetching latest synod-client artifact...';
     } else if (this.plugin.isInstallingUpdate()) {
       status.textContent = 'Installing update...';
     } else if (result) {
       status.textContent = result.message;
       status.dataset.state = result.status;
+    } else if (cachedVersion) {
+      status.textContent = `Cached update v${cachedVersion} is ready to install.`;
+      status.dataset.state = 'cached';
+    } else if (lastCheckedAt) {
+      status.textContent = `Last check completed ${formatTimestamp(lastCheckedAt)}.`;
     } else {
       status.textContent = 'No update check has run yet.';
     }
 
+    const meta = card.createDiv({ cls: 'synod-update-meta' });
+    meta.createEl('div', { text: `Last checked: ${formatTimestamp(lastCheckedAt)}` });
+    if (cachedVersion) {
+      const cacheLine = meta.createEl('div', {
+        cls: 'synod-update-cache-ready',
+        text: `Cached: v${cachedVersion}${cachedFetchedAt ? ` (fetched ${formatTimestamp(cachedFetchedAt)})` : ''}`,
+      });
+      cacheLine.dataset.state = 'cached';
+    }
+
     const actions = card.createDiv({ cls: 'synod-settings-actions' });
-    const checkBtn = actions.createEl('button', { text: 'Check for Synod updates' });
+    const checkBtn = actions.createEl('button', { text: 'Check & fetch latest synod-client' });
     checkBtn.disabled = this.plugin.isCheckingForUpdates() || this.plugin.isInstallingUpdate();
     checkBtn.addEventListener('click', async () => {
       await this.plugin.checkForUpdatesFromUi();
       this.display();
     });
 
-    if (result?.status === 'update_available') {
-      const installBtn = actions.createEl('button', { cls: 'mod-cta', text: `Install v${result.latestRelease.version}` });
+    const installVersion = result?.status === 'update_available'
+      ? result.latestRelease.version
+      : cachedVersion;
+    if (installVersion) {
+      const cached = cachedVersion === installVersion;
+      const installBtn = actions.createEl('button', {
+        cls: 'mod-cta',
+        text: cached ? `Install v${installVersion} (cached)` : `Install v${installVersion}`,
+      });
       installBtn.disabled = this.plugin.isCheckingForUpdates() || this.plugin.isInstallingUpdate();
       installBtn.addEventListener('click', async () => {
         await this.plugin.installPendingUpdateFromUi();

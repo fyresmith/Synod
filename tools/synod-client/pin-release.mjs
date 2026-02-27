@@ -7,7 +7,8 @@ const ROOT = resolve(fileURLToPath(new URL('../../', import.meta.url)));
 const CLIENT_ROOT = join(ROOT, 'client');
 const ARTIFACTS_ROOT = join(ROOT, 'artifacts', 'synod-client');
 const LOCK_PATH = join(ROOT, 'release', 'synod-client.lock.json');
-const LEGACY_SERVER_ASSETS_ROOT = join(ROOT, 'server', 'assets', 'plugin', 'synod');
+const PLUGIN_ASSET_ROOT = join(ROOT, 'server', 'assets', 'plugin', 'synod');
+const PACKAGED_LOCK_PATH = join(PLUGIN_ASSET_ROOT, 'synod-client.lock.json');
 
 const SOURCE_FILES = {
   mainJs: 'main.js',
@@ -31,8 +32,8 @@ async function writeArtifact(version, relFile, content) {
   return abs;
 }
 
-async function writeLegacyArtifact(relFile, content) {
-  const abs = join(LEGACY_SERVER_ASSETS_ROOT, relFile);
+async function writeBundledArtifact(relFile, content) {
+  const abs = join(PLUGIN_ASSET_ROOT, relFile);
   await mkdir(dirname(abs), { recursive: true });
   await writeFile(abs, content);
 }
@@ -53,16 +54,22 @@ async function main() {
   }
 
   const artifacts = {};
+  const packagedArtifacts = {};
 
   for (const [key, relFile] of Object.entries(SOURCE_FILES)) {
     const sourceAbs = join(CLIENT_ROOT, relFile);
     const content = await readFile(sourceAbs);
 
     const artifactAbs = await writeArtifact(version, relFile, content);
-    await writeLegacyArtifact(relFile, content);
+    await writeBundledArtifact(relFile, content);
 
     artifacts[key] = {
       path: relative(ROOT, artifactAbs).replace(/\\/g, '/'),
+      sha256: sha256(content),
+      sizeBytes: content.length,
+    };
+    packagedArtifacts[key] = {
+      path: `assets/plugin/synod/${relFile}`,
       sha256: sha256(content),
       sizeBytes: content.length,
     };
@@ -82,12 +89,19 @@ async function main() {
     },
     artifacts,
   };
+  const packagedLock = {
+    ...lock,
+    artifacts: packagedArtifacts,
+  };
 
   await mkdir(dirname(LOCK_PATH), { recursive: true });
   await writeFile(LOCK_PATH, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
+  await mkdir(dirname(PACKAGED_LOCK_PATH), { recursive: true });
+  await writeFile(PACKAGED_LOCK_PATH, `${JSON.stringify(packagedLock, null, 2)}\n`, 'utf8');
 
   console.log(`Pinned synod-client artifacts for version ${version}`);
   console.log(`Lock file: ${relative(ROOT, LOCK_PATH).replace(/\\/g, '/')}`);
+  console.log(`Packaged lock file: ${relative(ROOT, PACKAGED_LOCK_PATH).replace(/\\/g, '/')}`);
 }
 
 main().catch((err) => {

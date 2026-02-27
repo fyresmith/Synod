@@ -9,7 +9,7 @@ import {
   streamSynodServiceLogs,
   uninstallSynodService,
 } from '../service.js';
-import { section, success } from '../output.js';
+import { box, divider, kv, section, statusDot, success } from '../output.js';
 
 export function registerServiceCommands(program) {
   const service = program.command('service').description('Manage Synod OS service');
@@ -71,13 +71,19 @@ export function registerServiceCommands(program) {
       const config = await loadSynodConfig();
       const svc = resolveServiceConfig(config);
       const status = await getSynodServiceStatus(svc);
-      section('Synod Service Status');
-      console.log(`Service: ${svc.serviceName} (${svc.servicePlatform})`);
-      console.log(`Active: ${status.active ? 'yes' : 'no'}`);
-      if (status.detail) {
-        console.log('');
-        console.log(status.detail);
-      }
+      const state = status.active ? 'running' : 'stopped';
+
+      box('Service Status', () => {
+        kv('Service',  svc.serviceName);
+        kv('Platform', svc.servicePlatform);
+        divider();
+        kv('Active', `${statusDot(state)} ${status.active ? 'yes' : 'no'}`);
+        if (status.detail) {
+          divider('detail');
+          console.log('');
+          console.log(status.detail);
+        }
+      });
     });
 
   service

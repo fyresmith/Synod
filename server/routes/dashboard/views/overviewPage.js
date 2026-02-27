@@ -7,7 +7,9 @@ export function renderOverviewPage(state) {
   const memberCount = Object.keys(state.members ?? {}).length;
 
   const body = `
-    <h1>${escapeHtml(state.vaultName ?? 'Synod Vault')}</h1>
+    <div class="page-header">
+      <h1>${escapeHtml(state.vaultName ?? 'Synod Vault')}</h1>
+    </div>
     <div class="stat-grid">
       <div class="stat">
         <div class="value">${memberCount}</div>

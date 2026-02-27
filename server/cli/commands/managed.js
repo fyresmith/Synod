@@ -9,7 +9,7 @@ import {
   removeMember,
   revokeInvite,
 } from '../../lib/managedState.js';
-import { section, success } from '../output.js';
+import { box, divider, kv, success, table } from '../output.js';
 
 async function resolveManagedInputs(options) {
   const { envFile } = await resolveContext(options);
@@ -40,19 +40,22 @@ export function registerManagedCommands(program) {
     .action(async (options) => {
       const { vaultPath, envFile } = await resolveManagedInputs(options);
       const state = await loadManagedState(vaultPath);
-      section('Managed Status');
-      console.log(`Env: ${envFile}`);
-      if (!state) {
-        console.log('Initialized: no');
-        return;
-      }
-      const status = describeManagedStatus(state, state.ownerId);
-      console.log('Initialized: yes');
-      console.log(`Vault Name: ${state.vaultName ?? '(not set)'}`);
-      console.log(`Vault ID: ${status.vaultId}`);
-      console.log(`Owner: ${state.ownerId}`);
-      console.log(`Members: ${status.memberCount}`);
-      console.log(`Invites: ${Object.keys(state.invites ?? {}).length}`);
+
+      box('Managed Vault', () => {
+        kv('Env file', envFile);
+        divider();
+        if (!state) {
+          kv('Initialized', 'no');
+          return;
+        }
+        const status = describeManagedStatus(state, state.ownerId);
+        kv('Initialized', 'yes');
+        kv('Vault Name', state.vaultName ?? '(not set)');
+        kv('Vault ID',   status.vaultId);
+        kv('Owner',      state.ownerId);
+        kv('Members',    String(status.memberCount));
+        kv('Invites',    String(Object.keys(state.invites ?? {}).length));
+      });
     });
 
   const invite = managed.command('invite').description('Manage invite codes');
@@ -71,11 +74,15 @@ export function registerManagedCommands(program) {
         vaultPath,
         createdBy: state.ownerId,
       });
-      success(`Invite created: ${created.code}`);
-      if (synodServerUrl) {
-        console.log(`Claim URL: ${synodServerUrl}/auth/claim?code=${created.code}`);
-        console.log('Next: recipient opens claim URL, signs in, then downloads the Synod vault shell.');
-      }
+
+      box('Invite Created', () => {
+        kv('Code', created.code);
+        if (synodServerUrl) {
+          kv('Claim URL', `${synodServerUrl}/auth/claim?code=${created.code}`);
+          console.log('');
+          console.log('  Next: recipient opens claim URL, signs in, then downloads the Synod vault shell.');
+        }
+      });
     });
 
   invite
@@ -85,19 +92,13 @@ export function registerManagedCommands(program) {
     .action(async (options) => {
       const { vaultPath } = await resolveManagedInputs(options);
       const invites = await listInvites(vaultPath);
-      section('Invites');
-      if (invites.length === 0) {
-        console.log('(none)');
-        return;
-      }
-      for (const inviteRow of invites) {
-        const status = inviteRow.revokedAt
-          ? 'revoked'
-          : inviteRow.usedAt
-            ? `used by ${inviteRow.usedBy}`
-            : 'active';
-        console.log(`${inviteRow.code}  ${status}  created ${inviteRow.createdAt}`);
-      }
+
+      const rows = invites.map((i) => {
+        const status = i.revokedAt ? 'revoked' : i.usedAt ? `used by ${i.usedBy}` : 'active';
+        return [i.code, status, i.createdAt];
+      });
+
+      table(['Code', 'Status', 'Created'], rows, { title: 'Invites' });
     });
 
   invite
@@ -120,16 +121,14 @@ export function registerManagedCommands(program) {
       const { vaultPath } = await resolveManagedInputs(options);
       const state = await loadManagedState(vaultPath);
       assertInitialized(state);
-      section('Members');
+
       const members = Object.values(state.members ?? {});
-      if (members.length === 0) {
-        console.log('(none)');
-        return;
-      }
-      for (const row of members) {
-        const ownerMark = row.id === state.ownerId ? ' (owner)' : '';
-        console.log(`${row.id}${ownerMark}  @${row.username}  added ${row.addedAt}`);
-      }
+      const rows = members.map((m) => {
+        const role = m.id === state.ownerId ? 'owner' : 'member';
+        return [m.id, m.username, role, m.addedAt];
+      });
+
+      table(['User ID', 'Username', 'Role', 'Added'], rows, { title: 'Members' });
     });
 
   member

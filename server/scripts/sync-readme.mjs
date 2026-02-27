@@ -9,7 +9,6 @@ const TARGET_README = resolve(SERVER_ROOT, 'README.md');
 
 async function main() {
   await copyFile(SOURCE_README, TARGET_README);
-  console.log(`Synced README: ${TARGET_README}`);
 }
 
 main().catch((err) => {

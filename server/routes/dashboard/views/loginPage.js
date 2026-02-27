@@ -8,24 +8,28 @@ export function loginPage(error) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Synod Dashboard — Sign In</title>
-  <style>
-    ${BASE_STYLES}
-    .login-wrap { max-width: 400px; margin: 80px auto; padding: 0 16px; }
-    .login-card { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 32px; }
-    .login-card h1 { margin: 0 0 24px; font-size: 1.3rem; }
-  </style>
+  <style>${BASE_STYLES}</style>
 </head>
 <body>
-<div class="login-wrap">
-  <div class="login-card">
-    <h1>Synod Dashboard</h1>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="auth-brand-icon">◈</span>
+      <span class="auth-brand-name">Synod</span>
+    </div>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-subtitle">Sign in to your dashboard</div>
     ${error ? `<div class="alert alert-error">${escapeHtml(error)}</div>` : ''}
     <form method="POST" action="/dashboard/login">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required autofocus placeholder="owner@example.com">
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required>
-      <button class="btn btn-primary" type="submit" style="width:100%;padding:12px">Sign In</button>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autofocus placeholder="owner@example.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button class="btn btn-primary" type="submit" style="width:100%;padding:11px">Sign In</button>
     </form>
   </div>
 </div>

@@ -17,13 +17,13 @@ export function dashboardPage(title, bodyHtml, { activeNav = '' } = {}) {
 </head>
 <body>
 <div class="topbar">
-  <a class="brand" href="/dashboard/overview">Synod</a>
+  <a class="brand" href="/dashboard/overview"><span class="brand-icon">◈</span> Synod</a>
   <nav>
     ${nav('/dashboard/overview', 'Overview')}
     ${nav('/dashboard/invites', 'Invites')}
     ${nav('/dashboard/members', 'Members')}
   </nav>
-  <div class="signout">
+  <div class="topbar-end">
     <form method="POST" action="/dashboard/logout">
       <button type="submit">Sign Out</button>
     </form>

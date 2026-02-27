@@ -1,4 +1,5 @@
-import { readFile, readlink, rm } from 'fs/promises';
+import { mkdir, readFile, readlink, rm } from 'fs/promises';
+import { tmpdir } from 'os';
 import { join } from 'path';
 import { execa } from 'execa';
 
@@ -11,6 +12,59 @@ function readInstallOutput(err) {
   ]
     .filter(Boolean)
     .join('\n');
+}
+
+function buildPermissionFixHint(err) {
+  const output = readInstallOutput(err);
+  if (!output) return '';
+
+  const ownsNpmCache = output.includes('.npm');
+  const ownsNvmPrefix = output.includes('.nvm/versions/node');
+  const hasPermCode = output.includes('EPERM') || output.includes('EACCES');
+  if (!hasPermCode) return '';
+
+  const uid = process.getuid?.() ?? 501;
+  const gid = process.getgid?.() ?? 20;
+  const hints = [];
+  if (ownsNpmCache) {
+    hints.push(`sudo chown -R ${uid}:${gid} "$HOME/.npm"`);
+  }
+  if (ownsNvmPrefix) {
+    hints.push(`sudo chown -R ${uid}:${gid} "$HOME/.nvm/versions/node"`);
+  }
+  if (hints.length === 0) return '';
+
+  return `Permission fix:\n${hints.map((line) => `  ${line}`).join('\n')}`;
+}
+
+function isNpmCacheOwnershipError(err) {
+  const output = readInstallOutput(err);
+  if (!output) return false;
+  const hasCacheOwnershipHint = output.includes('Your cache folder contains root-owned files');
+  const hasNpmCachePath = output.includes('.npm');
+  const hasPermCode = output.includes('EPERM') || output.includes('EACCES');
+  return hasCacheOwnershipHint || (hasNpmCachePath && hasPermCode);
+}
+
+async function runNpm(args, options = {}) {
+  try {
+    return await execa('npm', args, options);
+  } catch (err) {
+    if (!isNpmCacheOwnershipError(err)) throw err;
+
+    const fallbackCache = join(tmpdir(), `synod-npm-cache-${process.getuid?.() ?? 'user'}`);
+    await mkdir(fallbackCache, { recursive: true });
+    console.warn(`Detected npm cache permission issue; retrying with fallback cache: ${fallbackCache}`);
+
+    return execa('npm', args, {
+      ...options,
+      env: {
+        ...process.env,
+        ...options.env,
+        npm_config_cache: fallbackCache,
+      },
+    });
+  }
 }
 
 function getSynodBinConflictPath(err) {
@@ -27,7 +81,7 @@ function getSynodBinConflictPath(err) {
 
 async function installGlobalTarball(tarballPath) {
   try {
-    await execa('npm', ['install', '-g', tarballPath], { stdio: 'inherit' });
+    await runNpm(['install', '-g', tarballPath], { stdio: 'inherit' });
     return;
   } catch (err) {
     const conflictPath = getSynodBinConflictPath(err);
@@ -37,7 +91,25 @@ async function installGlobalTarball(tarballPath) {
     await rm(conflictPath, { force: true });
   }
 
-  await execa('npm', ['install', '-g', tarballPath], { stdio: 'inherit' });
+  await runNpm(['install', '-g', tarballPath], { stdio: 'inherit' });
+}
+
+function parsePackJson(output) {
+  const raw = String(output ?? '').trim();
+  if (!raw) {
+    throw new Error('npm pack returned empty output.');
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const start = raw.indexOf('[');
+    const end = raw.lastIndexOf(']');
+    if (start === -1 || end === -1 || end <= start) {
+      throw new Error(`Unable to parse npm pack output as JSON: ${raw}`);
+    }
+    return JSON.parse(raw.slice(start, end + 1));
+  }
 }
 
 async function getLocalPackageName() {
@@ -52,13 +124,13 @@ async function getLocalPackageName() {
 }
 
 async function getGlobalSynodBinPath() {
-  const { stdout } = await execa('npm', ['prefix', '-g']);
+  const { stdout } = await runNpm(['prefix', '-g']);
   return join(stdout.trim(), 'bin', 'synod');
 }
 
 async function cleanupLegacyGlobalInstalls(packageName) {
   const legacyNames = new Set([packageName, 'synod-server']);
-  await execa('npm', ['uninstall', '-g', ...legacyNames], { stdio: 'inherit' }).catch(() => {});
+  await runNpm(['uninstall', '-g', ...legacyNames], { stdio: 'inherit' }).catch(() => {});
 
   const synodBinPath = await getGlobalSynodBinPath();
   const currentTarget = await readlink(synodBinPath).catch(() => '');
@@ -69,7 +141,7 @@ async function cleanupLegacyGlobalInstalls(packageName) {
 }
 
 async function assertInstalledPackage(packageName) {
-  const { stdout } = await execa('npm', ['ls', '-g', '--depth=0', '--json']);
+  const { stdout } = await runNpm(['ls', '-g', '--depth=0', '--json']);
   const tree = JSON.parse(stdout);
   const deps = tree?.dependencies ?? {};
   if (!deps[packageName]) {
@@ -92,10 +164,10 @@ async function assertInstalledPackage(packageName) {
 async function main() {
   const packageName = await getLocalPackageName();
 
-  await execa('npm', ['run', 'verify'], { stdio: 'inherit' });
+  await runNpm(['run', 'verify'], { stdio: 'inherit' });
 
-  const { stdout } = await execa('npm', ['pack', '--json']);
-  const packResult = JSON.parse(stdout);
+  const { stdout } = await runNpm(['pack', '--json']);
+  const packResult = parsePackJson(stdout);
   const tarball = packResult?.[0]?.filename;
 
   if (!tarball) {
@@ -116,6 +188,11 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(err instanceof Error ? err.message : String(err));
+  const message = err instanceof Error ? err.message : String(err);
+  console.error(message);
+  const hint = buildPermissionFixHint(err);
+  if (hint) {
+    console.error(hint);
+  }
   process.exit(1);
 });
