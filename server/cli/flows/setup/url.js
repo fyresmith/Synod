@@ -3,13 +3,7 @@ import { loadEnvFile, normalizeEnv, writeEnvFile } from '../../env-file.js';
 import { requiredOrFallback } from '../../core/context.js';
 import { validateDomain } from '../../checks.js';
 
-export async function maybeApplyServerUrl({
-  options,
-  yes,
-  envFile,
-  envValues,
-  nextConfig,
-}) {
+export async function maybeApplyServerUrl({ options, yes, envFile, envValues, nextConfig }) {
   let synodServerUrl = requiredOrFallback(
     options.domain ? `https://${options.domain}` : '',
     envValues.SYNOD_SERVER_URL || (nextConfig.domain ? `https://${nextConfig.domain}` : ''),

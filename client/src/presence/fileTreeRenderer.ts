@@ -65,7 +65,7 @@ export function renderAvatarsForPath(
 
       const img = document.createElement('img');
       img.className = 'synod-avatar';
-      img.src = user.avatarUrl;
+      img.src = user.avatarUrl ?? '';
       img.title = user.username;
       img.dataset.id = userId;
       img.style.borderColor = user.color;

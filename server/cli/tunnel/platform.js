@@ -34,8 +34,8 @@ export function isCloudflaredServiceInstalled() {
     return existsSync(CLOUDFLARED_DARWIN_PLIST);
   }
   return (
-    existsSync('/etc/systemd/system/cloudflared.service')
-    || existsSync('/usr/lib/systemd/system/cloudflared.service')
-    || existsSync('/lib/systemd/system/cloudflared.service')
+    existsSync('/etc/systemd/system/cloudflared.service') ||
+    existsSync('/usr/lib/systemd/system/cloudflared.service') ||
+    existsSync('/lib/systemd/system/cloudflared.service')
   );
 }

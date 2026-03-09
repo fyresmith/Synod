@@ -1,4 +1,9 @@
-export { detectPlatform, getCloudflaredPath, getTunnelCredentialsFile, isCloudflaredServiceInstalled } from './platform.js';
+export {
+  detectPlatform,
+  getCloudflaredPath,
+  getTunnelCredentialsFile,
+  isCloudflaredServiceInstalled,
+} from './platform.js';
 export { ensureCloudflaredInstalled } from './install.js';
 export { ensureCloudflaredLogin } from './login.js';
 export { listTunnels, ensureTunnel } from './tunnels.js';

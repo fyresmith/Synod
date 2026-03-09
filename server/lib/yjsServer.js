@@ -1,6 +1,1 @@
-export {
-  getActiveRooms,
-  getRoomStatus,
-  forceCloseRoom,
-  startYjsServer,
-} from './yjs/index.js';
+export { getActiveRooms, getRoomStatus, forceCloseRoom, startYjsServer } from './yjs/index.js';

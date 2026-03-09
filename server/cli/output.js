@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 
 const VIOLET = '#7c3aed';
-const GREEN  = '#16a34a';
-const AMBER  = '#d97706';
-const RED    = '#dc2626';
+const GREEN = '#16a34a';
+const AMBER = '#d97706';
+const RED = '#dc2626';
 
 export function section(title) {
   console.log(`\n${chalk.bold.hex(VIOLET)(title)}`);
@@ -69,10 +69,13 @@ export function box(title, renderFn) {
   const width = 52;
   const titleStr = ` ${title} `;
   const remaining = Math.max(0, width - titleStr.length - 2);
-  const rightDashes = '─'.repeat(remaining);
 
   console.log('');
-  console.log(chalk.hex(VIOLET)(`┌─${titleStr}${'─'.repeat(Math.min(remaining, width - titleStr.length - 1))}┐`));
+  console.log(
+    chalk.hex(VIOLET)(
+      `┌─${titleStr}${'─'.repeat(Math.min(remaining, width - titleStr.length - 1))}┐`,
+    ),
+  );
 
   // Capture output from renderFn by temporarily replacing console.log/error
   const lines = [];
@@ -109,7 +112,9 @@ export function box(title, renderFn) {
 export function table(headers, rows, opts = {}) {
   const { title = '' } = opts;
   if (rows.length === 0) {
-    box(title || 'Table', () => { console.log('  (none)'); });
+    box(title || 'Table', () => {
+      console.log('  (none)');
+    });
     return;
   }
 

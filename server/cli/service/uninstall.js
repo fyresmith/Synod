@@ -24,7 +24,7 @@ export async function uninstallSynodService({ servicePlatform, serviceName, yes 
     const target = getLaunchdTarget(serviceName);
     const plistPath = getLaunchAgentPath(serviceName);
     await run('launchctl', ['bootout', target]).catch(() => {});
-    if (existsSync(plistPath) && await ensureFileWritable(plistPath)) {
+    if (existsSync(plistPath) && (await ensureFileWritable(plistPath))) {
       await rm(plistPath, { force: true });
     }
     return;

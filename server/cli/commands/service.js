@@ -9,7 +9,7 @@ import {
   streamSynodServiceLogs,
   uninstallSynodService,
 } from '../service.js';
-import { box, divider, kv, section, statusDot, success } from '../output.js';
+import { box, divider, kv, statusDot, success } from '../output.js';
 
 export function registerServiceCommands(program) {
   const service = program.command('service').description('Manage Synod OS service');
@@ -74,7 +74,7 @@ export function registerServiceCommands(program) {
       const state = status.active ? 'running' : 'stopped';
 
       box('Service Status', () => {
-        kv('Service',  svc.serviceName);
+        kv('Service', svc.serviceName);
         kv('Platform', svc.servicePlatform);
         divider();
         kv('Active', `${statusDot(state)} ${status.active ? 'yes' : 'no'}`);

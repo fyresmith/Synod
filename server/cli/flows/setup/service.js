@@ -3,7 +3,11 @@ import { installSynodService } from '../../service.js';
 import { success } from '../../output.js';
 
 export async function maybeInstallServiceFlow({ yes, envFile, nextConfig }) {
-  const shouldInstallService = await promptConfirm('Install Synod server as an OS service?', yes, true);
+  const shouldInstallService = await promptConfirm(
+    'Install Synod server as an OS service?',
+    yes,
+    true,
+  );
   if (!shouldInstallService) {
     return { shouldInstallService, nextConfig };
   }

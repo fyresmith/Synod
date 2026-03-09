@@ -32,11 +32,20 @@ export async function ensureCloudflaredInstalled({ yes = false } = {}) {
     await runInherit('brew', ['install', 'cloudflared']);
   } else {
     if (!which.sync('apt-get', { nothrow: true })) {
-      throw new CliError('Unsupported Linux package manager. Install cloudflared manually.', EXIT.PREREQ);
+      throw new CliError(
+        'Unsupported Linux package manager. Install cloudflared manually.',
+        EXIT.PREREQ,
+      );
     }
     await runInherit('sudo', ['mkdir', '-p', '/usr/share/keyrings']);
-    await runInherit('bash', ['-lc', 'curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null']);
-    await runInherit('bash', ['-lc', "echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list >/dev/null"]);
+    await runInherit('bash', [
+      '-lc',
+      'curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null',
+    ]);
+    await runInherit('bash', [
+      '-lc',
+      "echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list >/dev/null",
+    ]);
     await runInherit('sudo', ['apt-get', 'update', '-q']);
     await runInherit('sudo', ['apt-get', 'install', '-y', 'cloudflared']);
   }

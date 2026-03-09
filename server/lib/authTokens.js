@@ -28,7 +28,9 @@ function bootstrapTokenTtlHours() {
 }
 
 export function hashToken(token) {
-  return createHash('sha256').update(String(token ?? ''), 'utf-8').digest('hex');
+  return createHash('sha256')
+    .update(String(token ?? ''), 'utf-8')
+    .digest('hex');
 }
 
 export function signClaimSessionToken(account) {

@@ -126,7 +126,9 @@ export async function runLogsFlow(options = {}) {
   }
 
   if (follow) {
-    throw new CliError('Combined follow logs are not supported on macOS. Use --component synod or --component tunnel.');
+    throw new CliError(
+      'Combined follow logs are not supported on macOS. Use --component synod or --component tunnel.',
+    );
   }
 
   if (synodInstalled) {

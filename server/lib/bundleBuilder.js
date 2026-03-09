@@ -161,7 +161,11 @@ async function readTemplateFiles() {
 }
 
 function sanitizeVaultName(name) {
-  const safe = String(name ?? '').trim().replace(/[/\\:*?"<>|]/g, '').replace(/\s+/g, ' ').trim();
+  const safe = String(name ?? '')
+    .trim()
+    .replace(/[/\\:*?"<>|]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
   return safe || 'Synod Vault';
 }
 
@@ -195,12 +199,10 @@ function isDeniedPath(path, denyPaths) {
   return false;
 }
 
-export async function sendInviteShellBundle(res, {
-  serverUrl,
-  vaultId,
-  bootstrapToken,
-  vaultName,
-}) {
+export async function sendInviteShellBundle(
+  res,
+  { serverUrl, vaultId, bootstrapToken, vaultName },
+) {
   const templateFiles = await readTemplateFiles();
   const pluginAssets = await loadPluginAssets();
   const { mainJs, manifestJson, stylesCss } = pluginAssets;
@@ -255,14 +257,29 @@ export async function sendInviteShellBundle(res, {
     addBuffer(file.content, target);
   }
 
-  addBuffer(Buffer.from(`${JSON.stringify(binding, null, 2)}\n`, 'utf-8'), `${rootPrefix}.obsidian/synod-managed.json`);
+  addBuffer(
+    Buffer.from(`${JSON.stringify(binding, null, 2)}\n`, 'utf-8'),
+    `${rootPrefix}.obsidian/synod-managed.json`,
+  );
   addBuffer(mainJs, `${pluginRoot}/main.js`);
   addBuffer(manifestJson, `${pluginRoot}/manifest.json`);
   addBuffer(stylesCss, `${pluginRoot}/styles.css`);
-  addBuffer(Buffer.from(`${JSON.stringify(pluginData, null, 2)}\n`, 'utf-8'), `${pluginRoot}/data.json`);
-  addBuffer(Buffer.from(`${JSON.stringify([PLUGIN_ID], null, 2)}\n`, 'utf-8'), `${rootPrefix}.obsidian/community-plugins.json`);
-  addBuffer(Buffer.from(`${JSON.stringify(appConfig, null, 2)}\n`, 'utf-8'), `${rootPrefix}.obsidian/app.json`);
-  addBuffer(Buffer.from(`${renderReadme(serverUrl, vaultName)}\n`, 'utf-8'), `${rootPrefix}README.md`);
+  addBuffer(
+    Buffer.from(`${JSON.stringify(pluginData, null, 2)}\n`, 'utf-8'),
+    `${pluginRoot}/data.json`,
+  );
+  addBuffer(
+    Buffer.from(`${JSON.stringify([PLUGIN_ID], null, 2)}\n`, 'utf-8'),
+    `${rootPrefix}.obsidian/community-plugins.json`,
+  );
+  addBuffer(
+    Buffer.from(`${JSON.stringify(appConfig, null, 2)}\n`, 'utf-8'),
+    `${rootPrefix}.obsidian/app.json`,
+  );
+  addBuffer(
+    Buffer.from(`${renderReadme(serverUrl, vaultName)}\n`, 'utf-8'),
+    `${rootPrefix}README.md`,
+  );
 
   const name = `${safeName}.zip`;
   res.setHeader('Content-Type', 'application/zip');

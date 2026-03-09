@@ -50,10 +50,13 @@ export function registerTunnelCommands(program) {
         throw new CliError(`Invalid domain: ${domain}`);
       }
 
-      const tunnelName = requiredOrFallback(options.tunnelName, config.tunnelName || DEFAULT_TUNNEL_NAME);
+      const tunnelName = requiredOrFallback(
+        options.tunnelName,
+        config.tunnelName || DEFAULT_TUNNEL_NAME,
+      );
       const cloudflaredConfigFile = requiredOrFallback(
         options.cloudflaredConfigFile,
-        config.cloudflaredConfigFile || DEFAULT_CLOUDFLARED_CONFIG
+        config.cloudflaredConfigFile || DEFAULT_CLOUDFLARED_CONFIG,
       );
 
       const tunnelResult = await setupTunnel({
@@ -86,22 +89,28 @@ export function registerTunnelCommands(program) {
     .option('--cloudflared-config-file <path>', 'cloudflared config path')
     .action(async (options) => {
       const config = await loadSynodConfig();
-      const tunnelName = requiredOrFallback(options.tunnelName, config.tunnelName || DEFAULT_TUNNEL_NAME);
+      const tunnelName = requiredOrFallback(
+        options.tunnelName,
+        config.tunnelName || DEFAULT_TUNNEL_NAME,
+      );
       const cloudflaredConfigFile = requiredOrFallback(
         options.cloudflaredConfigFile,
-        config.cloudflaredConfigFile || DEFAULT_CLOUDFLARED_CONFIG
+        config.cloudflaredConfigFile || DEFAULT_CLOUDFLARED_CONFIG,
       );
       const status = await tunnelStatus({ tunnelName, configFile: cloudflaredConfigFile });
       const svcActive = await cloudflaredServiceStatus().catch(() => false);
       const svcState = svcActive ? 'running' : 'stopped';
 
       box('Tunnel Status', () => {
-        kv('Name',        tunnelName);
-        kv('Tunnel ID',   status.tunnel?.id || '(not found)');
+        kv('Name', tunnelName);
+        kv('Tunnel ID', status.tunnel?.id || '(not found)');
         kv('Config file', `${status.configFile}${status.configExists ? '' : ' (missing)'}`);
         if (config.domain) kv('Domain', config.domain);
         divider();
-        kv('cloudflared', `${statusDot(svcState)} ${svcActive ? 'running' : 'inactive or unknown'}`);
+        kv(
+          'cloudflared',
+          `${statusDot(svcState)} ${svcActive ? 'running' : 'inactive or unknown'}`,
+        );
       });
     });
 
@@ -111,7 +120,10 @@ export function registerTunnelCommands(program) {
     .option('--tunnel-name <name>', 'tunnel name')
     .action(async (options) => {
       const config = await loadSynodConfig();
-      const tunnelName = requiredOrFallback(options.tunnelName, config.tunnelName || DEFAULT_TUNNEL_NAME);
+      const tunnelName = requiredOrFallback(
+        options.tunnelName,
+        config.tunnelName || DEFAULT_TUNNEL_NAME,
+      );
       await runTunnelForeground({ tunnelName });
     });
 
@@ -144,8 +156,14 @@ export function registerTunnelCommands(program) {
           console.log(row.trim());
         }
       } else if (process.platform === 'linux') {
-        const status = await run('sudo', ['systemctl', 'status', 'cloudflared', '--no-pager', '--lines', '20'])
-          .catch(() => ({ stdout: '' }));
+        const status = await run('sudo', [
+          'systemctl',
+          'status',
+          'cloudflared',
+          '--no-pager',
+          '--lines',
+          '20',
+        ]).catch(() => ({ stdout: '' }));
         if (status.stdout) {
           console.log(status.stdout);
         }

@@ -1,4 +1,5 @@
 export { getManagedStatePath, loadManagedState, saveManagedState } from './io.js';
+export { migrateState } from './migrate.js';
 export { getRole, isMember } from './roles.js';
 export { initManagedState, pairMember, removeMember } from './members.js';
 export { createInvite, listInvites, getInvite, revokeInvite } from './invites.js';

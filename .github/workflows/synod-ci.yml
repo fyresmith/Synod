@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
       - 'server/**'
-      - 'packages/contracts/**'
       - 'release/synod-client.lock.json'
       - 'artifacts/synod-client/**'
       - 'tools/synod-client/**'
@@ -14,7 +13,6 @@ on:
       - main
     paths:
       - 'server/**'
-      - 'packages/contracts/**'
       - 'release/synod-client.lock.json'
       - 'artifacts/synod-client/**'
       - 'tools/synod-client/**'
@@ -26,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,6 +42,18 @@ jobs:
       - name: Install synod-server dependencies
         working-directory: server
         run: npm ci --workspaces=false
+
+      - name: Lint
+        working-directory: server
+        run: npm run lint
+
+      - name: Format check
+        working-directory: server
+        run: npm run format:check
+
+      - name: Run tests
+        working-directory: server
+        run: npm test
 
       - name: Build server package
         working-directory: server

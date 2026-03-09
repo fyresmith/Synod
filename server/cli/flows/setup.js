@@ -16,15 +16,14 @@ export async function runSetupWizard(options) {
 
   section('Synod Setup');
 
-  const { envFile, envValues: initialEnvValues, nextConfig: initialConfig } = await resolveSetupContextAndEnv(options, yes);
-
   const {
-    vaultName,
-    vaultParentPath,
-    ownerEmail,
-    ownerDisplayName,
-    ownerPassword,
-  } = await collectSetupInputs({ yes, envValues: initialEnvValues });
+    envFile,
+    envValues: initialEnvValues,
+    nextConfig: initialConfig,
+  } = await resolveSetupContextAndEnv(options, yes);
+
+  const { vaultName, vaultParentPath, ownerEmail, ownerDisplayName, ownerPassword } =
+    await collectSetupInputs({ yes, envValues: initialEnvValues });
 
   const vaultResult = await maybeGenerateVault({
     yes,

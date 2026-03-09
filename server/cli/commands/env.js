@@ -1,7 +1,13 @@
 import { box, kv, section, success, fail } from '../output.js';
 import { EXIT } from '../constants.js';
 import { CliError } from '../errors.js';
-import { loadEnvFile, normalizeEnv, promptForEnv, redactEnv, validateEnvValues } from '../env-file.js';
+import {
+  loadEnvFile,
+  normalizeEnv,
+  promptForEnv,
+  redactEnv,
+  validateEnvValues,
+} from '../env-file.js';
 import { updateSynodConfig } from '../config.js';
 import { assertEnvFileExists, loadValidatedEnv, resolveContext } from '../core/context.js';
 

@@ -33,7 +33,9 @@ export function createHttpStack() {
 
   const setupRequired = (req, res, next) => {
     if (!String(process.env.VAULT_PATH ?? '').trim()) {
-      return res.status(503).json({ ok: false, error: 'Setup required: configure vault path first.' });
+      return res
+        .status(503)
+        .json({ ok: false, error: 'Setup required: configure vault path first.' });
     }
     next();
   };
@@ -50,13 +52,15 @@ export function createHttpStack() {
 
     const vaultPath = String(process.env.VAULT_PATH ?? '').trim();
     if (!vaultPath) {
-      return res.status(503).json({ ok: false, error: 'Setup required: configure vault path first.' });
+      return res
+        .status(503)
+        .json({ ok: false, error: 'Setup required: configure vault path first.' });
     }
 
     let state;
     try {
       state = await loadManagedState(vaultPath);
-    } catch (err) {
+    } catch (_err) {
       return res.status(500).json({ ok: false, error: 'Failed loading managed state.' });
     }
 

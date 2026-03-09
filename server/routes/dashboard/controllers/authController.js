@@ -13,7 +13,11 @@ export function registerAuthRoutes(router) {
   router.get('/login', async (req, res) => {
     if (!getConfiguredVaultPath()) return res.redirect('/dashboard/setup');
     let state = null;
-    try { state = await loadManagedState(getVaultPath()); } catch { /* uninitialized */ }
+    try {
+      state = await loadManagedState(getVaultPath());
+    } catch {
+      /* uninitialized */
+    }
     if (!state) return res.redirect('/dashboard/setup');
 
     const session = getDashboardSession(req);

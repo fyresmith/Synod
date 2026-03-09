@@ -12,7 +12,7 @@ Synod enables real-time collaborative editing of Obsidian vaults. A self-hosted 
 
 ## Prerequisites
 
-- Node.js ≥ 18
+- Node.js ≥ 20
 - npm ≥ 9
 
 ## Getting started

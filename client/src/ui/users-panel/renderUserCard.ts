@@ -89,7 +89,7 @@ export function renderUserCard(
 
   const header = card.createDiv({ cls: 'synod-user-card-header' });
 
-  buildAvatar(header, user.avatarUrl, user.username, user.color);
+  buildAvatar(header, user.avatarUrl ?? '', user.username, user.color);
 
   const info = header.createDiv({ cls: 'synod-user-card-info' });
   info.createSpan({ cls: 'synod-user-card-name', text: `@${user.username}` });

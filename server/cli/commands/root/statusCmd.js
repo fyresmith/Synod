@@ -14,19 +14,22 @@ export function registerStatusCommand(program) {
       const { config, envFile } = await resolveContext(options);
 
       const svc = resolveServiceConfig(config);
-      const serviceStatus = await getSynodServiceStatus(svc).catch(() => ({ active: false, detail: 'not installed' }));
+      const serviceStatus = await getSynodServiceStatus(svc).catch(() => ({
+        active: false,
+        detail: 'not installed',
+      }));
       const tunnelActive = await cloudflaredServiceStatus().catch(() => false);
 
       const serviceState = serviceStatus.active ? 'running' : 'stopped';
-      const tunnelState  = tunnelActive ? 'running' : 'stopped';
+      const tunnelState = tunnelActive ? 'running' : 'stopped';
 
       box('Synod Status', () => {
         kv('Config', SYNOD_CONFIG_FILE);
         kv('Env file', `${envFile}${existsSync(envFile) ? '' : ' (missing)'}`);
-        if (config.domain)     kv('Domain', config.domain);
+        if (config.domain) kv('Domain', config.domain);
         if (config.tunnelName) kv('Tunnel', config.tunnelName);
         divider();
-        kv('Service',    `${statusDot(serviceState)} ${serviceState}  ${svc.serviceName}`);
+        kv('Service', `${statusDot(serviceState)} ${serviceState}  ${svc.serviceName}`);
         kv('cloudflared', `${statusDot(tunnelState)} ${tunnelActive ? 'running' : 'unknown'}`);
       });
     });

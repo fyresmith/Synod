@@ -4,14 +4,12 @@ on:
   pull_request:
     paths:
       - 'client/**'
-      - 'packages/contracts/**'
       - '.github/workflows/synod-client-ci.yml'
   push:
     branches:
       - main
     paths:
       - 'client/**'
-      - 'packages/contracts/**'
       - '.github/workflows/synod-client-ci.yml'
 
 jobs:
@@ -31,6 +29,10 @@ jobs:
       - name: Install synod-client dependencies
         working-directory: client
         run: npm ci --workspaces=false
+
+      - name: Type check
+        working-directory: client
+        run: npm run typecheck
 
       - name: Build and validate BRAT assets
         working-directory: client

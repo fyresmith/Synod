@@ -9,12 +9,13 @@ import { createInvite, loadManagedState } from '../../../lib/managedState.js';
 import { initializeOwnerManagedVault } from '../../../lib/setupOrchestrator.js';
 
 function sanitizeName(name) {
-  return String(name ?? 'default')
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/^-+|-+$/g, '')
-    || 'default';
+  return (
+    String(name ?? 'default')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/^-+|-+$/g, '') || 'default'
+  );
 }
 
 function resolveVaultPath(name, explicitPath) {
@@ -106,7 +107,9 @@ export function registerSeedCommand(dev) {
         divider();
         console.log('');
         if (isNewVault) {
-          console.log('  Next: open vault in Obsidian, install Synod plugin, then claim with invite code.');
+          console.log(
+            '  Next: open vault in Obsidian, install Synod plugin, then claim with invite code.',
+          );
         }
         console.log(`  Sync plugin:  synod dev sync-plugin --name ${name}`);
       });

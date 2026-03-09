@@ -46,7 +46,7 @@ export function expressMiddleware(req, res, next) {
   try {
     req.user = verifyToken(auth.slice(7));
     next();
-  } catch (err) {
+  } catch (_err) {
     res.status(401).json({ error: 'Invalid token' });
   }
 }
@@ -92,7 +92,7 @@ export function verifyWsToken(token) {
   if (!token) throw new Error('No token');
   try {
     return verifyToken(token);
-  } catch (err) {
+  } catch (_err) {
     throw new Error('Invalid token');
   }
 }

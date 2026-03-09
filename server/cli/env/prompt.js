@@ -24,9 +24,7 @@ export async function promptForEnv({ envFile, existing, yes = false, preset = {}
     return current;
   }
 
-  const questions = [
-    { name: 'PORT', message: 'HTTP port' },
-  ];
+  const questions = [{ name: 'PORT', message: 'HTTP port' }];
 
   const answers = {};
   for (const q of questions) {

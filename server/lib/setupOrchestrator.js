@@ -5,12 +5,14 @@ import { mkdir, readdir, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 
 function slugifyVaultName(name) {
-  return String(name ?? '')
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80) || 'synod-vault';
+  return (
+    String(name ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80) || 'synod-vault'
+  );
 }
 
 async function ensureDirectory(path) {
@@ -25,10 +27,7 @@ async function assertDirectoryEmpty(path) {
   }
 }
 
-export async function createVaultAtParent({
-  parentPath,
-  vaultName,
-}) {
+export async function createVaultAtParent({ parentPath, vaultName }) {
   const base = String(parentPath ?? '').trim();
   if (!base) {
     throw new Error('Vault parent folder is required');

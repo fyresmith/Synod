@@ -4,22 +4,16 @@ import {
   loadManagedState,
   setMemberBootstrapSecret,
 } from '../../../lib/managedState.js';
-import {
-  hashToken,
-  issueBootstrapToken,
-} from '../../../lib/authTokens.js';
-import {
-  clearDownloadTicketCookie,
-  getDownloadTicket,
-} from '../session/claimCookies.js';
+import { hashToken, issueBootstrapToken } from '../../../lib/authTokens.js';
+import { clearDownloadTicketCookie, getDownloadTicket } from '../session/claimCookies.js';
 import { errorPage } from '../views/layout.js';
 import { getServerUrl, getVaultPath } from '../utils/requestContext.js';
 
 export function registerBundleRoutes(router) {
   router.get('/bundle', async (req, res) => {
-    return res.status(405).send(
-      errorPage('Download must be started from the claim success page button.'),
-    );
+    return res
+      .status(405)
+      .send(errorPage('Download must be started from the claim success page button.'));
   });
 
   router.post('/bundle', async (req, res) => {

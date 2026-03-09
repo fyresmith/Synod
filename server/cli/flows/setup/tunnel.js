@@ -16,7 +16,10 @@ export async function maybeSetupTunnelFlow({ options, yes, envValues, nextConfig
   }
 
   const port = parseInteger(envValues.PORT, 'PORT');
-  const tunnelName = requiredOrFallback(options.tunnelName, nextConfig.tunnelName || DEFAULT_TUNNEL_NAME);
+  const tunnelName = requiredOrFallback(
+    options.tunnelName,
+    nextConfig.tunnelName || DEFAULT_TUNNEL_NAME,
+  );
   const cloudflaredConfigFile = requiredOrFallback(
     options.cloudflaredConfigFile,
     nextConfig.cloudflaredConfigFile || DEFAULT_CLOUDFLARED_CONFIG,

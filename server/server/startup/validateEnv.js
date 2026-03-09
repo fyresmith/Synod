@@ -10,6 +10,12 @@ export function validateEnv({ allowSetupMode = false } = {}) {
     }
   }
 
+  if (process.env.JWT_SECRET.length < 32) {
+    console.warn(
+      '[startup] WARNING: JWT_SECRET is shorter than 32 characters — consider using a stronger secret',
+    );
+  }
+
   const port = parseInt(process.env.PORT ?? '3000', 10);
   if (!Number.isInteger(port) || port <= 0) {
     throw new Error('[startup] PORT must be a positive integer');
@@ -23,6 +29,10 @@ export function validateEnv({ allowSetupMode = false } = {}) {
   const hasVaultPath = Boolean(String(process.env.VAULT_PATH ?? '').trim());
   if (!hasVaultPath && !allowSetupMode) {
     throw new Error('[startup] Missing required env var: VAULT_PATH');
+  }
+
+  if (hasVaultPath && !existsSync(process.env.VAULT_PATH)) {
+    throw new Error(`[startup] VAULT_PATH does not exist: ${process.env.VAULT_PATH}`);
   }
 
   return { port, hasVaultPath };

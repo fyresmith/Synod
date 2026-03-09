@@ -22,7 +22,9 @@ export function registerBootstrapRoutes(router) {
     });
     if (!rateLimit.allowed) {
       res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds));
-      return res.status(429).json({ ok: false, error: 'Too many requests. Please wait a few minutes and try again.' });
+      return res
+        .status(429)
+        .json({ ok: false, error: 'Too many requests. Please wait a few minutes and try again.' });
     }
 
     if (!bootstrapToken || !vaultId) {

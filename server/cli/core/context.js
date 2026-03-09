@@ -66,7 +66,9 @@ export function isSynodServiceInstalled({ servicePlatform, serviceName }) {
 }
 
 export function normalizeLogsComponent(value) {
-  const component = String(value ?? 'synod').trim().toLowerCase();
+  const component = String(value ?? 'synod')
+    .trim()
+    .toLowerCase();
   if (component === 'synod' || component === 'tunnel' || component === 'both') {
     return component;
   }
@@ -79,7 +81,10 @@ export function assertEnvFileExists(envFile) {
   }
 }
 
-export async function loadValidatedEnv(envFile, { requireFile = true, requireVaultPath = true } = {}) {
+export async function loadValidatedEnv(
+  envFile,
+  { requireFile = true, requireVaultPath = true } = {},
+) {
   if (requireFile) {
     assertEnvFileExists(envFile);
   }

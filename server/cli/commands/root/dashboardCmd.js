@@ -13,7 +13,10 @@ export function registerDashboardCommand(program) {
     .option('--env-file <path>', 'env file path')
     .action(async (options) => {
       const { envFile } = await resolveContext(options);
-      const { env } = await loadValidatedEnv(envFile, { requireFile: false, requireVaultPath: false });
+      const { env } = await loadValidatedEnv(envFile, {
+        requireFile: false,
+        requireVaultPath: false,
+      });
 
       const port = String(env.PORT || '3000').trim();
       const serverUrl = String(env.SYNOD_SERVER_URL || '').trim() || `http://localhost:${port}`;
@@ -31,7 +34,9 @@ export function registerDashboardCommand(program) {
           info(`Generated JWT_SECRET in ${envFile}`);
         }
 
-        const health = await fetch(`${localUrl}/health`).then((res) => res.ok).catch(() => false);
+        const health = await fetch(`${localUrl}/health`)
+          .then((res) => res.ok)
+          .catch(() => false);
         if (!health) {
           await startSynodServer({ envFile, quiet: true, allowSetupMode: true });
           info(`Synod server started using env: ${envFile}`);
@@ -40,7 +45,8 @@ export function registerDashboardCommand(program) {
 
       console.log(`Dashboard: ${dashboardUrl}`);
 
-      const opener = platform() === 'win32' ? 'explorer' : platform() === 'darwin' ? 'open' : 'xdg-open';
+      const opener =
+        platform() === 'win32' ? 'explorer' : platform() === 'darwin' ? 'open' : 'xdg-open';
       try {
         await run(opener, [dashboardUrl]);
         success('Opened dashboard in browser');

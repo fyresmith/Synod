@@ -13,7 +13,7 @@
     "build:client": "npm run build:brat --workspace @fyresmith/synod-client",
     "verify": "npm run verify:server && npm run verify:client",
     "verify:server": "npm run verify --workspace @fyresmith/synod",
-    "verify:client": "npm run build:brat --workspace @fyresmith/synod-client",
+    "verify:client": "npm run verify --workspace @fyresmith/synod-client",
     "install-synod": "npm run install-synod --workspace @fyresmith/synod",
     "artifacts:pin-client": "node tools/synod-client/pin-release.mjs",
     "artifacts:verify-client": "node tools/synod-client/verify-lock.mjs",
@@ -23,6 +23,6 @@
     "dev": "npm run dev:client & npm run dev:run & npm run dev:plugin-sync; wait"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

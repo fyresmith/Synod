@@ -28,11 +28,9 @@ function isSecureRequest(req) {
 }
 
 export function signDashboardSessionToken(accountId) {
-  return jwt.sign(
-    { purpose: PURPOSE, accountId, role: 'owner' },
-    getJwtSecret(),
-    { expiresIn: '24h' },
-  );
+  return jwt.sign({ purpose: PURPOSE, accountId, role: 'owner' }, getJwtSecret(), {
+    expiresIn: '24h',
+  });
 }
 
 export function verifyDashboardSessionToken(token) {

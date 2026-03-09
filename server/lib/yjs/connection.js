@@ -13,9 +13,7 @@ export function registerConnectionHandler(wss) {
   wss.on('connection', (conn, req) => {
     const url = new URL(req.url, 'http://localhost');
 
-    const rawDocName = url.pathname
-      .replace(/^\/yjs\//, '')
-      .replace(/^\//, '');
+    const rawDocName = url.pathname.replace(/^\/yjs\//, '').replace(/^\//, '');
 
     if (!rawDocName) {
       conn.close(4000, 'Missing room name');

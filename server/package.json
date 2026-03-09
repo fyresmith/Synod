@@ -2,6 +2,7 @@
   "name": "@fyresmith/synod",
   "version": "0.0.1",
   "type": "module",
+  "license": "MIT",
   "description": "Collaborative Obsidian vault server",
   "main": "index.js",
   "files": [
@@ -21,7 +22,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "prepack": "node scripts/sync-readme.mjs",
@@ -34,7 +35,11 @@
     "verify": "node scripts/verify.mjs",
     "install-synod": "node scripts/install-synod.mjs",
     "dev:plugin-sync": "node bin/synod.js dev sync-plugin --all --watch --source ../client",
-    "test": "npm run verify"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "chalk": "^5.6.2",
@@ -53,6 +58,11 @@
     "yjs": "^13.6.18"
   },
   "devDependencies": {
-    "socket.io-client": "^4.8.3"
+    "@eslint/js": "^9.39.3",
+    "eslint": "^9.39.3",
+    "globals": "^15.15.0",
+    "prettier": "^3.8.1",
+    "socket.io-client": "^4.8.3",
+    "vitest": "^2.1.9"
   }
 }

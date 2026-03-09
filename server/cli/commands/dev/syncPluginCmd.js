@@ -156,7 +156,12 @@ export function registerSyncPluginCommand(dev) {
           }
         });
 
-        await new Promise((res) => process.on('SIGINT', () => { watcher.close(); res(); }));
+        await new Promise((res) =>
+          process.on('SIGINT', () => {
+            watcher.close();
+            res();
+          }),
+        );
       }
     });
 }

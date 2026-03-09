@@ -1,17 +1,14 @@
 import { join } from 'path';
 import { SYNOD_HOME } from '../../constants.js';
 import { loadManagedState } from '../../../lib/managedState.js';
-import { createVaultAtParent, initializeOwnerManagedVault } from '../../../lib/setupOrchestrator.js';
+import {
+  createVaultAtParent,
+  initializeOwnerManagedVault,
+} from '../../../lib/setupOrchestrator.js';
 import { writeEnvFile } from '../../env-file.js';
 import { info, success } from '../../output.js';
 
-export async function maybeGenerateVault({
-  yes,
-  envFile,
-  envValues,
-  vaultName,
-  vaultParentPath,
-}) {
+export async function maybeGenerateVault({ yes, envFile, envValues, vaultName, vaultParentPath }) {
   const existingVaultPath = String(envValues.VAULT_PATH ?? '').trim();
   if (!existingVaultPath) {
     let nextVaultName = vaultName;

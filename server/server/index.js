@@ -8,11 +8,7 @@ import { validateEnv } from './startup/validateEnv.js';
 export async function startSynodServer(options = {}) {
   const { envFile, quiet = false, allowSetupMode = false } = options;
 
-  dotenv.config(
-    envFile
-      ? { path: envFile, override: true }
-      : undefined,
-  );
+  dotenv.config(envFile ? { path: envFile, override: true } : undefined);
 
   process.env.SYNOD_ENV_FILE = envFile || process.env.SYNOD_ENV_FILE || DEFAULT_ENV_FILE;
 
@@ -56,11 +52,12 @@ export async function startSynodServer(options = {}) {
     io,
     httpServer,
     port,
-    close: () => new Promise((resolve, reject) => {
-      httpServer.close((err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    }),
+    close: () =>
+      new Promise((resolve, reject) => {
+        httpServer.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      }),
   };
 }

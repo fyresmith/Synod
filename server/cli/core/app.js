@@ -47,9 +47,9 @@ export class SynodCliApp {
     } catch (err) {
       if (err instanceof CommanderError) {
         if (
-          err.code === 'commander.helpDisplayed'
-          || err.code === 'commander.help'
-          || err.message === '(outputHelp)'
+          err.code === 'commander.helpDisplayed' ||
+          err.code === 'commander.help' ||
+          err.message === '(outputHelp)'
         ) {
           return EXIT.OK;
         }

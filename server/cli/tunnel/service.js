@@ -1,21 +1,17 @@
 import { existsSync } from 'fs';
 import { run, runInherit } from '../exec.js';
 import { warn } from '../output.js';
-import {
-  CLOUDFLARED_DARWIN_PLIST,
-  CLOUDFLARED_DARWIN_TARGET,
-  detectPlatform,
-} from './platform.js';
+import { CLOUDFLARED_DARWIN_PLIST, CLOUDFLARED_DARWIN_TARGET, detectPlatform } from './platform.js';
 
 function isMissingCloudflaredService(output) {
   const text = String(output ?? '').toLowerCase();
   return (
-    text.includes('could not find service')
-    || text.includes('service does not exist')
-    || text.includes('unit cloudflared.service not found')
-    || text.includes('could not be found')
-    || text.includes('not loaded')
-    || text.includes('no such file or directory')
+    text.includes('could not find service') ||
+    text.includes('service does not exist') ||
+    text.includes('unit cloudflared.service not found') ||
+    text.includes('could not be found') ||
+    text.includes('not loaded') ||
+    text.includes('no such file or directory')
   );
 }
 
@@ -25,14 +21,7 @@ function isAlreadyInstalledCloudflaredService(output) {
 }
 
 function getCloudflaredErrorOutput(err) {
-  return [
-    err?.stdout,
-    err?.stderr,
-    err?.shortMessage,
-    err?.message,
-  ]
-    .filter(Boolean)
-    .join('\n');
+  return [err?.stdout, err?.stderr, err?.shortMessage, err?.message].filter(Boolean).join('\n');
 }
 
 export async function installCloudflaredService() {
@@ -120,13 +109,14 @@ export async function cloudflaredServiceStatus() {
       return true;
     }
 
-    const systemPrint = await run('launchctl', ['print', CLOUDFLARED_DARWIN_TARGET])
-      .catch((err) => ({ stdout: err?.stdout ?? '', stderr: err?.stderr ?? '' }));
+    const systemPrint = await run('launchctl', ['print', CLOUDFLARED_DARWIN_TARGET]).catch(
+      (err) => ({ stdout: err?.stdout ?? '', stderr: err?.stderr ?? '' }),
+    );
     const combined = `${systemPrint.stdout}\n${systemPrint.stderr}`.toLowerCase();
     if (
-      combined
-      && !combined.includes('could not find service')
-      && !combined.includes('service does not exist')
+      combined &&
+      !combined.includes('could not find service') &&
+      !combined.includes('service does not exist')
     ) {
       return true;
     }

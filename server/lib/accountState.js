@@ -14,7 +14,9 @@ function nowIso() {
 }
 
 function normalizeEmail(value) {
-  return String(value ?? '').trim().toLowerCase();
+  return String(value ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 function parseEmail(value) {
@@ -45,7 +47,15 @@ function normalizeAccount(raw) {
   const createdAt = String(raw.createdAt ?? '').trim();
   const updatedAt = String(raw.updatedAt ?? '').trim();
 
-  if (!id || !emailNorm || !displayName || !passwordHash || !passwordSalt || !createdAt || !updatedAt) {
+  if (
+    !id ||
+    !emailNorm ||
+    !displayName ||
+    !passwordHash ||
+    !passwordSalt ||
+    !createdAt ||
+    !updatedAt
+  ) {
     return null;
   }
 

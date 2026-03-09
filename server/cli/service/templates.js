@@ -46,13 +46,7 @@ ${args}
 `;
 }
 
-export function buildSystemdUnit({
-  serviceName,
-  nodePath,
-  synodBinPath,
-  envFile,
-  user,
-}) {
+export function buildSystemdUnit({ serviceName, nodePath, synodBinPath, envFile, user }) {
   const execStart = `${nodePath} ${synodBinPath} run --env-file ${envFile} --quiet`;
   return `[Unit]
 Description=Synod Collaborative Vault Server

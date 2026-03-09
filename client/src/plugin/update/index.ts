@@ -26,8 +26,8 @@ interface GitHubReleasePayload {
   assets?: GitHubReleaseAsset[];
 }
 
-interface AdapterWithFileOps extends DataAdapter {
-  exists?: (path: string) => Promise<boolean>;
+interface AdapterWithFileOps {
+  exists?: (path: string, sensitive?: boolean) => Promise<boolean>;
   read?: (path: string) => Promise<string>;
   write?: (path: string, data: string) => Promise<void>;
   rename?: (from: string, to: string) => Promise<void>;
@@ -35,6 +35,11 @@ interface AdapterWithFileOps extends DataAdapter {
   mkdir?: (path: string) => Promise<void>;
   rmdir?: (path: string, recursive?: boolean) => Promise<void>;
 }
+
+type UpdateCheckResultWithoutTimestamp =
+  | Omit<Extract<UpdateCheckResult, { status: 'up_to_date' }>, 'checkedAt'>
+  | Omit<Extract<UpdateCheckResult, { status: 'update_available' }>, 'checkedAt'>
+  | Omit<Extract<UpdateCheckResult, { status: 'error' }>, 'checkedAt'>;
 
 interface DownloadedAsset {
   assetName: RequiredAssetName;
@@ -298,7 +303,7 @@ async function loadLatestRelease(): Promise<UpdateReleaseInfo> {
   return release;
 }
 
-function makeResult(result: Omit<UpdateCheckResult, 'checkedAt'>): UpdateCheckResult {
+function makeResult(result: UpdateCheckResultWithoutTimestamp): UpdateCheckResult {
   return {
     ...result,
     checkedAt: new Date().toISOString(),

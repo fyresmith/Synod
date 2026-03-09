@@ -28,9 +28,14 @@ function assert(label, condition, detail = '') {
 /** Create a test JWT signed with the same secret the server uses. */
 function makeToken(overrides = {}) {
   return jwt.sign(
-    { id: '123456789', username: 'test-user', avatarUrl: 'https://example.com/avatar.png', ...overrides },
+    {
+      id: '123456789',
+      username: 'test-user',
+      avatarUrl: 'https://example.com/avatar.png',
+      ...overrides,
+    },
     process.env.JWT_SECRET,
-    { expiresIn: '1h' }
+    { expiresIn: '1h' },
   );
 }
 
@@ -46,16 +51,15 @@ function connect(token, vaultId) {
 function req(socket, event, data) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(`Timeout: ${event}`)), 8000);
-      const cb = (res) => {
-        clearTimeout(timer);
-        if (res?.ok === false) {
-          const err = new Error(res.error ?? 'Server error');
-          if (typeof res.code === 'string') err.code = res.code;
-          reject(err);
-          return;
-        }
-        else resolve(res);
-      };
+    const cb = (res) => {
+      clearTimeout(timer);
+      if (res?.ok === false) {
+        const err = new Error(res.error ?? 'Server error');
+        if (typeof res.code === 'string') err.code = res.code;
+        reject(err);
+        return;
+      } else resolve(res);
+    };
     if (data !== undefined) socket.emit(event, data, cb);
     else socket.emit(event, cb);
   });
@@ -64,7 +68,10 @@ function req(socket, event, data) {
 function waitFor(socket, event, timeoutMs = 5000) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(`Timeout waiting for: ${event}`)), timeoutMs);
-    socket.once(event, (data) => { clearTimeout(timer); resolve(data); });
+    socket.once(event, (data) => {
+      clearTimeout(timer);
+      resolve(data);
+    });
   });
 }
 
@@ -78,15 +85,16 @@ const CANVAS_CONTENT = {
 };
 
 function serverToWsUrl(serverUrl) {
-  return serverUrl
-    .replace(/^https:\/\//, 'wss://')
-    .replace(/^http:\/\//, 'ws://');
+  return serverUrl.replace(/^https:\/\//, 'wss://').replace(/^http:\/\//, 'ws://');
 }
 
 async function waitForProviderSync(provider, timeoutMs = 8000) {
   if (provider.synced) return;
   await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('Timeout waiting for provider sync')), timeoutMs);
+    const timer = setTimeout(
+      () => reject(new Error('Timeout waiting for provider sync')),
+      timeoutMs,
+    );
     provider.on('sync', (isSynced) => {
       if (!isSynced) return;
       clearTimeout(timer);
@@ -111,7 +119,10 @@ async function run() {
   await new Promise((resolve) => {
     const bad = connect('not-a-valid-token', vaultId);
     bad.on('connect_error', (err) => {
-      assert('rejects invalid token', err.message.includes('Invalid token') || err.message.includes('invalid'));
+      assert(
+        'rejects invalid token',
+        err.message.includes('Invalid token') || err.message.includes('invalid'),
+      );
       bad.disconnect();
       resolve();
     });
@@ -120,7 +131,11 @@ async function run() {
       bad.disconnect();
       resolve();
     });
-    setTimeout(() => { assert('rejects invalid token', false, 'timeout'); bad.disconnect(); resolve(); }, 5000);
+    setTimeout(() => {
+      assert('rejects invalid token', false, 'timeout');
+      bad.disconnect();
+      resolve();
+    }, 5000);
   });
 
   // -------------------------------------------------------------------------
@@ -132,8 +147,14 @@ async function run() {
 
   await new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('connect timeout')), 8000);
-    clientA.on('connect', () => { clearTimeout(t); resolve(); });
-    clientA.on('connect_error', (err) => { clearTimeout(t); reject(err); });
+    clientA.on('connect', () => {
+      clearTimeout(t);
+      resolve();
+    });
+    clientA.on('connect_error', (err) => {
+      clearTimeout(t);
+      reject(err);
+    });
   });
   assert('connects with valid token', clientA.connected);
 
@@ -144,7 +165,10 @@ async function run() {
   try {
     const res = await req(clientA, 'vault-sync-request');
     assert('returns manifest array', Array.isArray(res.manifest));
-    assert('manifest entries have path/hash', !res.manifest.length || (res.manifest[0].path && res.manifest[0].hash));
+    assert(
+      'manifest entries have path/hash',
+      !res.manifest.length || (res.manifest[0].path && res.manifest[0].hash),
+    );
     console.log(`  ℹ manifest has ${res.manifest.length} entries`);
   } catch (err) {
     assert('vault-sync-request succeeds', false, err.message);
@@ -158,7 +182,10 @@ async function run() {
   const clientB = connect(tokenB, vaultId);
   await new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('clientB connect timeout')), 8000);
-    clientB.on('connect', () => { clearTimeout(t); resolve(); });
+    clientB.on('connect', () => {
+      clearTimeout(t);
+      resolve();
+    });
     clientB.on('connect_error', reject);
   });
 
@@ -257,7 +284,11 @@ async function run() {
     });
     assert('canvas file-write rejects when room active', false, 'expected rejection');
   } catch (err) {
-    assert('canvas file-write rejects when room active', err.code === 'canvas_collab_active', String(err.message));
+    assert(
+      'canvas file-write rejects when room active',
+      err.code === 'canvas_collab_active',
+      String(err.message),
+    );
   } finally {
     provider.destroy();
     ydoc.destroy();
@@ -309,7 +340,10 @@ async function run() {
   const clientC = connect(makeToken({ id: '111', username: 'cleaner' }), vaultId);
   await new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('clientC connect timeout')), 8000);
-    clientC.on('connect', () => { clearTimeout(t); resolve(); });
+    clientC.on('connect', () => {
+      clearTimeout(t);
+      resolve();
+    });
     clientC.on('connect_error', reject);
   });
 

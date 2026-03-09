@@ -9,11 +9,7 @@ export const DEFAULT_TUNNEL_NAME = 'synod';
 export const DEFAULT_CLOUDFLARED_CONFIG = join(homedir(), '.cloudflared', 'config.yml');
 export const DEFAULT_CLOUDFLARED_CERT = join(homedir(), '.cloudflared', 'cert.pem');
 
-export const REQUIRED_ENV_KEYS = [
-  'JWT_SECRET',
-  'VAULT_PATH',
-  'PORT',
-];
+export const REQUIRED_ENV_KEYS = ['JWT_SECRET', 'VAULT_PATH', 'PORT'];
 
 export const DEFAULT_ENV_VALUES = {
   PORT: '3000',

@@ -30,7 +30,10 @@ export function getAuthRateLimitConfig() {
     windowMs: parsePositiveInt(process.env.SYNOD_RATE_LIMIT_WINDOW_MS, DEFAULT_WINDOW_MS),
     signupMax: parsePositiveInt(process.env.SYNOD_RATE_LIMIT_SIGNUP_MAX, DEFAULT_SIGNUP_MAX),
     signinMax: parsePositiveInt(process.env.SYNOD_RATE_LIMIT_SIGNIN_MAX, DEFAULT_SIGNIN_MAX),
-    bootstrapMax: parsePositiveInt(process.env.SYNOD_RATE_LIMIT_BOOTSTRAP_MAX, DEFAULT_BOOTSTRAP_MAX),
+    bootstrapMax: parsePositiveInt(
+      process.env.SYNOD_RATE_LIMIT_BOOTSTRAP_MAX,
+      DEFAULT_BOOTSTRAP_MAX,
+    ),
   };
 }
 
@@ -40,11 +43,16 @@ export function getClientIp(req) {
     .trim();
   if (forwardedFor) return forwardedFor;
 
-  return String(req.ip ?? req.socket?.remoteAddress ?? req.connection?.remoteAddress ?? '').trim() || 'unknown-ip';
+  return (
+    String(req.ip ?? req.socket?.remoteAddress ?? req.connection?.remoteAddress ?? '').trim() ||
+    'unknown-ip'
+  );
 }
 
 export function normalizeRateLimitIdentity(value, fallback = 'unknown') {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   return normalized || fallback;
 }
 

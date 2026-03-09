@@ -119,7 +119,10 @@ export async function runDoctorChecks({ envFile, includeCloudflared = true }) {
   box('Doctor Summary', () => {
     kv('Passed', String(passes));
     kv('Failed', String(totalIssues));
-    kv('Result', `${statusDot(overall)} ${totalIssues === 0 ? 'All checks passed' : `${totalIssues} issue(s) found`}`);
+    kv(
+      'Result',
+      `${statusDot(overall)} ${totalIssues === 0 ? 'All checks passed' : `${totalIssues} issue(s) found`}`,
+    );
   });
 
   if (prereqFailures > 0) {

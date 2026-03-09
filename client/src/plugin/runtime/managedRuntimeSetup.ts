@@ -78,7 +78,12 @@ export function setupManagedRuntime(options: SetupManagedRuntimeOptions): {
     onLogout,
     getSnapshot: () => ({
       serverUrl: managedBinding.serverUrl ?? settings.serverUrl,
-      user: settings.user,
+      user: settings.user
+        ? {
+          username: settings.user.username,
+          avatarUrl: settings.user.avatarUrl ?? '',
+        }
+        : null,
       isAuthenticated: isAuthenticated(),
     }),
   });

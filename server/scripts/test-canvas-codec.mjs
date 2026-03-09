@@ -38,9 +38,7 @@ async function testRoundTrip(root) {
       { id: 'n2', type: 'text', x: 50, y: 20, text: 'world' },
       { id: 'n1', type: 'text', x: 10, y: 5, text: 'hello' },
     ],
-    edges: [
-      { id: 'e1', fromNode: 'n1', toNode: 'n2' },
-    ],
+    edges: [{ id: 'e1', fromNode: 'n1', toNode: 'n2' }],
     theme: 'dark',
     version: 1,
   };
@@ -53,8 +51,14 @@ async function testRoundTrip(root) {
 
   assert('roundtrip: includes nodes', Array.isArray(parsed.nodes) && parsed.nodes.length === 2);
   assert('roundtrip: includes edges', Array.isArray(parsed.edges) && parsed.edges.length === 1);
-  assert('roundtrip: preserves unknown top-level keys in meta', parsed.meta.theme === 'dark' && parsed.meta.version === 1);
-  assert('roundtrip: deterministic ordering by id', parsed.nodes[0]?.id === 'n1' && parsed.nodes[1]?.id === 'n2');
+  assert(
+    'roundtrip: preserves unknown top-level keys in meta',
+    parsed.meta.theme === 'dark' && parsed.meta.version === 1,
+  );
+  assert(
+    'roundtrip: deterministic ordering by id',
+    parsed.nodes[0]?.id === 'n1' && parsed.nodes[1]?.id === 'n2',
+  );
 }
 
 async function testInvalidEntriesSkipped(root) {
@@ -70,8 +74,14 @@ async function testInvalidEntriesSkipped(root) {
   canvasCodec.hydrateFromDisk(ydoc, relPath);
   const parsed = JSON.parse(canvasCodec.serialize(ydoc));
 
-  assert('invalid entries: keeps only valid node ids', parsed.nodes.length === 1 && parsed.nodes[0].id === 'n1');
-  assert('invalid entries: keeps only valid edge ids', parsed.edges.length === 1 && parsed.edges[0].id === 'e1');
+  assert(
+    'invalid entries: keeps only valid node ids',
+    parsed.nodes.length === 1 && parsed.nodes[0].id === 'n1',
+  );
+  assert(
+    'invalid entries: keeps only valid edge ids',
+    parsed.edges.length === 1 && parsed.edges[0].id === 'e1',
+  );
 }
 
 async function testMetaMerge(root) {

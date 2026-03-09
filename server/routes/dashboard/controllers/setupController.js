@@ -1,12 +1,11 @@
-import { createVaultAtParent, initializeOwnerManagedVault } from '../../../lib/setupOrchestrator.js';
+import {
+  createVaultAtParent,
+  initializeOwnerManagedVault,
+} from '../../../lib/setupOrchestrator.js';
 import { loadManagedState } from '../../../lib/managedState.js';
 import { loadEnvFile, normalizeEnv, writeEnvFile } from '../../../cli/env-file.js';
 import { setDashboardCookie, signDashboardSessionToken } from '../../../lib/dashboardAuth.js';
-import {
-  getConfiguredVaultPath,
-  getEnvFilePath,
-  getVaultPath,
-} from '../utils/requestContext.js';
+import { getConfiguredVaultPath, getEnvFilePath, getVaultPath } from '../utils/requestContext.js';
 import { setupPage } from '../views/setupPage.js';
 import { chooseParentFolder } from '../services/macFolderPicker.js';
 
@@ -14,7 +13,11 @@ export function registerSetupRoutes(router) {
   router.get('/', async (req, res) => {
     if (!getConfiguredVaultPath()) return res.redirect('/dashboard/setup');
     let state = null;
-    try { state = await loadManagedState(getVaultPath()); } catch { /* uninitialized */ }
+    try {
+      state = await loadManagedState(getVaultPath());
+    } catch {
+      /* uninitialized */
+    }
     if (!state) return res.redirect('/dashboard/setup');
 
     if (req.dashboardSession && req.dashboardSession.accountId === state.ownerId) {
@@ -28,7 +31,11 @@ export function registerSetupRoutes(router) {
       return res.send(setupPage());
     }
     let state = null;
-    try { state = await loadManagedState(getVaultPath()); } catch { /* uninitialized */ }
+    try {
+      state = await loadManagedState(getVaultPath());
+    } catch {
+      /* uninitialized */
+    }
     if (state) return res.redirect('/dashboard/login');
     return res.send(setupPage());
   });
@@ -47,13 +54,21 @@ export function registerSetupRoutes(router) {
     const configuredPath = getConfiguredVaultPath();
     if (configuredPath) {
       let state = null;
-      try { state = await loadManagedState(configuredPath); } catch { /* uninitialized */ }
+      try {
+        state = await loadManagedState(configuredPath);
+      } catch {
+        /* uninitialized */
+      }
       if (state) return res.redirect('/dashboard/login');
     }
 
     let state = null;
     if (configuredPath) {
-      try { state = await loadManagedState(configuredPath); } catch { /* uninitialized */ }
+      try {
+        state = await loadManagedState(configuredPath);
+      } catch {
+        /* uninitialized */
+      }
       if (state) return res.redirect('/dashboard/login');
     }
 
@@ -102,7 +117,9 @@ export function registerSetupRoutes(router) {
       setDashboardCookie(req, res, token);
       return res.redirect('/dashboard/overview');
     } catch (err) {
-      return res.send(setupPage(err instanceof Error ? err.message : 'Setup failed. Please try again.'));
+      return res.send(
+        setupPage(err instanceof Error ? err.message : 'Setup failed. Please try again.'),
+      );
     }
   });
 }

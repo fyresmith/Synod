@@ -106,9 +106,7 @@ async function runChecks() {
 try {
   await runChecks();
 } catch (err) {
-  const message = err instanceof Error
-    ? (err.stack || err.message)
-    : String(err);
+  const message = err instanceof Error ? err.stack || err.message : String(err);
   if (message) {
     console.error(message);
   }

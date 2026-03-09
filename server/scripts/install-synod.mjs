@@ -4,14 +4,7 @@ import { join } from 'path';
 import { execa } from 'execa';
 
 function readInstallOutput(err) {
-  return [
-    err?.shortMessage,
-    err?.stderr,
-    err?.stdout,
-    err?.message,
-  ]
-    .filter(Boolean)
-    .join('\n');
+  return [err?.shortMessage, err?.stderr, err?.stdout, err?.message].filter(Boolean).join('\n');
 }
 
 function buildPermissionFixHint(err) {
@@ -54,7 +47,9 @@ async function runNpm(args, options = {}) {
 
     const fallbackCache = join(tmpdir(), `synod-npm-cache-${process.getuid?.() ?? 'user'}`);
     await mkdir(fallbackCache, { recursive: true });
-    console.warn(`Detected npm cache permission issue; retrying with fallback cache: ${fallbackCache}`);
+    console.warn(
+      `Detected npm cache permission issue; retrying with fallback cache: ${fallbackCache}`,
+    );
 
     return execa('npm', args, {
       ...options,
@@ -87,7 +82,9 @@ async function installGlobalTarball(tarballPath) {
     const conflictPath = getSynodBinConflictPath(err);
     if (!conflictPath) throw err;
 
-    console.warn(`Detected stale global synod binary at ${conflictPath}; removing and retrying once.`);
+    console.warn(
+      `Detected stale global synod binary at ${conflictPath}; removing and retrying once.`,
+    );
     await rm(conflictPath, { force: true });
   }
 
@@ -145,16 +142,17 @@ async function assertInstalledPackage(packageName) {
   const tree = JSON.parse(stdout);
   const deps = tree?.dependencies ?? {};
   if (!deps[packageName]) {
-    throw new Error(`Global install validation failed: '${packageName}' not found in npm ls -g output.`);
+    throw new Error(
+      `Global install validation failed: '${packageName}' not found in npm ls -g output.`,
+    );
   }
 
   const synodBinPath = await getGlobalSynodBinPath();
-  const synodTarget = await readlink(synodBinPath)
-    .catch(() => '');
+  const synodTarget = await readlink(synodBinPath).catch(() => '');
   const expectedPath = `/node_modules/${packageName}/`;
   if (!synodTarget || !synodTarget.includes(expectedPath)) {
     throw new Error(
-      `Global install validation failed: ${synodBinPath} does not point to ${packageName} (current: ${synodTarget || 'missing'}).`
+      `Global install validation failed: ${synodBinPath} does not point to ${packageName} (current: ${synodTarget || 'missing'}).`,
     );
   }
 

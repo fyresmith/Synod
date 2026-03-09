@@ -26,7 +26,10 @@ async function resolveManagedInputs(options) {
 
 function assertInitialized(state) {
   if (!state) {
-    throw new CliError('Managed vault is not initialized. Run synod setup or dashboard setup first.', EXIT.FAIL);
+    throw new CliError(
+      'Managed vault is not initialized. Run synod setup or dashboard setup first.',
+      EXIT.FAIL,
+    );
   }
 }
 
@@ -51,10 +54,10 @@ export function registerManagedCommands(program) {
         const status = describeManagedStatus(state, state.ownerId);
         kv('Initialized', 'yes');
         kv('Vault Name', state.vaultName ?? '(not set)');
-        kv('Vault ID',   status.vaultId);
-        kv('Owner',      state.ownerId);
-        kv('Members',    String(status.memberCount));
-        kv('Invites',    String(Object.keys(state.invites ?? {}).length));
+        kv('Vault ID', status.vaultId);
+        kv('Owner', state.ownerId);
+        kv('Members', String(status.memberCount));
+        kv('Invites', String(Object.keys(state.invites ?? {}).length));
       });
     });
 
@@ -68,7 +71,10 @@ export function registerManagedCommands(program) {
       const { vaultPath, synodServerUrl } = await resolveManagedInputs(options);
       const state = await loadManagedState(vaultPath);
       if (!state) {
-        throw new CliError('Managed vault is not initialized. Run synod setup or dashboard setup.', EXIT.FAIL);
+        throw new CliError(
+          'Managed vault is not initialized. Run synod setup or dashboard setup.',
+          EXIT.FAIL,
+        );
       }
       const created = await createInvite({
         vaultPath,
@@ -80,7 +86,9 @@ export function registerManagedCommands(program) {
         if (synodServerUrl) {
           kv('Claim URL', `${synodServerUrl}/auth/claim?code=${created.code}`);
           console.log('');
-          console.log('  Next: recipient opens claim URL, signs in, then downloads the Synod vault shell.');
+          console.log(
+            '  Next: recipient opens claim URL, signs in, then downloads the Synod vault shell.',
+          );
         }
       });
     });

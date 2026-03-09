@@ -1,11 +1,9 @@
-import { existsSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { dirname, join } from 'path';
 import { CliError } from '../errors.js';
 import { EXIT, SYNOD_HOME } from '../constants.js';
 import { run, runInherit } from '../exec.js';
 import {
-  detectPlatform,
   getSynodBinPath,
   getLaunchAgentPath,
   getLaunchdLogsDir,

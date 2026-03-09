@@ -1,13 +1,5 @@
-import {
-  authenticateAccount,
-  createAccount,
-  getAccountById,
-} from '../../../lib/accountState.js';
-import {
-  issueDownloadTicket,
-  signClaimSessionToken,
-  hashToken,
-} from '../../../lib/authTokens.js';
+import { authenticateAccount, createAccount, getAccountById } from '../../../lib/accountState.js';
+import { issueDownloadTicket, signClaimSessionToken, hashToken } from '../../../lib/authTokens.js';
 import {
   pairMember,
   setInviteDownloadTicket,
@@ -58,7 +50,9 @@ export function registerClaimRoutes(router) {
     });
     if (!rateLimit.allowed) {
       res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds));
-      return res.status(429).send(errorPage('Too many requests. Please wait a few minutes and try again.'));
+      return res
+        .status(429)
+        .send(errorPage('Too many requests. Please wait a few minutes and try again.'));
     }
 
     try {
@@ -90,7 +84,9 @@ export function registerClaimRoutes(router) {
     });
     if (!rateLimit.allowed) {
       res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds));
-      return res.status(429).send(errorPage('Too many requests. Please wait a few minutes and try again.'));
+      return res
+        .status(429)
+        .send(errorPage('Too many requests. Please wait a few minutes and try again.'));
     }
 
     try {
@@ -135,7 +131,11 @@ export function registerClaimRoutes(router) {
       });
 
       if (!result.paired) {
-        return res.status(400).send(errorPage('This account is already paired. Ask your owner for a new invite if needed.'));
+        return res
+          .status(400)
+          .send(
+            errorPage('This account is already paired. Ask your owner for a new invite if needed.'),
+          );
       }
 
       const ticket = issueDownloadTicket();
@@ -156,7 +156,9 @@ export function registerClaimRoutes(router) {
   router.get('/claim/success', async (req, res) => {
     const ticket = getDownloadTicket(req);
     if (!ticket) {
-      return res.status(400).send(errorPage('No active download ticket. Please claim an invite again.'));
+      return res
+        .status(400)
+        .send(errorPage('No active download ticket. Please claim an invite again.'));
     }
     try {
       const state = await loadManagedState(getVaultPath());
