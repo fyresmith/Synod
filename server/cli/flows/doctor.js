@@ -8,7 +8,7 @@ import { run } from '../exec.js';
 import { getCloudflaredPath } from '../tunnel.js';
 import { box, fail, info, kv, section, statusDot, success, warn } from '../output.js';
 import { loadValidatedEnv } from '../core/context.js';
-import { loadManagedState } from '../../lib/managedState.js';
+import { loadManagedState } from '../../lib/managed-state/index.js';
 
 export async function runDoctorChecks({ envFile, includeCloudflared = true }) {
   section('Synod Doctor');

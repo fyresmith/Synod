@@ -1,7 +1,8 @@
-import * as vault from '../../lib/vaultManager.js';
-import { attachHandlers } from '../../lib/socketHandler.js';
-import { forceCloseRoom, getActiveRooms, startYjsServer } from '../../lib/yjsServer.js';
-import { loadManagedState } from '../../lib/managedState.js';
+import { SocketEvents } from '@fyresmith/synod-contracts';
+import * as vault from '../../lib/vault/index.js';
+import { attachHandlers } from '../../lib/socket/index.js';
+import { forceCloseRoom, getActiveRooms, startYjsServer } from '../../lib/yjs/index.js';
+import { loadManagedState } from '../../lib/managed-state/index.js';
 import * as auth from '../../lib/auth.js';
 
 export function createRealtimeActivator({ io, httpServer, broadcastFileUpdated, quiet = false }) {
@@ -13,9 +14,9 @@ export function createRealtimeActivator({ io, httpServer, broadcastFileUpdated, 
     if (!vaultPath) return;
 
     await loadManagedState(vaultPath);
-    attachHandlers(io, getActiveRooms, broadcastFileUpdated, forceCloseRoom);
+    attachHandlers(io, getActiveRooms, forceCloseRoom);
 
-    const yjsWss = startYjsServer(httpServer, broadcastFileUpdated);
+    const yjsWss = startYjsServer(broadcastFileUpdated);
     httpServer.on('upgrade', async (req, socket, head) => {
       const { pathname, searchParams } = new URL(req.url, 'http://localhost');
       if (!pathname.startsWith('/yjs')) return;
@@ -51,7 +52,7 @@ export function createRealtimeActivator({ io, httpServer, broadcastFileUpdated, 
       if (!quiet) {
         console.log(`[chokidar] External ${event}: ${relPath}`);
       }
-      io.emit('external-update', { relPath, event });
+      io.emit(SocketEvents.EXTERNAL_UPDATE, { relPath, event });
     });
 
     realtimeActive = true;

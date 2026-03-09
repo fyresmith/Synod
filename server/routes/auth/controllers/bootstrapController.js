@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { consumeMemberBootstrapSecretByToken } from '../../../lib/managedState.js';
+import { consumeMemberBootstrapSecretByToken } from '../../../lib/managed-state/index.js';
 import { hashToken } from '../../../lib/authTokens.js';
 import {
   checkRateLimit,

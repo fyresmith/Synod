@@ -1,59 +1,48 @@
 import { Plugin, Notice } from 'obsidian';
+import { SocketEvents } from '@fyresmith/synod-contracts';
 import {
   PluginSettings,
   ConnectionStatus,
   ManagedVaultBinding,
   UpdateCheckResult,
 } from '../types';
-import { SocketClient } from '../socket';
-import { SyncEngine } from '../sync';
-import { WriteInterceptor } from '../writeInterceptor';
 import { PresenceManager } from '../presence';
 import { OfflineGuard } from '../offline-guard';
-import { OfflineQueue } from '../offlineQueue';
 import { SynodSettingTab } from '../settings';
 import { getUserColor, normalizeCursorColor } from '../cursorColor';
 import { migrateSettings } from '../main/migrateSettings';
 import { disablePlugin, openSettingTab } from '../obsidianInternal';
 import { CollabWorkspaceManager } from '../main/collabWorkspaceManager';
-import { ReconnectBanner } from '../ui/reconnectBanner';
 import { SynodUsersPanel, SYNOD_USERS_VIEW } from '../ui/users-panel';
 import {
   readManagedBinding,
 } from '../main/managedVault';
 import { exchangeBootstrapToken } from './auth/bootstrapExchange';
-import { checkAndPrefetchClientUpdate, installClientUpdate } from './update';
-import { flushOfflineQueue, OfflineFlushResult } from './connection/offlineQueueFlusher';
 import { getManagedStatusLabel, getUnmanagedStatusLabel } from './connection/connectionStatus';
-import { bindPluginSocketHandlers } from './connection/socketHandlerFactory';
 import { setupManagedRuntime as configureManagedRuntime } from './runtime/managedRuntimeSetup';
 import { revealUsersPanel } from './ui/usersPanelLauncher';
+import { UpdateManager } from './UpdateManager';
+import { ConnectionManager } from './ConnectionManager';
 
 export default class SynodPlugin extends Plugin {
   settings: PluginSettings;
 
   private settingsTab: SynodSettingTab | null = null;
   private managedBinding: ManagedVaultBinding | null = null;
-  private socket: SocketClient | null = null;
-  private syncEngine: SyncEngine | null = null;
-  private writeInterceptor: WriteInterceptor | null = null;
-  presenceManager: PresenceManager | null = null;
   private offlineGuard: OfflineGuard | null = null;
   private collabWorkspace: CollabWorkspaceManager | null = null;
   private statusBarItem: HTMLElement;
   private followStatusBarItem: HTMLElement | null = null;
   private status: ConnectionStatus = 'disconnected';
-  private isConnecting = false;
-  private offlineQueue: OfflineQueue = new OfflineQueue();
-
-  private reconnectBanner = new ReconnectBanner();
-  private disconnectGraceTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly DISCONNECT_GRACE_MS = 8000;
-  private updateResult: UpdateCheckResult | null = null;
-  private checkingForUpdates = false;
-  private installingUpdate = false;
 
   followTargetId: string | null = null;
+
+  private updateManager: UpdateManager;
+  private connectionManager: ConnectionManager;
+
+  get presenceManager(): PresenceManager | null {
+    return this.connectionManager?.presenceManager ?? null;
+  }
 
   private async disablePluginFromUi(): Promise<void> {
     const result = disablePlugin(this.app, this.manifest.id);
@@ -62,7 +51,7 @@ export default class SynodPlugin extends Plugin {
       return;
     }
 
-    this.teardownConnection(true);
+    this.connectionManager.teardown(true);
     this.offlineGuard?.unlock();
     new Notice('Synod: Please disable the plugin from Obsidian settings.');
   }
@@ -87,6 +76,31 @@ export default class SynodPlugin extends Plugin {
       if (needsSave) await this.saveSettings();
     }
 
+    this.updateManager = new UpdateManager({
+      manifest: this.manifest,
+      settings: this.settings,
+      saveSettings: () => this.saveSettings(),
+      refreshSettingsTab: () => this.refreshSettingsTab(),
+      openSettingsTab: () => this.openSettingsTab(),
+      adapter: this.app.vault.adapter,
+    });
+
+    this.connectionManager = new ConnectionManager({
+      app: this.app,
+      settings: this.settings,
+      getManagedBinding: () => this.managedBinding,
+      isManagedVault: () => this.isManagedVault(),
+      getStatus: () => this.status,
+      setStatus: (status) => this.setStatus(status),
+      saveSettings: () => this.saveSettings(),
+      setFollowTarget: (userId) => this.setFollowTarget(userId),
+      getFollowTarget: () => this.followTargetId,
+      getOfflineGuard: () => this.offlineGuard,
+      getCollabWorkspace: () => this.collabWorkspace,
+      onPresenceManagerUpdated: () => { /* presence access via connectionManager.presenceManager */ },
+      reattachPresenceCallback: () => this.reattachPresenceCallback(),
+    });
+
     this.settingsTab = new SynodSettingTab(this.app, this);
     this.addSettingTab(this.settingsTab);
 
@@ -109,11 +123,11 @@ export default class SynodPlugin extends Plugin {
     if (this.isManagedVault()) {
       this.setupManagedRuntime();
       if (this.settings.token) {
-        await this.connect();
+        await this.connectionManager.connect();
       } else if (this.settings.bootstrapToken) {
         const exchanged = await this.exchangeBootstrapToken();
         if (exchanged && this.settings.token) {
-          await this.connect();
+          await this.connectionManager.connect();
         } else {
           this.setStatus('auth-required');
           this.offlineGuard?.lock('signed-out');
@@ -141,7 +155,7 @@ export default class SynodPlugin extends Plugin {
       app: this.app,
       managedBinding: this.managedBinding,
       settings: this.settings,
-      isSocketConnected: () => Boolean(this.socket?.connected),
+      isSocketConnected: () => Boolean(this.connectionManager.socket?.connected),
       isAuthenticated: () => this.isAuthenticated(),
       registerView: (viewType, viewCreator) => this.registerView(viewType, viewCreator),
       createUsersPanelView: (leaf) => new SynodUsersPanel(leaf, this),
@@ -150,7 +164,7 @@ export default class SynodPlugin extends Plugin {
       onRevealUsersPanel: () => this.revealUsersPanel(),
       onPresenceFileOpened: (path) => this.emitPresenceFileOpened(path),
       onPresenceFileClosed: (path) => this.emitPresenceFileClosed(path),
-      onReconnect: () => this.reconnectFromUi(),
+      onReconnect: () => this.connectionManager.reconnect(),
       onDisable: () => {
         void this.disablePluginFromUi();
       },
@@ -172,90 +186,13 @@ export default class SynodPlugin extends Plugin {
     return this.managedBinding;
   }
 
-  private getManagedBindingOrThrow(): ManagedVaultBinding {
-    if (!this.managedBinding) {
-      throw new Error('This vault is not a Managed Vault.');
-    }
-    return this.managedBinding;
-  }
-
-  async connect(): Promise<void> {
-    if (!this.isManagedVault()) return;
-    if (this.socket?.connected || this.isConnecting) return;
-    if (!this.settings.token) {
-      this.setStatus('auth-required');
-      this.offlineGuard?.lock('signed-out');
-      return;
-    }
-
-    const binding = this.getManagedBindingOrThrow();
-
-    if (this.disconnectGraceTimer !== null) {
-      clearTimeout(this.disconnectGraceTimer);
-      this.disconnectGraceTimer = null;
-    }
-    this.reconnectBanner.hide();
-
-    this.isConnecting = true;
-    this.setStatus('connecting');
-    this.offlineGuard?.lock('connecting');
-    this.teardownConnection(false);
-
-    this.socket = new SocketClient(binding.serverUrl, this.settings.token, binding.vaultId);
-    this.presenceManager = new PresenceManager(this.settings);
-
-    this.reattachPresenceCallback();
-
-    this.syncEngine = new SyncEngine(this.socket, this.app.vault, {
-      localMissingStrategy: 'quarantine',
-      hashCache: this.settings.syncHashCache,
-    });
-    this.writeInterceptor = new WriteInterceptor(
-      this.socket,
-      this.app.vault,
-      this.syncEngine,
-      () => this.collabWorkspace?.getCollabPaths() ?? new Set(),
-      this.offlineQueue,
-    );
-
-    bindPluginSocketHandlers({
-      socket: this.socket,
-      app: this.app,
-      getSyncEngine: () => this.syncEngine,
-      getWriteInterceptor: () => this.writeInterceptor,
-      getPresenceManager: () => this.presenceManager,
-      getCollabWorkspace: () => this.collabWorkspace,
-      setIsConnecting: (value) => {
-        this.isConnecting = value;
-      },
-      setStatus: (status) => this.setStatus(status),
-      unlockOffline: () => this.offlineGuard?.unlock(),
-      lockOffline: (mode) => this.offlineGuard?.lock(mode),
-      teardownConnection: (unlockGuard) => this.teardownConnection(unlockGuard),
-      showReconnectBanner: () => {
-        this.reconnectBanner.show(() => void this.reconnectFromUi());
-      },
-      onDisconnectGracePeriodEnd: () => {
-        this.disconnectGraceTimer = setTimeout(() => {
-          this.disconnectGraceTimer = null;
-          this.reconnectBanner.hide();
-          this.offlineGuard?.lock('disconnected');
-        }, this.DISCONNECT_GRACE_MS);
-      },
-      flushOfflineQueue: () => this.flushOfflineQueue(),
-      clearOfflineQueue: () => this.offlineQueue.clear(),
-      saveSettings: () => this.saveSettings(),
-      setFollowTarget: (userId) => this.setFollowTarget(userId),
-      getFollowTarget: () => this.followTargetId,
-    });
-  }
-
   private reattachPresenceCallback(): void {
-    if (!this.presenceManager) return;
+    const presenceManager = this.connectionManager?.presenceManager;
+    if (!presenceManager) return;
     const leaves = this.app.workspace.getLeavesOfType(SYNOD_USERS_VIEW);
     if (leaves.length === 0) return;
     const panel = leaves[0].view as SynodUsersPanel;
-    this.presenceManager.onChanged = () => {
+    presenceManager.onChanged = () => {
       panel.render();
       this.refreshStatusCount();
     };
@@ -268,26 +205,26 @@ export default class SynodPlugin extends Plugin {
   }
 
   private emitPresenceFileOpened(path: string): void {
-    if (!this.socket?.connected) return;
-    this.socket.emit('presence-file-opened', {
+    if (!this.connectionManager.socket?.connected) return;
+    this.connectionManager.socket.emit(SocketEvents.PRESENCE_OPENED, {
       relPath: path,
       color: this.getPresenceColor(),
     });
   }
 
   private emitPresenceFileClosed(path: string): void {
-    if (!this.socket?.connected) return;
-    this.socket.emit('presence-file-closed', path);
+    if (!this.connectionManager.socket?.connected) return;
+    this.connectionManager.socket.emit(SocketEvents.PRESENCE_CLOSED, path);
   }
 
   emitUserStatus(status: string): void {
-    if (!this.socket?.connected) return;
-    this.socket.emit('user-status-changed', { status });
+    if (!this.connectionManager.socket?.connected) return;
+    this.connectionManager.socket.emit(SocketEvents.USER_STATUS, { status });
   }
 
   claimFile(relPath: string): void {
-    if (!this.socket?.connected) return;
-    this.socket.emit('file-claim', { relPath });
+    if (!this.connectionManager.socket?.connected) return;
+    this.connectionManager.socket.emit(SocketEvents.FILE_CLAIM, { relPath });
     const user = this.settings.user;
     if (user) {
       const color = this.getPresenceColor() ?? '#888888';
@@ -296,8 +233,8 @@ export default class SynodPlugin extends Plugin {
   }
 
   unclaimFile(relPath: string): void {
-    if (!this.socket?.connected) return;
-    this.socket.emit('file-unclaim', { relPath });
+    if (!this.connectionManager.socket?.connected) return;
+    this.connectionManager.socket.emit(SocketEvents.FILE_UNCLAIM, { relPath });
     this.presenceManager?.handleFileUnclaimed(relPath);
   }
 
@@ -328,34 +265,6 @@ export default class SynodPlugin extends Plugin {
   private async revealUsersPanel(): Promise<void> {
     if (!this.isManagedVault()) return;
     await revealUsersPanel(this.app);
-  }
-
-  private teardownConnection(unlockGuard: boolean): void {
-    this.isConnecting = false;
-    this.collabWorkspace?.resetSyncState();
-
-    this.writeInterceptor?.unregister();
-    this.writeInterceptor = null;
-
-    this.collabWorkspace?.destroyAllCollabEditors();
-
-    this.presenceManager?.unregister();
-    this.presenceManager = null;
-    this.syncEngine = null;
-
-    if (this.socket) {
-      const socket = this.socket;
-      this.socket = null;
-      socket.disconnect();
-    }
-
-    if (unlockGuard) {
-      this.offlineGuard?.unlock();
-    }
-  }
-
-  private async flushOfflineQueue(): Promise<OfflineFlushResult> {
-    return flushOfflineQueue(this.socket, this.offlineQueue);
   }
 
   private refreshSettingsTab(): void {
@@ -399,7 +308,7 @@ export default class SynodPlugin extends Plugin {
       this.settings.useProfileForCursor,
     );
 
-    if (this.socket?.connected) {
+    if (this.connectionManager.socket?.connected) {
       for (const path of this.collabWorkspace?.getCollabPaths() ?? []) {
         this.emitPresenceFileOpened(path);
       }
@@ -416,22 +325,22 @@ export default class SynodPlugin extends Plugin {
       new Notice('Synod: Re-open your managed vault package or ask the owner for a new invite.');
       return;
     }
-    await this.connect();
+    await this.connectionManager.connect();
   }
 
   async logout(): Promise<void> {
-    this.isConnecting = false;
-    this.offlineQueue.clear();
+    this.connectionManager.isConnecting = false;
+    this.connectionManager.offlineQueue.clear();
     this.settings.token = null;
     this.settings.bootstrapToken = null;
     this.settings.user = null;
     await this.saveSettings();
 
     if (this.isManagedVault()) {
-      this.teardownConnection(false);
+      this.connectionManager.teardown(false);
       this.setStatus('auth-required');
       this.offlineGuard?.lock('signed-out');
-      this.reconnectBanner.hide();
+      this.connectionManager.hideBanner();
       if (this.followStatusBarItem) this.followStatusBarItem.style.display = 'none';
     } else {
       this.setStatus('auth-required');
@@ -444,153 +353,48 @@ export default class SynodPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
+  // Update manager delegates
   getInstalledVersion(): string {
-    return String(this.manifest.version ?? '').trim() || 'unknown';
+    return this.updateManager.getInstalledVersion();
   }
 
   getUpdateResult(): UpdateCheckResult | null {
-    return this.updateResult;
+    return this.updateManager.getUpdateResult();
   }
 
   getLastUpdateCheckAt(): string | null {
-    return this.settings.lastUpdateCheckAt;
+    return this.updateManager.getLastUpdateCheckAt();
   }
 
   getCachedUpdateVersion(): string | null {
-    return this.settings.cachedUpdateVersion;
+    return this.updateManager.getCachedUpdateVersion();
   }
 
   getCachedUpdateFetchedAt(): string | null {
-    return this.settings.cachedUpdateFetchedAt;
+    return this.updateManager.getCachedUpdateFetchedAt();
   }
 
   isCheckingForUpdates(): boolean {
-    return this.checkingForUpdates;
+    return this.updateManager.isCheckingForUpdates();
   }
 
   isInstallingUpdate(): boolean {
-    return this.installingUpdate;
+    return this.updateManager.isInstallingUpdate();
   }
 
   async checkForUpdatesFromUi(): Promise<void> {
-    if (this.checkingForUpdates || this.installingUpdate) return;
-
-    const currentVersion = this.getInstalledVersion();
-    this.checkingForUpdates = true;
-    this.refreshSettingsTab();
-
-    try {
-      const outcome = await checkAndPrefetchClientUpdate({
-        adapter: this.app.vault.adapter,
-        pluginId: this.manifest.id,
-        currentVersion,
-      });
-
-      this.updateResult = outcome.result;
-      this.settings.lastUpdateCheckAt = outcome.result.checkedAt;
-      if (outcome.result.status !== 'error') {
-        this.settings.cachedUpdateVersion = outcome.cachedVersion;
-        this.settings.cachedUpdateFetchedAt = outcome.cachedFetchedAt;
-      }
-      await this.saveSettings();
-
-      const result = outcome.result;
-      if (result.status === 'error') {
-        new Notice(`Synod: Update check/fetch failed — ${result.message}`);
-      } else {
-        new Notice(`Synod: ${result.message}`);
-      }
-    } finally {
-      this.checkingForUpdates = false;
-      this.refreshSettingsTab();
-    }
+    await this.updateManager.checkForUpdates();
   }
 
   async installPendingUpdateFromUi(): Promise<void> {
-    if (this.checkingForUpdates || this.installingUpdate) return;
-
-    const release = this.updateResult?.status === 'update_available'
-      ? this.updateResult.latestRelease
-      : null;
-    const targetVersion = release?.version ?? this.settings.cachedUpdateVersion;
-    if (!targetVersion) {
-      new Notice('Synod: No pending update to install.');
-      return;
-    }
-
-    const confirmInstall = window.confirm(
-      `Install Synod update v${targetVersion}?`,
-    );
-    if (!confirmInstall) return;
-
-    this.installingUpdate = true;
-    this.refreshSettingsTab();
-
-    try {
-      const result = await installClientUpdate({
-        adapter: this.app.vault.adapter,
-        pluginId: this.manifest.id,
-        release,
-        currentVersion: this.getInstalledVersion(),
-        cachedVersionHint: this.settings.cachedUpdateVersion,
-      });
-
-      new Notice(`Synod: ${result.message}`);
-      if (result.status === 'success') {
-        this.settings.cachedUpdateVersion = null;
-        this.settings.cachedUpdateFetchedAt = null;
-        this.settings.lastUpdateCheckAt = new Date().toISOString();
-        await this.saveSettings();
-
-        if (release) {
-          this.updateResult = {
-            status: 'up_to_date',
-            currentVersion: result.toVersion,
-            latestRelease: release,
-            checkedAt: new Date().toISOString(),
-            message: `Synod is up to date (v${result.toVersion}).`,
-          };
-        } else {
-          this.updateResult = null;
-        }
-
-        const reloadPrompt = window.confirm(
-          'Synod updated successfully. Open plugin settings so you can disable and re-enable Synod now?',
-        );
-        if (reloadPrompt) {
-          this.openSettingsTab();
-        }
-      } else {
-        this.updateResult = {
-          status: 'error',
-          currentVersion: this.getInstalledVersion(),
-          checkedAt: new Date().toISOString(),
-          message: result.message,
-        };
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      new Notice(`Synod: Update install failed — ${message}`);
-      this.updateResult = {
-        status: 'error',
-        currentVersion: this.getInstalledVersion(),
-        checkedAt: new Date().toISOString(),
-        message,
-      };
-    } finally {
-      this.installingUpdate = false;
-      this.refreshSettingsTab();
-    }
+    await this.updateManager.installPendingUpdate();
   }
 
   onunload(): void {
-    this.reconnectBanner.hide();
+    this.connectionManager.hideBanner();
     if (this.followStatusBarItem) this.followStatusBarItem.style.display = 'none';
-    if (this.disconnectGraceTimer !== null) {
-      clearTimeout(this.disconnectGraceTimer);
-      this.disconnectGraceTimer = null;
-    }
-    this.teardownConnection(true);
+    this.connectionManager.clearGraceTimer();
+    this.connectionManager.teardown(true);
     this.offlineGuard?.unlock();
   }
 }

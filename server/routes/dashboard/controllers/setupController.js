@@ -2,7 +2,7 @@ import {
   createVaultAtParent,
   initializeOwnerManagedVault,
 } from '../../../lib/setupOrchestrator.js';
-import { loadManagedState } from '../../../lib/managedState.js';
+import { loadManagedState } from '../../../lib/managed-state/index.js';
 import { loadEnvFile, normalizeEnv, writeEnvFile } from '../../../cli/env-file.js';
 import { setDashboardCookie, signDashboardSessionToken } from '../../../lib/dashboardAuth.js';
 import { getConfiguredVaultPath, getEnvFilePath, getVaultPath } from '../utils/requestContext.js';

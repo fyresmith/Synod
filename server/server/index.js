@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { DEFAULT_ENV_FILE } from '../cli/constants.js';
-import { loadManagedState } from '../lib/managedState.js';
+import { loadManagedState } from '../lib/managed-state/index.js';
 import { createHttpStack } from './startup/createHttpStack.js';
 import { createRealtimeActivator } from './startup/activateRealtime.js';
 import { validateEnv } from './startup/validateEnv.js';

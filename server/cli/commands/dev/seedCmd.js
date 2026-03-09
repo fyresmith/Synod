@@ -5,7 +5,7 @@ import { dirname, join } from 'path';
 import { resolveContext } from '../../core/context.js';
 import { loadEnvFile, normalizeEnv } from '../../env-file.js';
 import { box, divider, info, kv } from '../../output.js';
-import { createInvite, loadManagedState } from '../../../lib/managedState.js';
+import { createInvite, loadManagedState } from '../../../lib/managed-state/index.js';
 import { initializeOwnerManagedVault } from '../../../lib/setupOrchestrator.js';
 
 function sanitizeName(name) {

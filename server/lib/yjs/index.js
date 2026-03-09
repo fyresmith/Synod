@@ -25,8 +25,7 @@ export async function forceCloseRoom(relPath) {
   await closeRoom(docName, { closeClients: true, reason: 'forced' });
 }
 
-export function startYjsServer(httpServer, broadcastFileUpdated) {
-  void httpServer;
+export function startYjsServer(broadcastFileUpdated) {
   setBroadcastRef(broadcastFileUpdated);
   const wss = new WebSocketServer({ noServer: true });
   registerConnectionHandler(wss);

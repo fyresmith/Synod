@@ -1,4 +1,4 @@
-import * as vault from '../vaultManager.js';
+import * as vault from '../vault/index.js';
 
 export function respond(cb, payload) {
   if (typeof cb === 'function') cb(payload);

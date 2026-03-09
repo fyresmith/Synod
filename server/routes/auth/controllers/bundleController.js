@@ -3,7 +3,7 @@ import {
   consumeInviteDownloadTicket,
   loadManagedState,
   setMemberBootstrapSecret,
-} from '../../../lib/managedState.js';
+} from '../../../lib/managed-state/index.js';
 import { hashToken, issueBootstrapToken } from '../../../lib/authTokens.js';
 import { clearDownloadTicketCookie, getDownloadTicket } from '../session/claimCookies.js';
 import { errorPage } from '../views/layout.js';

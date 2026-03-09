@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import * as Y from 'yjs';
-import * as vault from '../../vaultManager.js';
+import * as vault from '../../vault/index.js';
 
 function isPlainObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);

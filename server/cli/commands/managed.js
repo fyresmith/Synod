@@ -8,7 +8,7 @@ import {
   loadManagedState,
   removeMember,
   revokeInvite,
-} from '../../lib/managedState.js';
+} from '../../lib/managed-state/index.js';
 import { box, divider, kv, success, table } from '../output.js';
 
 async function resolveManagedInputs(options) {

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { describeManagedStatus, isMember, loadManagedState } from './managedState.js';
+import { describeManagedStatus, isMember, loadManagedState } from './managed-state/index.js';
 
 /**
  * Verify a JWT and return the decoded payload.

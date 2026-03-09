@@ -1,4 +1,4 @@
-import * as vault from '../vaultManager.js';
+import * as vault from '../vault/index.js';
 import { docs } from './shared.js';
 import { getBroadcastRef } from './state.js';
 import { PERSIST_DEBOUNCE_MS } from './constants.js';

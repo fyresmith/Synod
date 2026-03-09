@@ -1,5 +1,5 @@
 import { requireDashboardAuth } from '../../../lib/dashboardAuth.js';
-import { removeMember } from '../../../lib/managedState.js';
+import { removeMember } from '../../../lib/managed-state/index.js';
 import { requireOwnerSession } from '../middleware/requireOwnerSession.js';
 import { getVaultPath } from '../utils/requestContext.js';
 import { renderMembersPage } from '../views/membersPage.js';

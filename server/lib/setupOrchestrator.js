@@ -1,5 +1,5 @@
 import { createOwnerAccount } from './accountState.js';
-import { initManagedState } from './managedState.js';
+import { initManagedState } from './managed-state/index.js';
 import { join, resolve } from 'path';
 import { mkdir, readdir, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';

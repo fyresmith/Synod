@@ -1,14 +1,15 @@
+import { SocketEvents } from '@fyresmith/synod-contracts';
 import { presenceByFile, socketToFiles, userBySocket } from '../state.js';
 import { isAllowedPath, normalizeHexColor } from '../utils.js';
 
 export function registerPresenceHandlers(socket, user) {
-  socket.on('user-status-changed', ({ status } = {}) => {
+  socket.on(SocketEvents.USER_STATUS, ({ status } = {}) => {
     const statusUser = userBySocket.get(socket.id);
     if (!statusUser) return;
-    socket.broadcast.emit('user-status-changed', { userId: statusUser.id, status });
+    socket.broadcast.emit(SocketEvents.USER_STATUS, { userId: statusUser.id, status });
   });
 
-  socket.on('presence-file-opened', (payload) => {
+  socket.on(SocketEvents.PRESENCE_OPENED, (payload) => {
     const relPath = typeof payload === 'string' ? payload : payload?.relPath;
     const color = normalizeHexColor(typeof payload === 'string' ? null : payload?.color);
     if (!isAllowedPath(relPath)) return;
@@ -16,13 +17,13 @@ export function registerPresenceHandlers(socket, user) {
     presenceByFile.get(relPath).add(socket.id);
     socketToFiles.get(socket.id)?.add(relPath);
     const presenceUser = color ? { ...user, color } : user;
-    socket.broadcast.emit('presence-file-opened', { relPath, user: presenceUser });
+    socket.broadcast.emit(SocketEvents.PRESENCE_OPENED, { relPath, user: presenceUser });
   });
 
-  socket.on('presence-file-closed', (relPath) => {
+  socket.on(SocketEvents.PRESENCE_CLOSED, (relPath) => {
     if (!isAllowedPath(relPath)) return;
     presenceByFile.get(relPath)?.delete(socket.id);
     socketToFiles.get(socket.id)?.delete(relPath);
-    socket.broadcast.emit('presence-file-closed', { relPath, user });
+    socket.broadcast.emit(SocketEvents.PRESENCE_CLOSED, { relPath, user });
   });
 }

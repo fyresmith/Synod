@@ -1,4 +1,4 @@
-import { getInvite, loadManagedState } from '../../../lib/managedState.js';
+import { getInvite, loadManagedState } from '../../../lib/managed-state/index.js';
 import { getVaultPath } from '../utils/requestContext.js';
 
 export async function loadInviteOrThrow(code) {

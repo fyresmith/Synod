@@ -1,5 +1,5 @@
 import { clearDashboardCookie } from '../../../lib/dashboardAuth.js';
-import { loadManagedState } from '../../../lib/managedState.js';
+import { loadManagedState } from '../../../lib/managed-state/index.js';
 import { getConfiguredVaultPath, getVaultPath } from '../utils/requestContext.js';
 
 export async function requireOwnerSession(req, res) {

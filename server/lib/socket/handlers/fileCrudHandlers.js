@@ -1,4 +1,5 @@
-import * as vault from '../../vaultManager.js';
+import { SocketEvents } from '@fyresmith/synod-contracts';
+import * as vault from '../../vault/index.js';
 import { isAllowedPath, rejectPath, respond } from '../utils.js';
 
 export function registerFileCrudHandlers(io, socket, user, getActiveRooms, forceCloseRoom) {
@@ -14,7 +15,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
     return true;
   };
 
-  socket.on('file-read', async (relPath, cb) => {
+  socket.on(SocketEvents.FILE_READ, async (relPath, cb) => {
     if (!isAllowedPath(relPath)) {
       rejectPath(cb, relPath);
       return;
@@ -29,7 +30,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
     }
   });
 
-  socket.on('file-write', async (payload, cb) => {
+  socket.on(SocketEvents.FILE_WRITE, async (payload, cb) => {
     const relPath = payload?.relPath;
     const content = payload?.content;
     if (!isAllowedPath(relPath) || typeof content !== 'string') {
@@ -40,7 +41,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
     try {
       await vault.writeFile(relPath, content);
       const hash = vault.hashContent(content);
-      socket.broadcast.emit('file-updated', { relPath, hash, user });
+      socket.broadcast.emit(SocketEvents.FILE_UPDATED, { relPath, hash, user });
       respond(cb, { ok: true, hash });
       console.log(`[socket] file-write: ${relPath} by ${user.username}`);
     } catch (err) {
@@ -49,7 +50,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
     }
   });
 
-  socket.on('file-create', async (payload, cb) => {
+  socket.on(SocketEvents.FILE_CREATE, async (payload, cb) => {
     const relPath = payload?.relPath;
     const content = payload?.content;
     if (!isAllowedPath(relPath) || typeof content !== 'string') {
@@ -59,7 +60,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
     if (rejectActiveCanvasWrite(relPath, cb)) return;
     try {
       await vault.writeFile(relPath, content);
-      socket.broadcast.emit('file-created', { relPath, user });
+      socket.broadcast.emit(SocketEvents.FILE_CREATED, { relPath, user });
       respond(cb, { ok: true });
       console.log(`[socket] file-create: ${relPath} by ${user.username}`);
     } catch (err) {
@@ -68,7 +69,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
     }
   });
 
-  socket.on('file-delete', async (relPath, cb) => {
+  socket.on(SocketEvents.FILE_DELETE, async (relPath, cb) => {
     if (!isAllowedPath(relPath)) {
       rejectPath(cb, relPath);
       return;
@@ -79,7 +80,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
         await forceCloseRoom(relPath);
       }
       await vault.deleteFile(relPath);
-      io.emit('file-deleted', { relPath, user });
+      io.emit(SocketEvents.FILE_DELETED, { relPath, user });
       respond(cb, { ok: true });
       console.log(`[socket] file-delete: ${relPath} by ${user.username}`);
     } catch (err) {
@@ -88,7 +89,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
     }
   });
 
-  socket.on('file-rename', async (payload, cb) => {
+  socket.on(SocketEvents.FILE_RENAME, async (payload, cb) => {
     const oldPath = payload?.oldPath;
     const newPath = payload?.newPath;
     if (!isAllowedPath(oldPath) || !isAllowedPath(newPath)) {
@@ -101,7 +102,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
         await forceCloseRoom(oldPath);
       }
       await vault.renameFile(oldPath, newPath);
-      socket.broadcast.emit('file-renamed', { oldPath, newPath, user });
+      socket.broadcast.emit(SocketEvents.FILE_RENAMED, { oldPath, newPath, user });
       respond(cb, { ok: true });
       console.log(`[socket] file-rename: ${oldPath} → ${newPath} by ${user.username}`);
     } catch (err) {

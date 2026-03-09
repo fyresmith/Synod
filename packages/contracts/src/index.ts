@@ -1,3 +1,5 @@
+export { SocketEvents } from './events.js';
+
 export interface SynodUser {
   id: string;
   username: string;

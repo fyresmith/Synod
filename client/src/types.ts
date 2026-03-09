@@ -20,7 +20,8 @@ export interface PluginSettings {
   cachedUpdateFetchedAt: string | null;
 }
 
-export type { SynodUser, ManifestEntry, ManagedVaultBinding } from '@fyresmith/synod-contracts';
+import type { SynodUser, ManifestEntry, ManagedVaultBinding } from '@fyresmith/synod-contracts';
+export type { SynodUser, ManifestEntry, ManagedVaultBinding };
 
 export interface RemoteUser extends SynodUser {
   color: string;

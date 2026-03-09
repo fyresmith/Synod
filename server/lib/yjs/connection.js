@@ -1,4 +1,4 @@
-import * as vault from '../vaultManager.js';
+import * as vault from '../vault/index.js';
 import { docs, getYDoc, setupWSConnection } from './shared.js';
 import { getOrCreateRoomState } from './roomStateStore.js';
 import { observeRoom } from './persistence.js';

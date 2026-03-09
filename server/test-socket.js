@@ -8,7 +8,7 @@ import { io } from 'socket.io-client';
 import jwt from 'jsonwebtoken';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import { loadManagedState } from './lib/managedState.js';
+import { loadManagedState } from './lib/managed-state/index.js';
 
 const SERVER_URL = `http://localhost:${process.env.PORT ?? 3000}`;
 

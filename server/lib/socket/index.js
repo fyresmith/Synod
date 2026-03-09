@@ -1,3 +1,4 @@
+import { SocketEvents } from '@fyresmith/synod-contracts';
 import { socketMiddleware } from '../auth.js';
 import { socketToFiles, userBySocket } from './state.js';
 import { registerVaultSyncHandlers } from './handlers/vaultSyncHandlers.js';
@@ -6,9 +7,7 @@ import { registerClaimHandlers } from './handlers/claimHandlers.js';
 import { registerPresenceHandlers } from './handlers/presenceHandlers.js';
 import { registerDisconnectHandler } from './handlers/lifecycleHandlers.js';
 
-export function attachHandlers(io, getActiveRooms, broadcastFileUpdated, forceCloseRoom) {
-  void broadcastFileUpdated;
-
+export function attachHandlers(io, getActiveRooms, forceCloseRoom) {
   io.use(socketMiddleware);
 
   io.on('connection', (socket) => {
@@ -18,7 +17,7 @@ export function attachHandlers(io, getActiveRooms, broadcastFileUpdated, forceCl
     userBySocket.set(socket.id, user);
     socketToFiles.set(socket.id, new Set());
 
-    socket.broadcast.emit('user-joined', { user });
+    socket.broadcast.emit(SocketEvents.USER_JOINED, { user });
 
     registerVaultSyncHandlers(socket);
     registerFileCrudHandlers(io, socket, user, getActiveRooms, forceCloseRoom);

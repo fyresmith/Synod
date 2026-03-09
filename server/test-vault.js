@@ -4,7 +4,7 @@
  * Requires VAULT_PATH in .env
  */
 import 'dotenv/config';
-import * as vault from './lib/vaultManager.js';
+import * as vault from './lib/vault/index.js';
 
 let passed = 0;
 let failed = 0;

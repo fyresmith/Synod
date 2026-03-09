@@ -1,11 +1,12 @@
 import { createServer } from 'http';
 import express from 'express';
 import { Server } from 'socket.io';
+import { SocketEvents } from '@fyresmith/synod-contracts';
 import authRoutes from '../../routes/auth.js';
 import dashboardRoutes from '../../routes/dashboard.js';
-import { getRoomStatus } from '../../lib/yjsServer.js';
+import { getRoomStatus } from '../../lib/yjs/index.js';
 import { clearDashboardCookie, getDashboardSession } from '../../lib/dashboardAuth.js';
-import { loadManagedState } from '../../lib/managedState.js';
+import { loadManagedState } from '../../lib/managed-state/index.js';
 
 export function createHttpStack() {
   const app = express();
@@ -17,8 +18,6 @@ export function createHttpStack() {
       methods: ['GET', 'POST'],
     },
   });
-
-  app.use(express.json());
 
   app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -79,7 +78,7 @@ export function createHttpStack() {
   function broadcastFileUpdated(relPath, hash, excludeSocketId) {
     io.sockets.sockets.forEach((sock) => {
       if (sock.id !== excludeSocketId) {
-        sock.emit('file-updated', { relPath, hash });
+        sock.emit(SocketEvents.FILE_UPDATED, { relPath, hash });
       }
     });
   }

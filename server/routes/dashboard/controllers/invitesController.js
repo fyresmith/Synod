@@ -1,5 +1,5 @@
 import { requireDashboardAuth } from '../../../lib/dashboardAuth.js';
-import { createInvite, revokeInvite } from '../../../lib/managedState.js';
+import { createInvite, revokeInvite } from '../../../lib/managed-state/index.js';
 import { requireOwnerSession } from '../middleware/requireOwnerSession.js';
 import { getServerUrl, getVaultPath } from '../utils/requestContext.js';
 import { renderInvitesPage } from '../views/invitesPage.js';

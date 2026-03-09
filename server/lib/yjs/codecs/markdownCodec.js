@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import * as vault from '../../vaultManager.js';
+import * as vault from '../../vault/index.js';
 
 function hydrateFromDisk(ydoc, relPath) {
   const yText = ydoc.getText('content');

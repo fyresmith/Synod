@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { SYNOD_HOME } from '../../constants.js';
-import { loadManagedState } from '../../../lib/managedState.js';
+import { loadManagedState } from '../../../lib/managed-state/index.js';
 import {
   createVaultAtParent,
   initializeOwnerManagedVault,

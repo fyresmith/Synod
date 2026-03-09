@@ -5,7 +5,7 @@ import {
   setDashboardCookie,
   signDashboardSessionToken,
 } from '../../../lib/dashboardAuth.js';
-import { loadManagedState } from '../../../lib/managedState.js';
+import { loadManagedState } from '../../../lib/managed-state/index.js';
 import { getConfiguredVaultPath, getVaultPath } from '../utils/requestContext.js';
 import { loginPage } from '../views/loginPage.js';
 

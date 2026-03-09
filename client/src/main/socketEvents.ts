@@ -1,3 +1,4 @@
+import { SocketEvents } from '@fyresmith/synod-contracts';
 import { SocketClient } from '../socket';
 import { FileClaimPayload, FileUnclaimPayload, UserStatusPayload } from '../types';
 
@@ -37,16 +38,16 @@ export function bindSynodSocketEvents(
     handlers.onDisconnect();
   });
   socket.on('connect_error', handlers.onConnectError);
-  socket.on('file-updated', handlers.onFileUpdated);
-  socket.on('file-created', handlers.onFileCreated);
-  socket.on('file-deleted', handlers.onFileDeleted);
-  socket.on('file-renamed', handlers.onFileRenamed);
-  socket.on('external-update', handlers.onExternalUpdate);
-  socket.on('user-joined', handlers.onUserJoined);
-  socket.on('user-left', handlers.onUserLeft);
-  socket.on('presence-file-opened', handlers.onPresenceFileOpened);
-  socket.on('presence-file-closed', handlers.onPresenceFileClosed);
-  socket.on('file-claimed', (p: FileClaimPayload) => handlers.onFileClaimed?.(p));
-  socket.on('file-unclaimed', (p: FileUnclaimPayload) => handlers.onFileUnclaimed?.(p));
-  socket.on('user-status-changed', (p: UserStatusPayload) => handlers.onUserStatusChanged?.(p));
+  socket.on(SocketEvents.FILE_UPDATED, handlers.onFileUpdated);
+  socket.on(SocketEvents.FILE_CREATED, handlers.onFileCreated);
+  socket.on(SocketEvents.FILE_DELETED, handlers.onFileDeleted);
+  socket.on(SocketEvents.FILE_RENAMED, handlers.onFileRenamed);
+  socket.on(SocketEvents.EXTERNAL_UPDATE, handlers.onExternalUpdate);
+  socket.on(SocketEvents.USER_JOINED, handlers.onUserJoined);
+  socket.on(SocketEvents.USER_LEFT, handlers.onUserLeft);
+  socket.on(SocketEvents.PRESENCE_OPENED, handlers.onPresenceFileOpened);
+  socket.on(SocketEvents.PRESENCE_CLOSED, handlers.onPresenceFileClosed);
+  socket.on(SocketEvents.FILE_CLAIMED, (p: FileClaimPayload) => handlers.onFileClaimed?.(p));
+  socket.on(SocketEvents.FILE_UNCLAIMED, (p: FileUnclaimPayload) => handlers.onFileUnclaimed?.(p));
+  socket.on(SocketEvents.USER_STATUS, (p: UserStatusPayload) => handlers.onUserStatusChanged?.(p));
 }

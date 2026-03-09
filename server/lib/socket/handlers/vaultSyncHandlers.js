@@ -1,8 +1,9 @@
-import * as vault from '../../vaultManager.js';
+import { SocketEvents } from '@fyresmith/synod-contracts';
+import * as vault from '../../vault/index.js';
 import { respond } from '../utils.js';
 
 export function registerVaultSyncHandlers(socket) {
-  socket.on('vault-sync-request', async (cb) => {
+  socket.on(SocketEvents.VAULT_SYNC_REQUEST, async (cb) => {
     try {
       const manifest = await vault.getManifest();
       respond(cb, { ok: true, manifest });

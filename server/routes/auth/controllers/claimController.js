@@ -4,7 +4,7 @@ import {
   pairMember,
   setInviteDownloadTicket,
   loadManagedState,
-} from '../../../lib/managedState.js';
+} from '../../../lib/managed-state/index.js';
 import {
   checkRateLimit,
   getAuthRateLimitConfig,
