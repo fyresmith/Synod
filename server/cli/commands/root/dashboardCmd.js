@@ -3,7 +3,6 @@ import { randomBytes } from 'crypto';
 import { loadEnvFile, normalizeEnv, writeEnvFile } from '../../env-file.js';
 import { info, success } from '../../output.js';
 import { resolveContext, loadValidatedEnv } from '../../core/context.js';
-import { startSynodServer } from '../../../index.js';
 import { run } from '../../exec.js';
 
 export function registerDashboardCommand(program) {
@@ -38,6 +37,7 @@ export function registerDashboardCommand(program) {
           .then((res) => res.ok)
           .catch(() => false);
         if (!health) {
+          const { startSynodServer } = await import('../../../index.js');
           await startSynodServer({ envFile, quiet: true, allowSetupMode: true });
           info(`Synod server started using env: ${envFile}`);
         }

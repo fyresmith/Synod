@@ -3,7 +3,6 @@ import { EXIT } from '../../constants.js';
 import { CliError } from '../../errors.js';
 import { info } from '../../output.js';
 import { resolveContext } from '../../core/context.js';
-import { startSynodServer } from '../../../index.js';
 
 export function registerRunCommand(program) {
   program
@@ -16,6 +15,7 @@ export function registerRunCommand(program) {
       if (!existsSync(envFile)) {
         throw new CliError(`Env file not found: ${envFile}. Run: synod env init`, EXIT.FAIL);
       }
+      const { startSynodServer } = await import('../../../index.js');
       await startSynodServer({ envFile, quiet: Boolean(options.quiet) });
       info(`Synod server started using env: ${envFile}`);
     });

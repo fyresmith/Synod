@@ -1,7 +1,13 @@
+import { existsSync } from 'fs';
 import { mkdir, readFile, readlink, rm } from 'fs/promises';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { execa } from 'execa';
+
+const SERVER_ROOT = process.cwd();
+const MONOREPO_ROOT = resolve(SERVER_ROOT, '..');
+const LOCAL_CONTRACTS_DIR = join(MONOREPO_ROOT, 'packages', 'contracts');
+const LOCAL_CONTRACTS_PACKAGE = '@fyresmith/synod-contracts';
 
 function readInstallOutput(err) {
   return [err?.shortMessage, err?.stderr, err?.stdout, err?.message].filter(Boolean).join('\n');
@@ -74,9 +80,9 @@ function getSynodBinConflictPath(err) {
   return filePath;
 }
 
-async function installGlobalTarball(tarballPath) {
+async function installGlobalTarballs(tarballPaths) {
   try {
-    await runNpm(['install', '-g', tarballPath], { stdio: 'inherit' });
+    await runNpm(['install', '-g', ...tarballPaths], { stdio: 'inherit' });
     return;
   } catch (err) {
     const conflictPath = getSynodBinConflictPath(err);
@@ -88,7 +94,7 @@ async function installGlobalTarball(tarballPath) {
     await rm(conflictPath, { force: true });
   }
 
-  await runNpm(['install', '-g', tarballPath], { stdio: 'inherit' });
+  await runNpm(['install', '-g', ...tarballPaths], { stdio: 'inherit' });
 }
 
 function parsePackJson(output) {
@@ -110,7 +116,7 @@ function parsePackJson(output) {
 }
 
 async function getLocalPackageName() {
-  const packageJsonPath = join(process.cwd(), 'package.json');
+  const packageJsonPath = join(SERVER_ROOT, 'package.json');
   const raw = await readFile(packageJsonPath, 'utf-8');
   const parsed = JSON.parse(raw);
   const name = String(parsed?.name ?? '').trim();
@@ -125,8 +131,8 @@ async function getGlobalSynodBinPath() {
   return join(stdout.trim(), 'bin', 'synod');
 }
 
-async function cleanupLegacyGlobalInstalls(packageName) {
-  const legacyNames = new Set([packageName, 'synod-server']);
+async function cleanupLegacyGlobalInstalls(packageNames) {
+  const legacyNames = new Set([...packageNames, 'synod-server']);
   await runNpm(['uninstall', '-g', ...legacyNames], { stdio: 'inherit' }).catch(() => {});
 
   const synodBinPath = await getGlobalSynodBinPath();
@@ -135,6 +141,22 @@ async function cleanupLegacyGlobalInstalls(packageName) {
     console.log(`Removing existing global synod link: ${synodBinPath} -> ${currentTarget}`);
   }
   await rm(synodBinPath, { force: true });
+}
+
+async function packTarball(packageDir) {
+  const { stdout } = await runNpm(['pack', '--json'], { cwd: packageDir });
+  const packResult = parsePackJson(stdout);
+  const tarball = packResult?.[0]?.filename;
+  if (!tarball) {
+    throw new Error(`npm pack did not produce a tarball filename in ${packageDir}.`);
+  }
+  return join(packageDir, tarball);
+}
+
+function resolveLocalContractsDir() {
+  const packageJson = join(LOCAL_CONTRACTS_DIR, 'package.json');
+  if (!existsSync(packageJson)) return null;
+  return LOCAL_CONTRACTS_DIR;
 }
 
 async function assertInstalledPackage(packageName) {
@@ -161,28 +183,34 @@ async function assertInstalledPackage(packageName) {
 
 async function main() {
   const packageName = await getLocalPackageName();
+  const localContractsDir = resolveLocalContractsDir();
 
   await runNpm(['run', 'verify'], { stdio: 'inherit' });
 
-  const { stdout } = await runNpm(['pack', '--json']);
-  const packResult = parsePackJson(stdout);
-  const tarball = packResult?.[0]?.filename;
-
-  if (!tarball) {
-    throw new Error('npm pack did not produce a tarball filename.');
+  const serverTarballPath = await packTarball(SERVER_ROOT);
+  const contractsTarballPath = localContractsDir ? await packTarball(localContractsDir) : null;
+  const installTargets = [serverTarballPath];
+  if (contractsTarballPath) {
+    // Install local contracts tarball first so no registry lookup is required.
+    installTargets.unshift(contractsTarballPath);
   }
-
-  const tarballPath = join(process.cwd(), tarball);
 
   try {
-    await cleanupLegacyGlobalInstalls(packageName);
-    await installGlobalTarball(tarballPath);
+    const packagesToCleanup = [packageName];
+    if (contractsTarballPath) {
+      packagesToCleanup.push(LOCAL_CONTRACTS_PACKAGE);
+    }
+    await cleanupLegacyGlobalInstalls(packagesToCleanup);
+    await installGlobalTarballs(installTargets);
     await assertInstalledPackage(packageName);
   } finally {
-    await rm(tarballPath, { force: true });
+    await Promise.all(
+      installTargets.map((tarballPath) => rm(tarballPath, { force: true }).catch(() => {})),
+    );
   }
 
-  console.log(`Installed synod globally from local package: ${tarball}`);
+  const installedTarballs = installTargets.map((path) => path.split('/').pop()).join(', ');
+  console.log(`Installed synod globally from local package tarballs: ${installedTarballs}`);
 }
 
 main().catch((err) => {
