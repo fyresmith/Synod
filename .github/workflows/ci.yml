@@ -1,25 +1,27 @@
-name: synod-ci
+name: ci
 
 on:
   pull_request:
     paths:
       - 'server/**'
+      - 'client/**'
       - 'release/synod-client.lock.json'
       - 'artifacts/synod-client/**'
       - 'tools/synod-client/**'
-      - '.github/workflows/synod-ci.yml'
+      - '.github/workflows/ci.yml'
   push:
     branches:
       - main
     paths:
       - 'server/**'
+      - 'client/**'
       - 'release/synod-client.lock.json'
       - 'artifacts/synod-client/**'
       - 'tools/synod-client/**'
-      - '.github/workflows/synod-ci.yml'
+      - '.github/workflows/ci.yml'
 
 jobs:
-  verify:
+  server:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -43,6 +45,10 @@ jobs:
         working-directory: server
         run: npm ci --workspaces=false
 
+      - name: Setup assets
+        working-directory: server
+        run: npm run setup:assets
+
       - name: Lint
         working-directory: server
         run: npm run lint
@@ -58,3 +64,32 @@ jobs:
       - name: Build server package
         working-directory: server
         run: npm run build
+
+  client:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install synod-client dependencies
+        working-directory: client
+        run: npm ci --workspaces=false
+
+      - name: Type check
+        working-directory: client
+        run: npm run typecheck
+
+      - name: Build and validate BRAT assets
+        working-directory: client
+        run: npm run build:brat

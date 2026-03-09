@@ -11,6 +11,11 @@ client/checksums.txt
 # Plugin runtime state
 client/data.json
 
+# Generated server plugin assets (populated by setup:assets)
+server/assets/plugin/synod/main.js
+server/assets/plugin/synod/styles.css
+server/assets/plugin/synod/manifest.json
+
 # Logs
 yarn-error.log*
 npm-debug.log*

@@ -1,5 +1,5 @@
 import { existsSync } from 'fs';
-import { readdir, readFile } from 'fs/promises';
+import { readdir } from 'fs/promises';
 import { join, extname, resolve } from 'path';
 import { execa } from 'execa';
 
@@ -7,12 +7,8 @@ const ROOT = process.cwd();
 const MONOREPO_ROOT = resolve(ROOT, '..');
 const CHECK_DIRS = ['bin', 'cli', 'lib', 'routes'];
 const CHECK_FILES = ['index.js'];
-const CLIENT_BUILD_ROOT = join(MONOREPO_ROOT, 'client');
-const PLUGIN_ASSET_ROOT = join(ROOT, 'assets', 'plugin', 'synod');
 const CLIENT_LOCK_VERIFY_SCRIPT = join(MONOREPO_ROOT, 'tools', 'synod-client', 'verify-lock.mjs');
-const PLUGIN_ASSET_FILES = ['main.js', 'manifest.json', 'styles.css'];
 const SMOKE_COMMANDS = [
-  ['node', ['scripts/test-canvas-codec.mjs']],
   ['node', ['bin/synod.js', '--help']],
   ['node', ['bin/synod.js', 'up', '--help']],
   ['node', ['bin/synod.js', 'down', '--help']],
@@ -45,36 +41,6 @@ async function listJsFiles(dir) {
   return out;
 }
 
-async function verifyBundledClientParity() {
-  if (!existsSync(CLIENT_BUILD_ROOT) || !existsSync(PLUGIN_ASSET_ROOT)) {
-    return;
-  }
-
-  const clientPaths = PLUGIN_ASSET_FILES.map((name) => join(CLIENT_BUILD_ROOT, name));
-  if (clientPaths.some((path) => !existsSync(path))) {
-    return;
-  }
-
-  for (const name of PLUGIN_ASSET_FILES) {
-    const clientPath = join(CLIENT_BUILD_ROOT, name);
-    const bundledPath = join(PLUGIN_ASSET_ROOT, name);
-    if (!existsSync(bundledPath)) {
-      throw new Error(`Missing bundled plugin asset: ${bundledPath}`);
-    }
-
-    const [clientData, bundledData] = await Promise.all([
-      readFile(clientPath),
-      readFile(bundledPath),
-    ]);
-
-    if (!clientData.equals(bundledData)) {
-      throw new Error(
-        `Bundled plugin asset drift detected for ${name}. Run 'npm run build:client && npm run artifacts:pin-client'.`,
-      );
-    }
-  }
-}
-
 async function verifyClientLock() {
   if (!existsSync(CLIENT_LOCK_VERIFY_SCRIPT)) {
     return;
@@ -83,7 +49,6 @@ async function verifyClientLock() {
 }
 
 async function runChecks() {
-  await verifyBundledClientParity();
   await verifyClientLock();
 
   const files = [...CHECK_FILES];

@@ -15,9 +15,12 @@
     "build:brat": "npm run build && npm run check:brat",
     "verify": "npm run typecheck && npm run build:brat",
     "assert-tag-version": "node scripts/assert-tag-version.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format:check": "prettier --check .",
+    "format": "prettier --write ."
   },
   "dependencies": {
+    "@fyresmith/synod-contracts": "*",
     "socket.io-client": "^4.7.5",
     "y-codemirror.next": "^0.3.5",
     "y-websocket": "^1.5.4",
@@ -28,6 +31,7 @@
     "crypto": "^1.0.1",
     "esbuild": "^0.21.5",
     "obsidian": "^1.12.3",
+    "prettier": "^3.8.1",
     "typescript": "^5.4.0"
   }
 }
