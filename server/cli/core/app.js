@@ -1,4 +1,5 @@
 import process from 'process';
+import { createRequire } from 'module';
 import { Command, CommanderError } from 'commander';
 import { EXIT } from '../constants.js';
 import { CliError } from '../errors.js';
@@ -8,6 +9,9 @@ import { registerRootCommands } from '../commands/root.js';
 import { registerServiceCommands } from '../commands/service.js';
 import { registerTunnelCommands } from '../commands/tunnel.js';
 import { registerDevCommands } from '../commands/dev.js';
+
+const require = createRequire(import.meta.url);
+const { version: cliVersion } = require('../../package.json');
 
 export class SynodCliApp {
   constructor() {
@@ -21,7 +25,7 @@ export class SynodCliApp {
       .name('synod')
       .description('Synod server operations CLI')
       .showHelpAfterError()
-      .version('1.0.0');
+      .version(cliVersion, '-v, --version', 'output the version number');
 
     registerRootCommands(program);
     registerEnvCommands(program);
@@ -39,15 +43,19 @@ export class SynodCliApp {
       return EXIT.OK;
     }
 
+    const normalizedArgv = argv.map((arg) => (arg === '-V' ? '-v' : arg));
+
     this.program.exitOverride();
 
     try {
-      await this.program.parseAsync(argv);
+      await this.program.parseAsync(normalizedArgv);
       return EXIT.OK;
     } catch (err) {
       if (err instanceof CommanderError) {
         if (
           err.code === 'commander.helpDisplayed' ||
+          err.code === 'commander.version' ||
+          err.code === 'commander.versionDisplayed' ||
           err.code === 'commander.help' ||
           err.message === '(outputHelp)'
         ) {
