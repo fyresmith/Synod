@@ -29,7 +29,7 @@
     "setup:assets": "node ../tools/synod-client/setup-assets.mjs",
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "dev:run": "JWT_SECRET=synod-local-dev-jwt-secret-please-change-1234 VAULT_PATH=../template-vault PORT=3000 node --watch index.js",
+    "dev:run": "JWT_SECRET=synod-local-dev-jwt-secret-please-change-1234 VAULT_PATH=../template-vault PORT=3000 node index.js",
     "build": "npm run verify && npm pack --dry-run",
     "status": "node bin/synod.js status",
     "verify": "node scripts/verify.mjs",
