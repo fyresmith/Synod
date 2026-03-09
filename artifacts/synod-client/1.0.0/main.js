@@ -3905,6 +3905,7 @@ function renderLastEditedBy(relPath, username) {
   });
 }
 function renderAvatarsForPath(relPath, showPresenceAvatars, fileViewers, remoteUsers) {
+  var _a;
   if (!showPresenceAvatars) {
     removeAvatarContainer(relPath);
     return;
@@ -3929,7 +3930,7 @@ function renderAvatarsForPath(relPath, showPresenceAvatars, fileViewers, remoteU
       if (!user) continue;
       const img = document.createElement("img");
       img.className = "synod-avatar";
-      img.src = user.avatarUrl;
+      img.src = (_a = user.avatarUrl) != null ? _a : "";
       img.title = user.username;
       img.dataset.id = userId;
       img.style.borderColor = user.color;
@@ -4529,12 +4530,13 @@ function renderFileChips(card, files, plugin) {
   }
 }
 function renderUserCard(parent, userId, user, plugin, rerender) {
+  var _a;
   const isFollowing = plugin.followTargetId === userId;
   const card = parent.createDiv({ cls: "synod-user-card" });
   if (isFollowing) card.addClass("is-following");
   card.style.setProperty("--user-color", user.color);
   const header = card.createDiv({ cls: "synod-user-card-header" });
-  buildAvatar(header, user.avatarUrl, user.username, user.color);
+  buildAvatar(header, (_a = user.avatarUrl) != null ? _a : "", user.username, user.color);
   const info = header.createDiv({ cls: "synod-user-card-info" });
   info.createSpan({ cls: "synod-user-card-name", text: `@${user.username}` });
   const actions = header.createDiv({ cls: "synod-user-card-actions" });
@@ -17868,10 +17870,13 @@ function setupManagedRuntime(options) {
     },
     onLogout,
     getSnapshot: () => {
-      var _a;
+      var _a, _b;
       return {
         serverUrl: (_a = managedBinding.serverUrl) != null ? _a : settings.serverUrl,
-        user: settings.user,
+        user: settings.user ? {
+          username: settings.user.username,
+          avatarUrl: (_b = settings.user.avatarUrl) != null ? _b : ""
+        } : null,
         isAuthenticated: isAuthenticated()
       };
     }

@@ -4,7 +4,7 @@ Express + Socket.IO server that manages authentication, file sync, and real-time
 
 ## Prerequisites
 
-- Node.js ≥ 18
+- Node.js ≥ 20
 - npm ≥ 9
 
 ## Installation
