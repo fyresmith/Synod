@@ -1,4 +1,4 @@
-import { SocketEvents } from '@fyresmith/synod-contracts';
+import { SocketEvents } from '../../contracts/socketEvents.js';
 import * as vault from '../../vault/index.js';
 import { isAllowedPath, rejectPath, respond } from '../utils.js';
 

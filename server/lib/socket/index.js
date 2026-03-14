@@ -1,4 +1,4 @@
-import { SocketEvents } from '@fyresmith/synod-contracts';
+import { SocketEvents } from '../contracts/socketEvents.js';
 import { socketMiddleware } from '../auth.js';
 import { socketToFiles, userBySocket } from './state.js';
 import { registerVaultSyncHandlers } from './handlers/vaultSyncHandlers.js';

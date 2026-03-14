@@ -40,24 +40,42 @@ async function ensureSynodInCommunityPlugins(vaultPath) {
   }
 }
 
+export async function copyFileIfChanged(src, dest) {
+  if (!existsSync(dest)) {
+    await copyFile(src, dest);
+    return true;
+  }
+
+  const [sourceContent, destContent] = await Promise.all([readFile(src), readFile(dest)]);
+  if (sourceContent.equals(destContent)) {
+    return false;
+  }
+
+  await copyFile(src, dest);
+  return true;
+}
+
 async function doSync(vaultPath, sourceDir) {
   const pluginDir = join(vaultPath, '.obsidian/plugins/synod');
   await mkdir(pluginDir, { recursive: true });
   await ensureSynodInCommunityPlugins(vaultPath);
 
+  let found = 0;
   let copied = 0;
   for (const file of PLUGIN_FILES) {
     const src = join(sourceDir, file);
     const dest = join(pluginDir, file);
     if (existsSync(src)) {
-      await copyFile(src, dest);
-      copied++;
+      found++;
+      if (await copyFileIfChanged(src, dest)) {
+        copied++;
+      }
     } else {
       warn(`Source file missing: ${src}`);
     }
   }
 
-  if (copied === 0) {
+  if (found === 0) {
     throw new CliError(`No plugin files found in source directory: ${sourceDir}`, EXIT.FAIL);
   }
 

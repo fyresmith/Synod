@@ -34,30 +34,28 @@ jobs:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
           cache: npm
-          cache-dependency-path: server/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Verify pinned synod-client artifacts
         run: node tools/synod-client/verify-lock.mjs
 
-      - name: Install dependencies
-        working-directory: server
-        run: npm ci --workspaces=false
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Verify local contracts sync
+        run: npm run contracts:verify
 
       - name: Verify
-        working-directory: server
-        run: npm run verify
+        run: npm run verify --workspace @fyresmith/synod
 
       - name: Validate npm package contents
-        working-directory: server
-        run: npm pack --dry-run
+        run: npm pack --dry-run --workspace @fyresmith/synod
 
       - name: Ensure tag version matches package.json
-        working-directory: server
-        run: node scripts/assert-tag-version.mjs "${{ env.RELEASE_TAG }}"
+        run: node server/scripts/assert-tag-version.mjs "${{ env.RELEASE_TAG }}"
 
       - name: Publish to npm (Trusted Publishing + provenance)
-        working-directory: server
-        run: npm publish --access public --provenance
+        run: npm publish --workspace @fyresmith/synod --access public --provenance
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2

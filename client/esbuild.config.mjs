@@ -6,6 +6,9 @@ const dev = process.argv[2] === 'dev';
 const context = await esbuild.context({
   entryPoints: ['src/main.ts'],
   bundle: true,
+  define: {
+    __SYNOD_DEV__: JSON.stringify(dev),
+  },
   external: [
     'obsidian',
     'electron',

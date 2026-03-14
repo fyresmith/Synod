@@ -1,13 +1,9 @@
-import { existsSync } from 'fs';
 import { mkdir, readFile, readlink, rm } from 'fs/promises';
 import { tmpdir } from 'os';
-import { join, resolve } from 'path';
+import { join } from 'path';
 import { execa } from 'execa';
 
 const SERVER_ROOT = process.cwd();
-const MONOREPO_ROOT = resolve(SERVER_ROOT, '..');
-const LOCAL_CONTRACTS_DIR = join(MONOREPO_ROOT, 'packages', 'contracts');
-const LOCAL_CONTRACTS_PACKAGE = '@fyresmith/synod-contracts';
 
 function readInstallOutput(err) {
   return [err?.shortMessage, err?.stderr, err?.stdout, err?.message].filter(Boolean).join('\n');
@@ -153,12 +149,6 @@ async function packTarball(packageDir) {
   return join(packageDir, tarball);
 }
 
-function resolveLocalContractsDir() {
-  const packageJson = join(LOCAL_CONTRACTS_DIR, 'package.json');
-  if (!existsSync(packageJson)) return null;
-  return LOCAL_CONTRACTS_DIR;
-}
-
 async function assertInstalledPackage(packageName) {
   const { stdout } = await runNpm(['ls', '-g', '--depth=0', '--json']);
   const tree = JSON.parse(stdout);
@@ -183,24 +173,14 @@ async function assertInstalledPackage(packageName) {
 
 async function main() {
   const packageName = await getLocalPackageName();
-  const localContractsDir = resolveLocalContractsDir();
 
   await runNpm(['run', 'verify'], { stdio: 'inherit' });
 
   const serverTarballPath = await packTarball(SERVER_ROOT);
-  const contractsTarballPath = localContractsDir ? await packTarball(localContractsDir) : null;
   const installTargets = [serverTarballPath];
-  if (contractsTarballPath) {
-    // Install local contracts tarball first so no registry lookup is required.
-    installTargets.unshift(contractsTarballPath);
-  }
 
   try {
-    const packagesToCleanup = [packageName];
-    if (contractsTarballPath) {
-      packagesToCleanup.push(LOCAL_CONTRACTS_PACKAGE);
-    }
-    await cleanupLegacyGlobalInstalls(packagesToCleanup);
+    await cleanupLegacyGlobalInstalls([packageName]);
     await installGlobalTarballs(installTargets);
     await assertInstalledPackage(packageName);
   } finally {

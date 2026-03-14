@@ -1,4 +1,4 @@
-import { SocketEvents } from '@fyresmith/synod-contracts';
+import { SocketEvents } from '../../lib/contracts/socketEvents.js';
 import * as vault from '../../lib/vault/index.js';
 import { attachHandlers } from '../../lib/socket/index.js';
 import { forceCloseRoom, getActiveRooms, startYjsServer } from '../../lib/yjs/index.js';

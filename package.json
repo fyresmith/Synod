@@ -8,10 +8,12 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build:server && npm run build:client",
+    "contracts:sync": "node tools/contracts/sync.mjs",
+    "contracts:verify": "node tools/contracts/sync.mjs --check",
+    "build": "npm run contracts:verify && npm run build:server && npm run build:client",
     "build:server": "npm run build --workspace @fyresmith/synod",
     "build:client": "npm run build:brat --workspace @fyresmith/synod-client",
-    "verify": "npm run verify:server && npm run verify:client",
+    "verify": "npm run contracts:verify && npm run verify:server && npm run verify:client",
     "verify:server": "npm run verify --workspace @fyresmith/synod",
     "verify:client": "npm run verify --workspace @fyresmith/synod-client",
     "install-synod": "npm run install-synod --workspace @fyresmith/synod",

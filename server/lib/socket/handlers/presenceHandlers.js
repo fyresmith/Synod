@@ -1,4 +1,4 @@
-import { SocketEvents } from '@fyresmith/synod-contracts';
+import { SocketEvents } from '../../contracts/socketEvents.js';
 import { presenceByFile, socketToFiles, userBySocket } from '../state.js';
 import { isAllowedPath, normalizeHexColor } from '../utils.js';
 

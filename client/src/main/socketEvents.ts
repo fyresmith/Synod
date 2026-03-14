@@ -1,4 +1,4 @@
-import { SocketEvents } from '@fyresmith/synod-contracts';
+import { SocketEvents } from '../contracts';
 import { SocketClient } from '../socket';
 import { FileClaimPayload, FileUnclaimPayload, UserStatusPayload } from '../types';
 

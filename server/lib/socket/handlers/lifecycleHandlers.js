@@ -1,4 +1,4 @@
-import { SocketEvents } from '@fyresmith/synod-contracts';
+import { SocketEvents } from '../../contracts/socketEvents.js';
 import { claimedFiles, presenceByFile, socketToFiles, userBySocket } from '../state.js';
 
 export function registerDisconnectHandler(io, socket, user) {

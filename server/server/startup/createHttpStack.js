@@ -1,7 +1,7 @@
 import { createServer } from 'http';
 import express from 'express';
 import { Server } from 'socket.io';
-import { SocketEvents } from '@fyresmith/synod-contracts';
+import { SocketEvents } from '../../lib/contracts/socketEvents.js';
 import authRoutes from '../../routes/auth.js';
 import dashboardRoutes from '../../routes/dashboard.js';
 import { getRoomStatus } from '../../lib/yjs/index.js';

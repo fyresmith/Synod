@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: client/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Ensure default branch
         run: |
@@ -45,13 +45,14 @@ jobs:
             exit 1
           fi
 
-      - name: Install dependencies
-        working-directory: client
-        run: npm ci --workspaces=false
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Verify local contracts sync
+        run: npm run contracts:verify
 
       - name: Build and validate BRAT assets
-        working-directory: client
-        run: npm run build:brat
+        run: npm run build:brat --workspace @fyresmith/synod-client
 
       - name: Bump client version
         id: bump
@@ -71,11 +72,11 @@ jobs:
           fi
           VERSION=$(node -p "require('./client/package.json').version")
           node -e "const fs=require('fs');const m=JSON.parse(fs.readFileSync('client/manifest.json','utf8'));m.version=process.argv[1];fs.writeFileSync('client/manifest.json',JSON.stringify(m,null,2)+'\\n');" "$VERSION"
+          npm install --package-lock-only --ignore-scripts
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Validate BRAT metadata after version bump
-        working-directory: client
-        run: npm run check:brat
+        run: npm run check:brat --workspace @fyresmith/synod-client
 
       - name: Pin client artifacts
         run: node tools/synod-client/pin-release.mjs
@@ -89,13 +90,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
             client/package.json \
-            client/package-lock.json \
+            package-lock.json \
             client/manifest.json \
             release/synod-client.lock.json \
-            artifacts/synod-client \
-            server/assets/plugin/synod/main.js \
-            server/assets/plugin/synod/manifest.json \
-            server/assets/plugin/synod/styles.css
+            artifacts/synod-client
           if git diff --cached --quiet; then
             echo "No version change detected."
             exit 1

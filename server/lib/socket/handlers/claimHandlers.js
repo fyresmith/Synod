@@ -1,4 +1,4 @@
-import { SocketEvents } from '@fyresmith/synod-contracts';
+import { SocketEvents } from '../../contracts/socketEvents.js';
 import { claimedFiles, userBySocket } from '../state.js';
 import { isAllowedPath, respond } from '../utils.js';
 

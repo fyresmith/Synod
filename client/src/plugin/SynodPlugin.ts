@@ -1,5 +1,5 @@
 import { Plugin, Notice } from 'obsidian';
-import { SocketEvents } from '@fyresmith/synod-contracts';
+import { SocketEvents } from '../contracts';
 import {
   PluginSettings,
   ConnectionStatus,
@@ -23,6 +23,7 @@ import { setupManagedRuntime as configureManagedRuntime } from './runtime/manage
 import { revealUsersPanel } from './ui/usersPanelLauncher';
 import { UpdateManager } from './UpdateManager';
 import { ConnectionManager } from './ConnectionManager';
+import { resetYjsImportFlagForDevReload } from '../dev/yjsImportFlag';
 
 export default class SynodPlugin extends Plugin {
   settings: PluginSettings;
@@ -417,5 +418,6 @@ export default class SynodPlugin extends Plugin {
     this.connectionManager.clearGraceTimer();
     this.connectionManager.teardown(true);
     this.offlineGuard?.unlock();
+    resetYjsImportFlagForDevReload();
   }
 }
