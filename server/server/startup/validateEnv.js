@@ -1,8 +1,5 @@
 import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
-import logger from '../../lib/logger.js';
-
-const log = logger.child({ module: 'startup' });
 
 const REQUIRED = ['JWT_SECRET'];
 

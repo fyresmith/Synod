@@ -96,7 +96,7 @@ describe('FILE_WRITE', () => {
   it('writes file, broadcasts FILE_UPDATED, responds ok', async () => {
     vault.writeFile.mockResolvedValue();
     vault.hashContent.mockReturnValue('newhash');
-    const { io, socket } = setup();
+    const { socket } = setup();
     const cb = vi.fn();
     await socket._trigger(SocketEvents.FILE_WRITE, { relPath: 'doc.md', content: 'body' }, cb);
     expect(vault.writeFile).toHaveBeenCalledWith('doc.md', 'body');

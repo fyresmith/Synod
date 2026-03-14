@@ -1,4 +1,4 @@
-import { readdir, readFile } from 'fs/promises';
+import { readdir, readFile, stat } from 'fs/promises';
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import { basename, join, resolve } from 'path';
@@ -15,7 +15,7 @@ const TEMPLATE_ROOT = join(ASSETS_ROOT, 'template-vault');
 
 async function requireAssetPath(path, label) {
   try {
-    await readFile(path);
+    await stat(path);
     return path;
   } catch {
     throw new Error(`Missing packaged ${label} at ${path}`);
