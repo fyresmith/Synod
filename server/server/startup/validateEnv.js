@@ -14,7 +14,7 @@ export function validateEnv({ allowSetupMode = false } = {}) {
   }
 
   if (process.env.JWT_SECRET.length < 32) {
-    log.warn('JWT_SECRET is shorter than 32 characters — consider using a stronger secret');
+    throw new Error('[startup] JWT_SECRET must be at least 32 characters');
   }
 
   const port = parseInt(process.env.PORT ?? '3000', 10);

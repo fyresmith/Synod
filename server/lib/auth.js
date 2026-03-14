@@ -8,7 +8,7 @@ import { describeManagedStatus, isMember, loadManagedState } from './managed-sta
  * @returns {object} decoded payload
  */
 export function verifyToken(token) {
-  return jwt.verify(token, process.env.JWT_SECRET);
+  return jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
 }
 
 function getVaultPath() {

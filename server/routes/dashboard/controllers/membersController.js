@@ -1,5 +1,5 @@
 import { requireDashboardAuth } from '../../../lib/dashboardAuth.js';
-import { generateCsrfToken, CSRF_COOKIE_NAME } from '../../../lib/csrfToken.js';
+import { generateCsrfToken, requireCsrfToken, CSRF_COOKIE_NAME } from '../../../lib/csrfToken.js';
 import { removeMember } from '../../../lib/managed-state/index.js';
 import { requireOwnerSession } from '../middleware/requireOwnerSession.js';
 import { getVaultPath } from '../utils/requestContext.js';
@@ -19,7 +19,7 @@ export function registerMembersRoutes(router) {
     }
   });
 
-  router.post('/members/remove', requireDashboardAuth, async (req, res) => {
+  router.post('/members/remove', requireDashboardAuth, requireCsrfToken, async (req, res) => {
     const userId = String(req.body?.userId ?? '').trim();
     try {
       const state = await requireOwnerSession(req, res);

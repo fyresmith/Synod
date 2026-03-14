@@ -1,5 +1,5 @@
 import { requireDashboardAuth } from '../../../lib/dashboardAuth.js';
-import { generateCsrfToken, CSRF_COOKIE_NAME } from '../../../lib/csrfToken.js';
+import { generateCsrfToken, requireCsrfToken, CSRF_COOKIE_NAME } from '../../../lib/csrfToken.js';
 import { createInvite, revokeInvite } from '../../../lib/managed-state/index.js';
 import { requireOwnerSession } from '../middleware/requireOwnerSession.js';
 import { getServerUrl, getVaultPath } from '../utils/requestContext.js';
@@ -19,7 +19,7 @@ export function registerInvitesRoutes(router) {
     }
   });
 
-  router.post('/invites/create', requireDashboardAuth, async (req, res) => {
+  router.post('/invites/create', requireDashboardAuth, requireCsrfToken, async (req, res) => {
     try {
       const state = await requireOwnerSession(req, res);
       if (!state) return;
@@ -33,7 +33,7 @@ export function registerInvitesRoutes(router) {
     }
   });
 
-  router.post('/invites/revoke', requireDashboardAuth, async (req, res) => {
+  router.post('/invites/revoke', requireDashboardAuth, requireCsrfToken, async (req, res) => {
     const code = String(req.body?.code ?? '').trim();
     try {
       const state = await requireOwnerSession(req, res);

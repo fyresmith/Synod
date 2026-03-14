@@ -1,6 +1,6 @@
 import { randomUUID, scrypt as scryptCb, timingSafeEqual } from 'crypto';
 import { existsSync } from 'fs';
-import { mkdir, readFile, writeFile } from 'fs/promises';
+import { mkdir, readFile, rename, writeFile } from 'fs/promises';
 import { dirname, join, resolve } from 'path';
 import { promisify } from 'util';
 
@@ -115,8 +115,10 @@ export async function loadAccountsState(vaultPath) {
 export async function saveAccountsState(vaultPath, state) {
   const filePath = getAccountsStatePath(vaultPath);
   const normalized = normalizeState(state);
+  const tempPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
   await mkdir(dirname(filePath), { recursive: true });
-  await writeFile(filePath, `${JSON.stringify(normalized, null, 2)}\n`, 'utf-8');
+  await writeFile(tempPath, `${JSON.stringify(normalized, null, 2)}\n`, 'utf-8');
+  await rename(tempPath, filePath);
   return normalized;
 }
 
