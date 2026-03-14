@@ -2,7 +2,19 @@
 // Each migration is a plain function: (rawState) => rawState.
 const MIGRATIONS = [
   // v1 → v2: (none defined yet; v1 predates the version field)
-  // Placeholder — enables future v2 → v3 migrations without restructuring
+  (rawState) => ({
+    ...rawState,
+    version: 2,
+  }),
+  (rawState) => ({
+    ...rawState,
+    version: 3,
+    clientUpdate: {
+      requiredVersion: String(rawState?.clientUpdate?.requiredVersion ?? '').trim() || null,
+      activatedAt: String(rawState?.clientUpdate?.activatedAt ?? '').trim() || null,
+      activatedBy: String(rawState?.clientUpdate?.activatedBy ?? '').trim() || null,
+    },
+  }),
 ];
 
 export function migrateState(raw) {

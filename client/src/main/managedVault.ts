@@ -46,6 +46,7 @@ export function isValidManagedBinding(value: unknown): value is ManagedVaultBind
   if (typeof v.version !== 'number' || v.version < 1) return false;
   if (!normalizeServerUrl(v.serverUrl ?? '')) return false;
   if (!String(v.vaultId ?? '').trim()) return false;
+  if (!String(v.clientVersion ?? '').trim()) return false;
   if (!String(v.createdAt ?? '').trim()) return false;
   return true;
 }

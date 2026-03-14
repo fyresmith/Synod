@@ -5,12 +5,17 @@ import { tmpdir } from 'os';
 import { getManagedStatePath, loadManagedState } from '../../lib/managed-state/io.js';
 
 const validState = {
-  version: 2,
+  version: 3,
   managed: true,
   ownerId: 'user-1',
   vaultId: 'vault-abc',
   initializedAt: '2024-01-01T00:00:00.000Z',
   vaultName: null,
+  clientUpdate: {
+    requiredVersion: null,
+    activatedAt: null,
+    activatedBy: null,
+  },
   members: {
     'user-1': {
       id: 'user-1',
@@ -69,16 +74,23 @@ describe('loadManagedState', () => {
     await expect(loadManagedState('/unused-vault')).rejects.toThrow();
   });
 
-  it('throws when version is wrong', async () => {
-    const badState = { ...validState, version: 1 };
-    await writeFile(join(tmpDir, 'managed-state.json'), JSON.stringify(badState), 'utf-8');
-    await expect(loadManagedState('/unused-vault')).rejects.toThrow('Unsupported');
+  it('migrates a version-2 state to version 3', async () => {
+    const v2State = { ...validState, version: 2 };
+    delete v2State.clientUpdate;
+    await writeFile(join(tmpDir, 'managed-state.json'), JSON.stringify(v2State), 'utf-8');
+    const result = await loadManagedState('/unused-vault');
+    expect(result.version).toBe(3);
+    expect(result.clientUpdate).toEqual({
+      requiredVersion: null,
+      activatedAt: null,
+      activatedBy: null,
+    });
   });
 
-  it('loads a valid version-2 state successfully', async () => {
+  it('loads a valid version-3 state successfully', async () => {
     await writeFile(join(tmpDir, 'managed-state.json'), JSON.stringify(validState), 'utf-8');
     const result = await loadManagedState('/unused-vault');
     expect(result.ownerId).toBe('user-1');
-    expect(result.version).toBe(2);
+    expect(result.version).toBe(3);
   });
 });

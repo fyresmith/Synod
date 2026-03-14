@@ -20,10 +20,15 @@ const validInvite = {
 
 function makeValidState(overrides = {}) {
   return {
-    version: 2,
+    version: 3,
     ownerId: 'user-1',
     vaultId: 'vault-abc',
     initializedAt: '2024-01-01T00:00:00.000Z',
+    clientUpdate: {
+      requiredVersion: null,
+      activatedAt: null,
+      activatedBy: null,
+    },
     members: { 'user-1': validMember },
     invites: {},
     ...overrides,
@@ -33,11 +38,16 @@ function makeValidState(overrides = {}) {
 describe('normalizeState', () => {
   it('returns a clean shaped object for a valid state', () => {
     const result = normalizeState(makeValidState());
-    expect(result.version).toBe(2);
+    expect(result.version).toBe(3);
     expect(result.managed).toBe(true);
     expect(result.ownerId).toBe('user-1');
     expect(result.vaultId).toBe('vault-abc');
     expect(result.members['user-1']).toBeDefined();
+    expect(result.clientUpdate).toEqual({
+      requiredVersion: null,
+      activatedAt: null,
+      activatedBy: null,
+    });
   });
 
   it('strips unknown top-level fields', () => {
@@ -45,8 +55,8 @@ describe('normalizeState', () => {
     expect(result.unknownField).toBeUndefined();
   });
 
-  it('throws on version 1', () => {
-    expect(() => normalizeState(makeValidState({ version: 1 }))).toThrow('Unsupported');
+  it('throws on version 2', () => {
+    expect(() => normalizeState(makeValidState({ version: 2 }))).toThrow('Unsupported');
   });
 
   it('throws on version 99', () => {
@@ -74,6 +84,16 @@ describe('normalizeState', () => {
 
   it('throws on invalid invites object (array)', () => {
     expect(() => normalizeState(makeValidState({ invites: [] }))).toThrow('Invalid invites object');
+  });
+
+  it('throws on invalid clientUpdate.activatedAt date', () => {
+    expect(() => normalizeState(makeValidState({
+      clientUpdate: {
+        requiredVersion: '1.2.3',
+        activatedAt: 'bad-date',
+        activatedBy: 'owner-1',
+      },
+    }))).toThrow('clientUpdate.activatedAt');
   });
 });
 

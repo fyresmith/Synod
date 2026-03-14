@@ -36,6 +36,24 @@ export function normalizeInvite(raw) {
   };
 }
 
+export function normalizeClientUpdate(raw) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+
+  const requiredVersion = String(source.requiredVersion ?? '').trim() || null;
+  const activatedAt = String(source.activatedAt ?? '').trim() || null;
+  const activatedBy = String(source.activatedBy ?? '').trim() || null;
+
+  if (activatedAt) {
+    assertIsoDate(activatedAt, 'clientUpdate.activatedAt');
+  }
+
+  return {
+    requiredVersion,
+    activatedAt,
+    activatedBy,
+  };
+}
+
 export function normalizeState(raw) {
   if (!raw || typeof raw !== 'object') {
     throw new Error('[managed] Invalid state payload');
@@ -51,6 +69,7 @@ export function normalizeState(raw) {
   const vaultId = assertNonEmptyString(raw.vaultId, 'vaultId');
   const initializedAt = assertIsoDate(raw.initializedAt, 'initializedAt');
   const vaultName = String(raw.vaultName ?? '').trim() || null;
+  const clientUpdate = normalizeClientUpdate(raw.clientUpdate);
 
   const membersRaw = raw.members;
   if (!membersRaw || typeof membersRaw !== 'object' || Array.isArray(membersRaw)) {
@@ -84,6 +103,7 @@ export function normalizeState(raw) {
     vaultId,
     initializedAt,
     vaultName,
+    clientUpdate,
     members,
     invites,
   };

@@ -17,6 +17,7 @@ interface ConnectionManagerHost {
   settings: PluginSettings;
   getManagedBinding: () => ManagedVaultBinding | null;
   isManagedVault: () => boolean;
+  ensureManagedClientVersion: () => Promise<boolean>;
   getStatus: () => ConnectionStatus;
   setStatus: (status: ConnectionStatus) => void;
   saveSettings: () => Promise<void>;
@@ -45,6 +46,9 @@ export class ConnectionManager {
   async connect(): Promise<void> {
     if (!this.host.isManagedVault()) return;
     if (this.socket?.connected || this.isConnecting) return;
+    if (!(await this.host.ensureManagedClientVersion())) {
+      return;
+    }
     if (!this.host.settings.token) {
       this.host.setStatus('auth-required');
       this.host.getOfflineGuard()?.lock('signed-out');

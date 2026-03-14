@@ -2,6 +2,7 @@ import { Router, json, urlencoded } from 'express';
 import { registerClaimRoutes } from './controllers/claimController.js';
 import { registerBundleRoutes } from './controllers/bundleController.js';
 import { registerBootstrapRoutes } from './controllers/bootstrapController.js';
+import { registerClientReleaseRoutes } from './controllers/clientReleaseController.js';
 
 const router = Router();
 
@@ -11,5 +12,6 @@ router.use(urlencoded({ extended: false }));
 registerClaimRoutes(router);
 registerBundleRoutes(router);
 registerBootstrapRoutes(router);
+registerClientReleaseRoutes(router);
 
 export default router;

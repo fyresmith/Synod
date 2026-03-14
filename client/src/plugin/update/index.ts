@@ -70,6 +70,11 @@ export interface PrefetchResult {
   fetchedAt: string;
 }
 
+export interface ManagedClientReleasePolicy {
+  requiredVersion: string | null;
+  release: UpdateReleaseInfo | null;
+}
+
 function hashString(content: string): string {
   return createHash('sha256').update(Buffer.from(content, 'utf8')).digest('hex');
 }
@@ -90,7 +95,7 @@ function parseSemver(input: string): {
   };
 }
 
-function compareSemver(a: string, b: string): number {
+export function compareSemver(a: string, b: string): number {
   const left = parseSemver(a);
   const right = parseSemver(b);
   if (!left || !right) return a.localeCompare(b);
@@ -301,6 +306,55 @@ async function loadLatestRelease(): Promise<UpdateReleaseInfo> {
   }
 
   return release;
+}
+
+export async function fetchManagedClientReleasePolicy(options: {
+  serverUrl: string;
+  vaultId: string;
+}): Promise<ManagedClientReleasePolicy> {
+  const serverUrl = String(options.serverUrl ?? '').trim().replace(/\/+$/, '');
+  const vaultId = String(options.vaultId ?? '').trim();
+  if (!serverUrl || !vaultId) {
+    throw new Error('Managed client update check requires serverUrl and vaultId.');
+  }
+
+  const url = `${serverUrl}/auth/client-release/required?vaultId=${encodeURIComponent(vaultId)}`;
+  const response = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  let payload: {
+    ok?: boolean;
+    error?: string;
+    requiredVersion?: string | null;
+    release?: UpdateReleaseInfo | null;
+  } | null = null;
+
+  try {
+    payload = await response.json();
+  } catch {
+    payload = null;
+  }
+
+  if (!response.ok || !payload?.ok) {
+    throw new Error(payload?.error || `Managed update check failed (${response.status})`);
+  }
+
+  const requiredVersion = String(payload.requiredVersion ?? '').trim() || null;
+  const release = payload.release ?? null;
+  if (requiredVersion && !release) {
+    throw new Error(`Server requires Synod client v${requiredVersion}, but did not provide release metadata.`);
+  }
+  if (release && (!parseSemver(release.version) || !isValidChecksums(release.checksums))) {
+    throw new Error('Managed update metadata from server is invalid.');
+  }
+
+  return {
+    requiredVersion,
+    release,
+  };
 }
 
 function makeResult(result: UpdateCheckResultWithoutTimestamp): UpdateCheckResult {
@@ -589,6 +643,27 @@ export async function prefetchClientUpdate(options: {
     await cleanupFiles(fs.remove, stagePaths);
     throw err;
   }
+}
+
+export async function installedClientMatchesRelease(options: {
+  adapter: DataAdapter;
+  pluginId: string;
+  release: UpdateReleaseInfo;
+}): Promise<boolean> {
+  const { adapter, pluginId, release } = options;
+  const fs = requireAdapter(adapter);
+  const checksums = normalizeChecksums(release.checksums);
+
+  for (const assetName of REQUIRED_ASSETS) {
+    const path = pluginFilePath(pluginId, assetName);
+    if (!(await fs.exists(path))) return false;
+    const content = await fs.read(path);
+    if (hashString(content) !== checksums[assetName]) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 export async function checkAndPrefetchClientUpdate(options: {

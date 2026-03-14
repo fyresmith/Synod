@@ -87,10 +87,17 @@ export type InstallResult =
     message: string;
   };
 
+export interface ManagedClientUpdateStatus {
+  phase: 'idle' | 'checking' | 'downloading' | 'installing' | 'reload-required' | 'error';
+  requiredVersion: string | null;
+  message: string;
+}
+
 export type ConnectionStatus =
   | 'connected'
   | 'disconnected'
   | 'connecting'
+  | 'updating'
   | 'auth-required';
 
 export interface ClaimState {

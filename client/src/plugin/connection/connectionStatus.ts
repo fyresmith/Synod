@@ -9,6 +9,7 @@ export function getManagedStatusLabel(status: ConnectionStatus, remoteCount: num
   const labels: Record<ConnectionStatus, string> = {
     connected: `⬢ Synod${countSuffix}`,
     connecting: '⬡ Synod',
+    updating: '⬡ Synod Update',
     disconnected: '⬡̸ Synod',
     'auth-required': '⛶ Synod',
   };

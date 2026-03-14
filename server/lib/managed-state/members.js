@@ -20,6 +20,11 @@ export async function initManagedState({ vaultPath, ownerId: ownerIdParam, owner
       vaultId: nextVaultId(),
       initializedAt: nowIso(),
       vaultName: String(vaultName ?? '').trim() || null,
+      clientUpdate: {
+        requiredVersion: null,
+        activatedAt: null,
+        activatedBy: null,
+      },
       members: {},
       invites: {},
     };

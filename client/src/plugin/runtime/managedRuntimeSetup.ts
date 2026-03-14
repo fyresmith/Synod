@@ -21,6 +21,7 @@ interface SetupManagedRuntimeOptions {
   onReconnect: () => Promise<void>;
   onDisable: () => void;
   onLogout: () => Promise<void>;
+  getManagedUpdateMessage: () => string;
   claimFile: (path: string) => void;
   unclaimFile: (path: string) => void;
   hasClaim: (path: string) => boolean;
@@ -46,6 +47,7 @@ export function setupManagedRuntime(options: SetupManagedRuntimeOptions): {
     onReconnect,
     onDisable,
     onLogout,
+    getManagedUpdateMessage,
     claimFile,
     unclaimFile,
     hasClaim,
@@ -85,6 +87,7 @@ export function setupManagedRuntime(options: SetupManagedRuntimeOptions): {
         }
         : null,
       isAuthenticated: isAuthenticated(),
+      updateMessage: getManagedUpdateMessage(),
     }),
   });
 

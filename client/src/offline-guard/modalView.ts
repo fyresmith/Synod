@@ -1,11 +1,12 @@
 import { setIcon } from 'obsidian';
 
-export type OfflineMode = 'connecting' | 'disconnected' | 'auth-required' | 'signed-out';
+export type OfflineMode = 'connecting' | 'disconnected' | 'auth-required' | 'signed-out' | 'updating';
 
 export interface OfflineSnapshot {
   serverUrl: string;
   user: { username: string; avatarUrl: string } | null;
   isAuthenticated: boolean;
+  updateMessage?: string;
 }
 
 interface RenderOfflineModalOptions {
@@ -46,12 +47,12 @@ export function renderOfflineModal(options: RenderOfflineModalOptions): void {
   }
 
   modal.empty();
-  modal.toggleClass('is-connecting', mode === 'connecting');
+  modal.toggleClass('is-connecting', mode === 'connecting' || mode === 'updating');
 
   const iconEl = modal.createDiv({ cls: 'synod-offline-icon' });
   const iconName = mode === 'auth-required' || mode === 'signed-out'
     ? 'lock'
-    : mode === 'connecting'
+    : mode === 'connecting' || mode === 'updating'
     ? 'loader'
     : 'wifi-off';
   setIcon(iconEl, iconName);
@@ -62,6 +63,14 @@ export function renderOfflineModal(options: RenderOfflineModalOptions): void {
   if (mode === 'connecting') {
     title.textContent = 'Connecting to Synod';
     subtitle.textContent = "Your changes are being queued. They'll sync when you reconnect.";
+    const loader = modal.createDiv({ cls: 'synod-offline-loader' });
+    loader.createDiv({ cls: 'synod-offline-loader-dot' });
+    loader.createDiv({ cls: 'synod-offline-loader-dot' });
+    loader.createDiv({ cls: 'synod-offline-loader-dot' });
+  } else if (mode === 'updating') {
+    title.textContent = 'Synod update required';
+    subtitle.textContent = getSnapshot?.().updateMessage
+      ?? 'This managed vault needs a newer Synod client before sign-in can continue.';
     const loader = modal.createDiv({ cls: 'synod-offline-loader' });
     loader.createDiv({ cls: 'synod-offline-loader-dot' });
     loader.createDiv({ cls: 'synod-offline-loader-dot' });
@@ -115,7 +124,9 @@ export function renderOfflineModal(options: RenderOfflineModalOptions): void {
   if (mode !== 'connecting') {
     const reconnect = actions.createEl('button', {
       cls: 'mod-cta',
-      text: mode === 'auth-required' || mode === 'signed-out'
+      text: mode === 'updating'
+        ? 'Retry update'
+        : mode === 'auth-required' || mode === 'signed-out'
         ? 'Retry sign-in'
         : 'Try reconnect',
     });

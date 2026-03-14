@@ -1,141 +1,59 @@
-# @fyresmith/synod
+# Synod
 
-Self-hosted server that drives real-time collaborative Obsidian vault editing. Handles member authentication, file sync, Yjs CRDT sessions, presence, and an admin dashboard.
+Synod is a self-hosted platform for real-time collaborative editing of [Obsidian](https://obsidian.md) vaults. A Node.js server manages authentication, file sync, presence, and Yjs CRDT sessions. An Obsidian plugin connects vault members to the server and keeps files in sync across machines.
 
-## Install
+The server is published to npm as `@fyresmith/synod` and runs anywhere Node ≥ 20 is available. The plugin is distributed through GitHub Releases and installable via [BRAT](https://github.com/TfTHacker/obsidian42-brat) or the in-app update button.
 
-```bash
-npm install -g @fyresmith/synod
-```
+## How it works
 
-Or run without installing:
+1. **Owner sets up the server** — runs `synod setup` on a VPS or local machine, sets a `JWT_SECRET` and `VAULT_PATH`, and starts the server.
+2. **Owner generates an invite** — runs `synod managed invite create` or uses the dashboard to produce a one-time invite link.
+3. **Member claims the invite** — opens the link in a browser, signs in or creates an account, and downloads a preconfigured vault shell zip.
+4. **Plugin bootstraps** — on first open Obsidian exchanges a short-lived bootstrap token for a 30-day session JWT, then runs initial sync automatically.
+5. **Real-time collaboration** — Socket.IO handles file CRUD events and presence; a y-websocket server at `/yjs` handles Yjs CRDT ops for collaborative Markdown editing.
 
-```bash
-npx @fyresmith/synod setup
-```
+## Monorepo layout
 
-## Quick setup
+| Directory             | Package                        | Description                                              |
+|-----------------------|--------------------------------|----------------------------------------------------------|
+| `server/`             | `@fyresmith/synod`             | Server process, CLI, admin dashboard                     |
+| `client/`             | `@fyresmith/synod-client`      | Obsidian plugin (TypeScript + esbuild)                   |
+| `packages/contracts/` | `@fyresmith/synod-contracts`   | Shared socket events + TypeScript interfaces             |
+| `release/`            | —                              | Pinned client artifact lock (`synod-client.lock.json`)   |
+| `artifacts/`          | —                              | Client build artifacts (main.js, manifest.json, styles.css) |
+| `tools/`              | —                              | Internal scripts (contracts sync, asset setup, dev vault)|
+| `template-vault/`     | —                              | Vault contents included in new-member zip bundles        |
 
-```bash
-synod setup      # Interactive wizard — sets JWT_SECRET, VAULT_PATH, port
-synod run        # Start the server (reads .env in working directory)
-```
-
-Open `http://localhost:3000/dashboard` to access the admin dashboard.
-
-## Requirements
+## Prerequisites
 
 - Node.js ≥ 20
-- A vault directory (plain files on disk — no database)
-- A public hostname or [Cloudflare tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) so Obsidian clients can reach the server
+- npm ≥ 9
 
-## Environment variables
-
-### Required
-
-| Variable      | Description                                    |
-|---------------|------------------------------------------------|
-| `JWT_SECRET`  | Secret used to sign all JWTs. Must be set.     |
-| `VAULT_PATH`  | Absolute path to the vault directory on disk.  |
-
-### Optional
-
-| Variable                           | Default                        | Description                                                          |
-|------------------------------------|--------------------------------|----------------------------------------------------------------------|
-| `PORT`                             | `3000`                         | HTTP listen port.                                                    |
-| `SYNOD_SERVER_URL`                 | auto-detected                  | Public base URL (e.g. `https://synod.example.com`). Required for invite links to work correctly. |
-| `SYNOD_STATE_PATH`                 | `$VAULT_PATH/.synod`           | Directory for managed-state.json, accounts-state.json, etc.          |
-| `SYNOD_BUNDLE_GRANT_TTL_MINUTES`   | `15`                           | TTL of download tickets issued after invite claim.                   |
-| `SYNOD_BOOTSTRAP_TOKEN_TTL_HOURS`  | `24`                           | TTL of bootstrap tokens bundled in new-member vault zips.            |
-| `SYNOD_BUNDLE_STRICT_CLIENT_LOCK`  | `false`                        | Fail bundle generation if pinned client artifacts are missing or mismatched. |
-
-### Rate limiting
-
-| Variable                              | Default    | Description                                  |
-|---------------------------------------|------------|----------------------------------------------|
-| `SYNOD_RATE_LIMIT_WINDOW_MS`          | `300000`   | Auth rate limit window (ms).                 |
-| `SYNOD_RATE_LIMIT_SIGNUP_MAX`         | `8`        | Max signup attempts per window.              |
-| `SYNOD_RATE_LIMIT_SIGNIN_MAX`         | `8`        | Max signin attempts per window.              |
-| `SYNOD_RATE_LIMIT_BOOTSTRAP_MAX`      | `20`       | Max bootstrap token exchanges per window.    |
-| `SYNOD_RATE_LIMIT_SOCKET_OPS_MAX`     | `60`       | Max socket file ops per socket ops window.   |
-| `SYNOD_RATE_LIMIT_SOCKET_OPS_WINDOW_MS` | `60000`  | Socket ops rate limit window (ms).           |
-
-## CLI commands
-
-### Setup and operation
+## Quickstart (dev)
 
 ```bash
-synod setup          # Interactive setup wizard
-synod run            # Start the server process
-synod dashboard      # Print the dashboard URL
-synod status         # Show server status
-synod doctor         # Diagnose common configuration problems
-```
-
-### Environment
-
-```bash
-synod env list       # Print resolved environment variables
-synod env set KEY VALUE  # Persist a variable to .env
-```
-
-### Service management (systemd / launchd)
-
-```bash
-synod service install    # Install as a system service
-synod service uninstall  # Remove the system service
-synod service start      # Start the service
-synod service stop       # Stop the service
-synod service status     # Show service status
-```
-
-### Cloudflare tunnel
-
-```bash
-synod tunnel start       # Start a Cloudflare tunnel
-synod tunnel stop        # Stop the tunnel
-synod tunnel status      # Show tunnel status
-```
-
-### Managed vault
-
-```bash
-synod managed invite create      # Generate a new invite link
-synod managed invite list        # List all invites
-synod managed invite revoke CODE # Revoke an invite
-synod managed member list        # List all members
-synod managed member remove ID   # Remove a member
-synod managed status             # Show vault status
-```
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  HTTP layer (Express)                                    │
-│  ┌──────────────────┐  ┌────────────────────────────┐   │
-│  │  /auth routes    │  │  /dashboard routes         │   │
-│  │  claim, bundle,  │  │  setup, auth, overview,    │   │
-│  │  bootstrap       │  │  invites, members          │   │
-│  └──────────────────┘  └────────────────────────────┘   │
-├─────────────────────────────────────────────────────────┤
-│  Socket.IO layer                                         │
-│  vault-sync, file CRUD, file-claim, presence, lifecycle  │
-├─────────────────────────────────────────────────────────┤
-│  y-websocket layer  (/yjs)                               │
-│  Yjs CRDT ops — collaborative Markdown editing           │
-├─────────────────────────────────────────────────────────┤
-│  File system                                             │
-│  vault files, managed-state.json, accounts-state.json   │
-└─────────────────────────────────────────────────────────┘
-```
-
-## Development
-
-This package is part of the [Synod monorepo](https://github.com/fyresmith/synod). See the root `README.md` for monorepo dev commands.
-
-```bash
-# From monorepo root
 npm install
-npm run dev
+npm run dev:vault   # Materialize .dev/template-vault from template-vault/
+npm run dev         # Client watch + server run + plugin sync (parallel)
 ```
+
+## Key commands
+
+```bash
+npm run build                    # contracts:verify + build:server + build:client
+npm run build:server             # Server only (npm pack --dry-run)
+npm run build:client             # Client BRAT assets only
+npm run verify                   # Typecheck + smoke test both packages
+npm run contracts:sync           # Sync shared contracts to server and client
+npm run artifacts:pin-client     # Pin latest release artifact SHA256 hashes
+npm run artifacts:verify-client  # Verify pinned artifact hashes match disk
+```
+
+## Release model
+
+| Package | Tag pattern            | Distribution                         |
+|---------|------------------------|--------------------------------------|
+| Server  | `synod-vX.Y.Z`         | npm (`@fyresmith/synod`)             |
+| Client  | `synod-client-vX.Y.Z`  | GitHub Releases (BRAT-compatible)    |
+
+`release/synod-client.lock.json` pins the SHA256 hashes of the active client artifacts. Plugin assets are staged to `server/assets/plugin/synod/` from the lock file at prepack time. Set `SYNOD_BUNDLE_STRICT_CLIENT_LOCK=true` to fail bundle generation when pinned artifacts are missing or mismatched.

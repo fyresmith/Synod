@@ -18,5 +18,6 @@ export interface ManagedVaultBinding {
   managed: true;
   serverUrl: string;
   vaultId: string;
+  clientVersion: string;
   createdAt: string;
 }

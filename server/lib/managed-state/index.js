@@ -6,3 +6,4 @@ export { createInvite, listInvites, getInvite, revokeInvite } from './invites.js
 export { setInviteDownloadTicket, consumeInviteDownloadTicket } from './tickets.js';
 export { setMemberBootstrapSecret, consumeMemberBootstrapSecretByToken } from './bootstrap.js';
 export { describeManagedStatus } from './status.js';
+export { setRequiredClientVersion } from './clientUpdate.js';

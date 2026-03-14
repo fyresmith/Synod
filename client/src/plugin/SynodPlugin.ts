@@ -1,6 +1,7 @@
 import { Plugin, Notice } from 'obsidian';
 import { SocketEvents } from '../contracts';
 import {
+  ManagedClientUpdateStatus,
   PluginSettings,
   ConnectionStatus,
   ManagedVaultBinding,
@@ -91,6 +92,7 @@ export default class SynodPlugin extends Plugin {
       settings: this.settings,
       getManagedBinding: () => this.managedBinding,
       isManagedVault: () => this.isManagedVault(),
+      ensureManagedClientVersion: () => this.ensureManagedClientVersion(),
       getStatus: () => this.status,
       setStatus: (status) => this.setStatus(status),
       saveSettings: () => this.saveSettings(),
@@ -123,6 +125,10 @@ export default class SynodPlugin extends Plugin {
 
     if (this.isManagedVault()) {
       this.setupManagedRuntime();
+      const managedClientReady = await this.ensureManagedClientVersion();
+      if (!managedClientReady) {
+        return;
+      }
       if (this.settings.token) {
         await this.connectionManager.connect();
       } else if (this.settings.bootstrapToken) {
@@ -143,6 +149,9 @@ export default class SynodPlugin extends Plugin {
   }
 
   private async exchangeBootstrapToken(): Promise<boolean> {
+    if (!(await this.ensureManagedClientVersion())) {
+      return false;
+    }
     return exchangeBootstrapToken({
       binding: this.managedBinding,
       settings: this.settings,
@@ -165,24 +174,12 @@ export default class SynodPlugin extends Plugin {
       onRevealUsersPanel: () => this.revealUsersPanel(),
       onPresenceFileOpened: (path) => this.emitPresenceFileOpened(path),
       onPresenceFileClosed: (path) => this.emitPresenceFileClosed(path),
-      onReconnect: async () => {
-        if (this.status === 'auth-required') {
-          if (this.settings.bootstrapToken) {
-            const exchanged = await this.exchangeBootstrapToken();
-            if (exchanged && this.settings.token) {
-              await this.connectionManager.connect();
-            }
-          } else {
-            new Notice('Synod: Ask the vault owner for a new invite to regain access.');
-          }
-          return;
-        }
-        await this.connectionManager.reconnect();
-      },
+      onReconnect: () => this.reconnectFromUi(),
       onDisable: () => {
         void this.disablePluginFromUi();
       },
       onLogout: () => this.logout(),
+      getManagedUpdateMessage: () => this.getManagedUpdateStatus().message,
       claimFile: (path) => this.claimFile(path),
       unclaimFile: (path) => this.unclaimFile(path),
       hasClaim: (path) => Boolean(this.presenceManager?.getClaim(path)),
@@ -198,6 +195,10 @@ export default class SynodPlugin extends Plugin {
 
   getManagedBinding(): ManagedVaultBinding | null {
     return this.managedBinding;
+  }
+
+  getManagedUpdateStatus(): ManagedClientUpdateStatus {
+    return this.updateManager.getManagedUpdateStatus();
   }
 
   private reattachPresenceCallback(): void {
@@ -335,6 +336,10 @@ export default class SynodPlugin extends Plugin {
       return;
     }
 
+    if (!(await this.ensureManagedClientVersion())) {
+      return;
+    }
+
     if (this.status === 'auth-required' && this.settings.bootstrapToken) {
       const exchanged = await this.exchangeBootstrapToken();
       if (exchanged && this.settings.token) {
@@ -373,6 +378,24 @@ export default class SynodPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+  }
+
+  private async ensureManagedClientVersion(): Promise<boolean> {
+    if (!this.managedBinding || !this.offlineGuard) {
+      return true;
+    }
+
+    const ready = await this.updateManager.ensureManagedClientVersion(this.managedBinding);
+    if (!ready) {
+      this.setStatus('updating');
+      this.offlineGuard.lock('updating');
+      return false;
+    }
+
+    if (this.status === 'updating') {
+      this.setStatus('disconnected');
+    }
+    return true;
   }
 
   // Update manager delegates

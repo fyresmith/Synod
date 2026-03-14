@@ -14,6 +14,8 @@ function statusLabel(status: ReturnType<SynodPlugin['getStatus']>): string {
       return 'Connected';
     case 'connecting':
       return 'Connecting';
+    case 'updating':
+      return 'Updating client';
     case 'auth-required':
       return 'Sign in required';
     default:
@@ -118,9 +120,14 @@ export class SynodSettingTab extends PluginSettingTab {
     this.renderUserCard(card);
 
     const binding = this.plugin.getManagedBinding();
+    const managedUpdate = this.plugin.getManagedUpdateStatus();
     const details = card.createDiv({ cls: 'synod-user-meta' });
     details.createEl('div', { cls: 'synod-user-name', text: `Vault ID: ${binding?.vaultId ?? '(missing)'}` });
     details.createEl('div', { text: `Server: ${binding?.serverUrl ?? '(missing)'}` });
+    details.createEl('div', { text: `Installed Client: v${this.plugin.getInstalledVersion()}` });
+    if (managedUpdate.phase !== 'idle' && managedUpdate.message) {
+      details.createEl('div', { text: managedUpdate.message });
+    }
 
     const actions = card.createDiv({ cls: 'synod-settings-actions' });
     const connectBtn = actions.createEl('button', {
@@ -188,8 +195,8 @@ export class SynodSettingTab extends PluginSettingTab {
       this.renderManagedSettings(containerEl);
     } else {
       this.renderBootstrapSettings(containerEl);
+      containerEl.createEl('hr', { cls: 'synod-section-divider' });
+      this.renderUpdateSettings(containerEl);
     }
-    containerEl.createEl('hr', { cls: 'synod-section-divider' });
-    this.renderUpdateSettings(containerEl);
   }
 }
