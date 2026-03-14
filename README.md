@@ -4,11 +4,11 @@ Synod enables real-time collaborative editing of Obsidian vaults. A self-hosted 
 
 ## Monorepo layout
 
-| Directory | Package | Description |
-|---|---|---|
-| `server/` | `@fyresmith/synod` | Server process, CLI, and admin dashboard |
-| `client/` | `@fyresmith/synod-client` | Obsidian plugin |
-| `release/` | — | Pinned client artifact lock used by server bundling |
+| Directory  | Package                   | Description                                         |
+| ---------- | ------------------------- | --------------------------------------------------- |
+| `server/`  | `@fyresmith/synod`        | Server process, CLI, and admin dashboard            |
+| `client/`  | `@fyresmith/synod-client` | Obsidian plugin                                     |
+| `release/` | —                         | Pinned client artifact lock used by server bundling |
 
 ## Prerequisites
 

@@ -2,7 +2,12 @@ import { run } from '../exec.js';
 import { getLaunchdTarget } from './platform.js';
 
 function normalizeOutput(resultOrError) {
-  return [resultOrError?.stdout, resultOrError?.stderr, resultOrError?.shortMessage, resultOrError?.message]
+  return [
+    resultOrError?.stdout,
+    resultOrError?.stderr,
+    resultOrError?.shortMessage,
+    resultOrError?.message,
+  ]
     .filter(Boolean)
     .join('\n')
     .trim();
@@ -14,7 +19,7 @@ function isMissingServiceOutput(output) {
     text.includes('could not find service') ||
     text.includes('service does not exist') ||
     text.includes('not loaded') ||
-    text.includes('unit') && text.includes('not found') ||
+    (text.includes('unit') && text.includes('not found')) ||
     text.includes('no such file or directory')
   );
 }
@@ -59,7 +64,10 @@ async function getSystemdServiceStatus(serviceName) {
 
   try {
     const { stdout } = await run('systemctl', ['is-active', serviceName]);
-    state = String(stdout ?? '').trim().toLowerCase() || 'unknown';
+    state =
+      String(stdout ?? '')
+        .trim()
+        .toLowerCase() || 'unknown';
   } catch (err) {
     const output = normalizeOutput(err).toLowerCase();
     state = output.split(/\s+/)[0] || 'inactive';
@@ -67,7 +75,13 @@ async function getSystemdServiceStatus(serviceName) {
 
   const active = state === 'active';
 
-  const statusOutput = await run('systemctl', ['status', '--no-pager', '--lines', '20', serviceName])
+  const statusOutput = await run('systemctl', [
+    'status',
+    '--no-pager',
+    '--lines',
+    '20',
+    serviceName,
+  ])
     .then((result) => normalizeOutput(result))
     .catch((err) => normalizeOutput(err));
 
