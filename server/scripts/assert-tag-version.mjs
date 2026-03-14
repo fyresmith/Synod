@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import { join } from 'path';
+import { fileURLToPath } from 'url';
 
 const TAG = process.argv[2] || process.env.RELEASE_TAG || process.env.GITHUB_REF_NAME || '';
 const MATCH = TAG.match(/^synod-v(\d+\.\d+\.\d+(?:-[0-9A-Za-z-.]+)?)$/);
@@ -11,7 +12,8 @@ if (!MATCH) {
 }
 
 const tagVersion = MATCH[1];
-const pkgPath = join(process.cwd(), 'package.json');
+const SCRIPT_DIR = fileURLToPath(new URL('.', import.meta.url));
+const pkgPath = join(SCRIPT_DIR, '..', 'package.json');
 const pkg = JSON.parse(await readFile(pkgPath, 'utf-8'));
 
 if (pkg.version !== tagVersion) {
