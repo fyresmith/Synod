@@ -1,17 +1,7 @@
 import { existsSync } from 'fs';
-import { readFile } from 'fs/promises';
-import { dirname, join } from 'path';
 import { resolveContext } from '../../core/context.js';
 import { info, table } from '../../output.js';
-
-async function loadDevState(devStateFile) {
-  try {
-    const raw = await readFile(devStateFile, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
+import { getDevStateFile, loadDevState } from './devState.js';
 
 export function registerListCommand(dev) {
   dev
@@ -20,10 +10,10 @@ export function registerListCommand(dev) {
     .option('--env-file <path>', 'env file path')
     .action(async (options) => {
       const { envFile } = await resolveContext(options);
-      const devStateFile = join(dirname(envFile), '.synod-dev.json');
+      const devStateFile = getDevStateFile(envFile);
       const devState = await loadDevState(devStateFile);
 
-      const vaults = devState?.vaults ?? {};
+      const vaults = devState.vaults ?? {};
       if (Object.keys(vaults).length === 0) {
         info('No dev vaults seeded yet. Run: synod dev seed');
         return;

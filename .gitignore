@@ -19,6 +19,7 @@ server/assets/plugin/synod/synod-client.lock.json
 
 # Local development vault
 .dev/
+template-vault/
 
 # Logs
 yarn-error.log*

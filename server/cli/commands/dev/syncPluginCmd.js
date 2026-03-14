@@ -1,22 +1,14 @@
 import { existsSync } from 'fs';
 import { copyFile, mkdir, readFile, writeFile } from 'fs/promises';
-import { dirname, join } from 'path';
+import { join } from 'path';
 import chokidar from 'chokidar';
 import { resolveContext } from '../../core/context.js';
 import { CliError } from '../../errors.js';
 import { EXIT } from '../../constants.js';
 import { info, success, warn } from '../../output.js';
+import { getDevStateFile, loadDevState } from './devState.js';
 
 const PLUGIN_FILES = ['main.js', 'manifest.json', 'styles.css'];
-
-async function loadDevState(devStateFile) {
-  try {
-    const raw = await readFile(devStateFile, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
 
 function resolveSourceDir(serverRoot, explicitSource) {
   if (explicitSource) return explicitSource;
@@ -75,7 +67,7 @@ async function doSync(vaultPath, sourceDir) {
 async function resolveVaultPaths(options, devStateFile) {
   if (options.all) {
     const devState = await loadDevState(devStateFile);
-    const vaults = devState?.vaults ?? {};
+    const vaults = devState.vaults ?? {};
     const entries = Object.entries(vaults);
     if (entries.length === 0) {
       throw new CliError('No dev vaults seeded yet. Run: synod dev seed', EXIT.FAIL);
@@ -88,7 +80,7 @@ async function resolveVaultPaths(options, devStateFile) {
   }
 
   const devState = await loadDevState(devStateFile);
-  const entry = devState?.vaults?.[options.name];
+  const entry = devState.vaults?.[options.name];
   if (!entry) {
     throw new CliError(
       `Dev vault "${options.name}" not found. Run: synod dev seed --name ${options.name}`,
@@ -110,7 +102,7 @@ export function registerSyncPluginCommand(dev) {
     .option('--env-file <path>', 'env file path')
     .action(async (options) => {
       const { envFile } = await resolveContext(options);
-      const devStateFile = join(dirname(envFile), '.synod-dev.json');
+      const devStateFile = getDevStateFile(envFile);
 
       const targets = await resolveVaultPaths(options, devStateFile);
 

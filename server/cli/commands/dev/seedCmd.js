@@ -1,42 +1,17 @@
 import { existsSync } from 'fs';
-import { mkdir, readFile, writeFile } from 'fs/promises';
-import { homedir } from 'os';
-import { dirname, join } from 'path';
+import { mkdir } from 'fs/promises';
 import { resolveContext } from '../../core/context.js';
 import { loadEnvFile, normalizeEnv } from '../../env-file.js';
 import { box, divider, info, kv } from '../../output.js';
 import { createInvite, loadManagedState } from '../../../lib/managed-state/index.js';
 import { initializeOwnerManagedVault } from '../../../lib/setupOrchestrator.js';
-
-function sanitizeName(name) {
-  return (
-    String(name ?? 'default')
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9-]/g, '-')
-      .replace(/^-+|-+$/g, '') || 'default'
-  );
-}
-
-function resolveVaultPath(name, explicitPath) {
-  if (explicitPath) return explicitPath;
-  if (name === 'default') return join(homedir(), 'synod-dev-vault');
-  return join(homedir(), `synod-dev-vault-${name}`);
-}
-
-async function loadDevState(devStateFile) {
-  try {
-    const raw = await readFile(devStateFile, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return { vaults: {} };
-  }
-}
-
-async function saveDevState(devStateFile, state) {
-  await mkdir(dirname(devStateFile), { recursive: true });
-  await writeFile(devStateFile, JSON.stringify(state, null, 2), 'utf-8');
-}
+import {
+  getDevStateFile,
+  loadDevState,
+  resolveDevVaultPath,
+  sanitizeDevVaultName,
+  saveDevState,
+} from './devState.js';
 
 export function registerSeedCommand(dev) {
   dev
@@ -51,9 +26,9 @@ export function registerSeedCommand(dev) {
     .option('--env-file <path>', 'env file path')
     .action(async (options) => {
       const { envFile } = await resolveContext(options);
-      const name = sanitizeName(options.name);
-      const vaultPath = resolveVaultPath(name, options.vaultPath);
-      const devStateFile = join(dirname(envFile), '.synod-dev.json');
+      const name = sanitizeDevVaultName(options.name);
+      const vaultPath = resolveDevVaultPath(name, options.vaultPath);
+      const devStateFile = getDevStateFile(envFile);
 
       await mkdir(vaultPath, { recursive: true });
 
