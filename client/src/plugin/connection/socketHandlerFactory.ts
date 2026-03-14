@@ -109,7 +109,11 @@ export function bindPluginSocketHandlers(options: BindPluginSocketHandlersOption
       setIsConnecting(false);
       lockOffline('disconnected');
 
-      if (msg.includes('Invalid token') || msg.includes('No token')) {
+      if (
+        msg.includes('Invalid token') || msg.includes('No token') ||
+        msg.includes('jwt expired') || msg.includes('invalid signature') ||
+        msg.includes('jwt malformed') || msg.includes('JsonWebTokenError')
+      ) {
         clearOfflineQueue();
         teardownConnection(false);
         setStatus('auth-required');

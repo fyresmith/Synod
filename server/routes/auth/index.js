@@ -1,10 +1,11 @@
-import { Router, urlencoded } from 'express';
+import { Router, json, urlencoded } from 'express';
 import { registerClaimRoutes } from './controllers/claimController.js';
 import { registerBundleRoutes } from './controllers/bundleController.js';
 import { registerBootstrapRoutes } from './controllers/bootstrapController.js';
 
 const router = Router();
 
+router.use(json());
 router.use(urlencoded({ extended: false }));
 
 registerClaimRoutes(router);

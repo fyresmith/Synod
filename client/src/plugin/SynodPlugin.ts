@@ -164,7 +164,20 @@ export default class SynodPlugin extends Plugin {
       onRevealUsersPanel: () => this.revealUsersPanel(),
       onPresenceFileOpened: (path) => this.emitPresenceFileOpened(path),
       onPresenceFileClosed: (path) => this.emitPresenceFileClosed(path),
-      onReconnect: () => this.connectionManager.reconnect(),
+      onReconnect: async () => {
+        if (this.status === 'auth-required') {
+          if (this.settings.bootstrapToken) {
+            const exchanged = await this.exchangeBootstrapToken();
+            if (exchanged && this.settings.token) {
+              await this.connectionManager.connect();
+            }
+          } else {
+            new Notice('Synod: Ask the vault owner for a new invite to regain access.');
+          }
+          return;
+        }
+        await this.connectionManager.reconnect();
+      },
       onDisable: () => {
         void this.disablePluginFromUi();
       },
@@ -318,6 +331,14 @@ export default class SynodPlugin extends Plugin {
   async reconnectFromUi(): Promise<void> {
     if (!this.isManagedVault()) {
       new Notice('Synod: Open the managed vault package shared by your owner.');
+      return;
+    }
+
+    if (this.status === 'auth-required' && this.settings.bootstrapToken) {
+      const exchanged = await this.exchangeBootstrapToken();
+      if (exchanged && this.settings.token) {
+        await this.connectionManager.connect();
+      }
       return;
     }
 

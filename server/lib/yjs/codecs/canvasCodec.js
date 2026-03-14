@@ -1,9 +1,6 @@
 import { readFileSync } from 'fs';
-import { createRequire } from 'module';
+import * as Y from 'yjs';
 import * as vault from '../../vault/index.js';
-
-const require = createRequire(import.meta.url);
-const Y = require('yjs');
 
 function isPlainObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);

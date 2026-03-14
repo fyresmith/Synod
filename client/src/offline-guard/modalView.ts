@@ -68,7 +68,9 @@ export function renderOfflineModal(options: RenderOfflineModalOptions): void {
     loader.createDiv({ cls: 'synod-offline-loader-dot' });
   } else if (mode === 'auth-required' || mode === 'signed-out') {
     title.textContent = 'Sign in required';
-    subtitle.textContent = 'Connect with Discord to unlock collaborative editing.';
+    subtitle.textContent = mode === 'signed-out'
+      ? 'You have been signed out. Request a new invite from the vault owner to regain access.'
+      : 'Sign-in failed. Click below to retry, or ask the vault owner for a new invite.';
   } else {
     title.textContent = 'Synod is offline';
     subtitle.textContent = 'Your changes are paused. Reconnect to keep editing.';
@@ -114,7 +116,7 @@ export function renderOfflineModal(options: RenderOfflineModalOptions): void {
     const reconnect = actions.createEl('button', {
       cls: 'mod-cta',
       text: mode === 'auth-required' || mode === 'signed-out'
-        ? 'Connect with Discord'
+        ? 'Retry sign-in'
         : 'Try reconnect',
     });
     reconnect.addEventListener('click', () => onReconnect?.());

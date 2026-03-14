@@ -23,6 +23,16 @@ function readRequiredString(payload: Record<string, unknown>, claim: string): st
   return value;
 }
 
+export function isTokenExpired(token: string): boolean {
+  try {
+    const payload = decodeJwtPayload(token);
+    const exp = Number(payload['exp']);
+    return Number.isFinite(exp) && Date.now() / 1000 > exp;
+  } catch {
+    return false;
+  }
+}
+
 export function decodeUserFromToken(token: string): SynodUser {
   const payload = decodeJwtPayload(token);
   return {

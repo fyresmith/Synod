@@ -10,6 +10,7 @@ import type { CollabWorkspaceManager } from '../main/collabWorkspaceManager';
 import { ReconnectBanner } from '../ui/reconnectBanner';
 import { flushOfflineQueue, OfflineFlushResult } from './connection/offlineQueueFlusher';
 import { bindPluginSocketHandlers } from './connection/socketHandlerFactory';
+import { isTokenExpired } from '../main/jwt';
 
 interface ConnectionManagerHost {
   app: App;
@@ -45,6 +46,15 @@ export class ConnectionManager {
     if (!this.host.isManagedVault()) return;
     if (this.socket?.connected || this.isConnecting) return;
     if (!this.host.settings.token) {
+      this.host.setStatus('auth-required');
+      this.host.getOfflineGuard()?.lock('signed-out');
+      return;
+    }
+
+    if (isTokenExpired(this.host.settings.token)) {
+      this.host.settings.token = null;
+      this.host.settings.user = null;
+      await this.host.saveSettings();
       this.host.setStatus('auth-required');
       this.host.getOfflineGuard()?.lock('signed-out');
       return;
