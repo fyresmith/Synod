@@ -1,28 +1,28 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-03-09T17:23:39.722Z",
+  "generatedAt": "2026-03-14T03:42:55.319Z",
   "source": {
     "workspace": "client",
     "packageName": "@fyresmith/synod-client"
   },
   "client": {
     "id": "synod",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "minAppVersion": "1.4.0"
   },
   "artifacts": {
     "mainJs": {
-      "path": "artifacts/synod-client/1.0.0/main.js",
-      "sha256": "b54ec4e8e0977bddac1f72ae130a86b5afe5bacb25fe76aac203d61f2532d404",
-      "sizeBytes": 554210
+      "path": "artifacts/synod-client/1.1.0/main.js",
+      "sha256": "c0a71f2630179be9c08017ef81dbb9c177c0a97b8482b86eb3482ad45b872113",
+      "sizeBytes": 560444
     },
     "manifestJson": {
-      "path": "artifacts/synod-client/1.0.0/manifest.json",
-      "sha256": "89fc63d502e6f0348b74f7801fe7a64de7918b302827e088b44742f49fec1ee7",
+      "path": "artifacts/synod-client/1.1.0/manifest.json",
+      "sha256": "a03e314f8995b6deb25a54d78bd91bb5329b495aa8b51a34c471df27d965dafa",
       "sizeBytes": 231
     },
     "stylesCss": {
-      "path": "artifacts/synod-client/1.0.0/styles.css",
+      "path": "artifacts/synod-client/1.1.0/styles.css",
       "sha256": "9bb4f59237a342814d3e7d7771919dd46b715e06fee1e3f4c4d3647d82cce4ec",
       "sizeBytes": 25192
     }
