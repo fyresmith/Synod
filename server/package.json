@@ -1,6 +1,6 @@
 {
   "name": "@fyresmith/synod",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "description": "Collaborative Obsidian vault server",

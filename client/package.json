@@ -1,6 +1,6 @@
 {
   "name": "@fyresmith/synod-client",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "license": "MIT",
   "description": "Real-time collaborative Obsidian vault via Discord auth and Yjs CRDTs",
