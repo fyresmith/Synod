@@ -28,7 +28,10 @@ vi.mock('../../routes/auth/utils/requestContext.js', () => ({
   getVaultPath: vi.fn(() => '/vault'),
 }));
 
-import { loadPromotedClientRelease, readPromotedClientAsset } from '../../lib/clientReleaseStore.js';
+import {
+  loadPromotedClientRelease,
+  readPromotedClientAsset,
+} from '../../lib/clientReleaseStore.js';
 import { loadManagedState } from '../../lib/managed-state/index.js';
 import { registerClientReleaseRoutes } from '../../routes/auth/controllers/clientReleaseController.js';
 

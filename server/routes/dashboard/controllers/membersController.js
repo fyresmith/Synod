@@ -12,7 +12,10 @@ export function registerMembersRoutes(router) {
       const state = await requireOwnerSession(req, res);
       if (!state) return;
       const csrfToken = generateCsrfToken();
-      res.setHeader('Set-Cookie', `${CSRF_COOKIE_NAME}=${csrfToken}; Path=/dashboard; SameSite=Strict`);
+      res.setHeader(
+        'Set-Cookie',
+        `${CSRF_COOKIE_NAME}=${csrfToken}; Path=/dashboard; SameSite=Strict`,
+      );
       res.send(renderMembersPage(state, csrfToken));
     } catch (err) {
       sendDashboardError(res, err);

@@ -133,7 +133,10 @@ export function registerSetupRoutes(router) {
       const csrfToken = generateCsrfToken();
       setCsrfCookie(res, csrfToken);
       return res.send(
-        setupPage(err instanceof Error ? err.message : 'Setup failed. Please try again.', csrfToken),
+        setupPage(
+          err instanceof Error ? err.message : 'Setup failed. Please try again.',
+          csrfToken,
+        ),
       );
     }
   });

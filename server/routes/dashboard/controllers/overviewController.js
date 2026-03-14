@@ -1,6 +1,9 @@
 import { requireDashboardAuth } from '../../../lib/dashboardAuth.js';
 import { generateCsrfToken, requireCsrfToken, CSRF_COOKIE_NAME } from '../../../lib/csrfToken.js';
-import { promoteBundledClientRelease, loadBundledClientRelease } from '../../../lib/clientReleaseStore.js';
+import {
+  promoteBundledClientRelease,
+  loadBundledClientRelease,
+} from '../../../lib/clientReleaseStore.js';
 import { setRequiredClientVersion } from '../../../lib/managed-state/index.js';
 import { requireOwnerSession } from '../middleware/requireOwnerSession.js';
 import { getVaultPath } from '../utils/requestContext.js';
@@ -14,11 +17,16 @@ export function registerOverviewRoutes(router) {
       if (!state) return;
       const bundledClient = await loadBundledClientRelease();
       const csrfToken = generateCsrfToken();
-      res.setHeader('Set-Cookie', `${CSRF_COOKIE_NAME}=${csrfToken}; Path=/dashboard; SameSite=Strict`);
-      res.send(renderOverviewPage(state, {
-        csrfToken,
-        bundledClientVersion: bundledClient.version,
-      }));
+      res.setHeader(
+        'Set-Cookie',
+        `${CSRF_COOKIE_NAME}=${csrfToken}; Path=/dashboard; SameSite=Strict`,
+      );
+      res.send(
+        renderOverviewPage(state, {
+          csrfToken,
+          bundledClientVersion: bundledClient.version,
+        }),
+      );
     } catch (err) {
       sendDashboardError(res, err);
     }

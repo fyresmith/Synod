@@ -32,7 +32,10 @@ vi.mock('../../routes/dashboard/views/overviewPage.js', () => ({
   renderOverviewPage: vi.fn(() => '<overview-page>'),
 }));
 
-import { loadBundledClientRelease, promoteBundledClientRelease } from '../../lib/clientReleaseStore.js';
+import {
+  loadBundledClientRelease,
+  promoteBundledClientRelease,
+} from '../../lib/clientReleaseStore.js';
 import { setRequiredClientVersion } from '../../lib/managed-state/index.js';
 import { requireOwnerSession } from '../../routes/dashboard/middleware/requireOwnerSession.js';
 import { renderOverviewPage } from '../../routes/dashboard/views/overviewPage.js';

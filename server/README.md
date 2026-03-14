@@ -14,15 +14,15 @@ The server is published to npm as `@fyresmith/synod` and runs anywhere Node ≥ 
 
 ## Monorepo layout
 
-| Directory             | Package                        | Description                                              |
-|-----------------------|--------------------------------|----------------------------------------------------------|
-| `server/`             | `@fyresmith/synod`             | Server process, CLI, admin dashboard                     |
-| `client/`             | `@fyresmith/synod-client`      | Obsidian plugin (TypeScript + esbuild)                   |
-| `packages/contracts/` | `@fyresmith/synod-contracts`   | Shared socket events + TypeScript interfaces             |
-| `release/`            | —                              | Pinned client artifact lock (`synod-client.lock.json`)   |
-| `artifacts/`          | —                              | Client build artifacts (main.js, manifest.json, styles.css) |
-| `tools/`              | —                              | Internal scripts (contracts sync, asset setup, dev vault)|
-| `template-vault/`     | —                              | Vault contents included in new-member zip bundles        |
+| Directory             | Package                      | Description                                                 |
+| --------------------- | ---------------------------- | ----------------------------------------------------------- |
+| `server/`             | `@fyresmith/synod`           | Server process, CLI, admin dashboard                        |
+| `client/`             | `@fyresmith/synod-client`    | Obsidian plugin (TypeScript + esbuild)                      |
+| `packages/contracts/` | `@fyresmith/synod-contracts` | Shared socket events + TypeScript interfaces                |
+| `release/`            | —                            | Pinned client artifact lock (`synod-client.lock.json`)      |
+| `artifacts/`          | —                            | Client build artifacts (main.js, manifest.json, styles.css) |
+| `tools/`              | —                            | Internal scripts (contracts sync, asset setup, dev vault)   |
+| `template-vault/`     | —                            | Vault contents included in new-member zip bundles           |
 
 ## Prerequisites
 
@@ -51,9 +51,9 @@ npm run artifacts:verify-client  # Verify pinned artifact hashes match disk
 
 ## Release model
 
-| Package | Tag pattern            | Distribution                         |
-|---------|------------------------|--------------------------------------|
-| Server  | `synod-vX.Y.Z`         | npm (`@fyresmith/synod`)             |
-| Client  | `synod-client-vX.Y.Z`  | GitHub Releases (BRAT-compatible)    |
+| Package | Tag pattern           | Distribution                      |
+| ------- | --------------------- | --------------------------------- |
+| Server  | `synod-vX.Y.Z`        | npm (`@fyresmith/synod`)          |
+| Client  | `synod-client-vX.Y.Z` | GitHub Releases (BRAT-compatible) |
 
 `release/synod-client.lock.json` pins the SHA256 hashes of the active client artifacts. Plugin assets are staged to `server/assets/plugin/synod/` from the lock file at prepack time. Set `SYNOD_BUNDLE_STRICT_CLIENT_LOCK=true` to fail bundle generation when pinned artifacts are missing or mismatched.

@@ -39,7 +39,10 @@ export function registerClientReleaseRoutes(router) {
 
       const release = await loadPromotedClientRelease(getVaultPath(), requiredVersion);
       if (!release) {
-        return res.status(409).json({ ok: false, error: `Required client release ${requiredVersion} is missing from the server` });
+        return res.status(409).json({
+          ok: false,
+          error: `Required client release ${requiredVersion} is missing from the server`,
+        });
       }
 
       res.setHeader('Cache-Control', 'no-store');

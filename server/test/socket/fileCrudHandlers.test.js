@@ -149,7 +149,11 @@ describe('FILE_WRITE', () => {
     const { socket } = setup();
     const cb = vi.fn();
     await socket._trigger(SocketEvents.FILE_WRITE, { relPath: 'doc.md', content: 'body' }, cb);
-    expect(cb).toHaveBeenCalledWith({ ok: false, code: 'rate_limited', error: 'Too many requests.' });
+    expect(cb).toHaveBeenCalledWith({
+      ok: false,
+      code: 'rate_limited',
+      error: 'Too many requests.',
+    });
     expect(vault.writeFile).not.toHaveBeenCalled();
   });
 });
@@ -193,7 +197,10 @@ describe('FILE_DELETE', () => {
     const cb = vi.fn();
     await socket._trigger(SocketEvents.FILE_DELETE, 'old.md', cb);
     expect(vault.deleteFile).toHaveBeenCalledWith('old.md');
-    expect(io.emit).toHaveBeenCalledWith(SocketEvents.FILE_DELETED, { relPath: 'old.md', user: mockUser });
+    expect(io.emit).toHaveBeenCalledWith(SocketEvents.FILE_DELETED, {
+      relPath: 'old.md',
+      user: mockUser,
+    });
     expect(cb).toHaveBeenCalledWith({ ok: true });
   });
 
@@ -255,7 +262,11 @@ describe('FILE_RENAME', () => {
     vault.isAllowed.mockImplementation((path) => path === 'valid.md');
     const { socket } = setup();
     const cb = vi.fn();
-    await socket._trigger(SocketEvents.FILE_RENAME, { oldPath: 'valid.md', newPath: '.git/evil' }, cb);
+    await socket._trigger(
+      SocketEvents.FILE_RENAME,
+      { oldPath: 'valid.md', newPath: '.git/evil' },
+      cb,
+    );
     expect(cb).toHaveBeenCalledWith(expect.objectContaining({ ok: false }));
     expect(vault.renameFile).not.toHaveBeenCalled();
   });

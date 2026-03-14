@@ -64,10 +64,7 @@ function resolveLockArtifactPath(recordPath) {
   const normalized = String(recordPath ?? '').trim();
   if (!normalized) return null;
 
-  const candidates = [
-    resolve(PACKAGE_ROOT, normalized),
-    resolve(WORKSPACE_ROOT, normalized),
-  ];
+  const candidates = [resolve(PACKAGE_ROOT, normalized), resolve(WORKSPACE_ROOT, normalized)];
 
   for (const candidate of candidates) {
     if (existsSync(candidate)) return candidate;
@@ -130,7 +127,9 @@ export async function loadBundledClientRelease() {
   const manifestVersion = extractClientVersion(assets['manifest.json']);
   const lockVersion = String(lock?.client?.version ?? '').trim();
   if (lockVersion && manifestVersion !== lockVersion) {
-    throw new Error(`Client lock version mismatch (lock=${lockVersion} manifest=${manifestVersion})`);
+    throw new Error(
+      `Client lock version mismatch (lock=${lockVersion} manifest=${manifestVersion})`,
+    );
   }
 
   return {
@@ -192,7 +191,9 @@ export async function loadPromotedClientRelease(vaultPath, version) {
 
   const checksums = {};
   for (const assetName of REQUIRED_CLIENT_ASSET_NAMES) {
-    const checksum = String(parsed?.checksums?.[assetName] ?? '').trim().toLowerCase();
+    const checksum = String(parsed?.checksums?.[assetName] ?? '')
+      .trim()
+      .toLowerCase();
     if (!checksum) {
       throw new Error(`Stored client release is missing checksum for ${assetName}`);
     }

@@ -87,13 +87,17 @@ describe('normalizeState', () => {
   });
 
   it('throws on invalid clientUpdate.activatedAt date', () => {
-    expect(() => normalizeState(makeValidState({
-      clientUpdate: {
-        requiredVersion: '1.2.3',
-        activatedAt: 'bad-date',
-        activatedBy: 'owner-1',
-      },
-    }))).toThrow('clientUpdate.activatedAt');
+    expect(() =>
+      normalizeState(
+        makeValidState({
+          clientUpdate: {
+            requiredVersion: '1.2.3',
+            activatedAt: 'bad-date',
+            activatedBy: 'owner-1',
+          },
+        }),
+      ),
+    ).toThrow('clientUpdate.activatedAt');
   });
 });
 

@@ -6,7 +6,8 @@ export function renderOverviewPage(state, options = {}) {
   const inviteList = Object.values(state.invites ?? {});
   const pendingCount = inviteList.filter((i) => !i.usedAt && !i.revokedAt).length;
   const memberCount = Object.keys(state.members ?? {}).length;
-  const requiredClientVersion = String(state.clientUpdate?.requiredVersion ?? '').trim() || 'Not promoted yet';
+  const requiredClientVersion =
+    String(state.clientUpdate?.requiredVersion ?? '').trim() || 'Not promoted yet';
   const activatedAt = String(state.clientUpdate?.activatedAt ?? '').trim() || null;
 
   function copyBtn(value, label = 'Copy') {

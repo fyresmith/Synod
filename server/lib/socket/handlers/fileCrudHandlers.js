@@ -6,7 +6,8 @@ import logger from '../../logger.js';
 
 const log = logger.child({ module: 'socket' });
 
-const MAX_FILE_BYTES = parseInt(String(process.env.SYNOD_MAX_FILE_BYTES ?? ''), 10) || 10 * 1024 * 1024;
+const MAX_FILE_BYTES =
+  parseInt(String(process.env.SYNOD_MAX_FILE_BYTES ?? ''), 10) || 10 * 1024 * 1024;
 
 function checkSocketRateLimit(socketId, cb) {
   const { socketOpsMax, socketOpsWindowMs } = getAuthRateLimitConfig();

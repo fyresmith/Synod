@@ -51,9 +51,7 @@ function buildRouter() {
 }
 
 function getRouteHandler(router, method, path) {
-  const layer = router.stack.find(
-    (l) => l.route?.path === path && l.route?.methods?.[method],
-  );
+  const layer = router.stack.find((l) => l.route?.path === path && l.route?.methods?.[method]);
   return layer?.route?.stack?.at(-1)?.handle;
 }
 
