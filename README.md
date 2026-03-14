@@ -29,6 +29,7 @@ npm run build              # Build server pack + client BRAT assets
 npm run build:server       # Server only
 npm run build:client       # Client only
 npm run verify             # Verify both packages
+npm run dev:vault          # Materialize the local .dev/template-vault workspace
 npm run dev                # Dev mode: client watch + server run + plugin sync
 npm run artifacts:pin-client    # Pin latest client release artifact hashes
 npm run artifacts:verify-client # Verify pinned client artifact hashes
@@ -38,5 +39,6 @@ npm run artifacts:verify-client # Verify pinned client artifact hashes
 
 - Server releases use tags `synod-vX.Y.Z`.
 - Client releases use tags `synod-client-vX.Y.Z`.
-- Client bundle artifacts are pinned in `release/synod-client.lock.json` and verified by hash before server zip generation.
+- `main` keeps a single active client artifact version under `artifacts/synod-client/`, pinned by `release/synod-client.lock.json`.
+- Generated packaged plugin assets live under `server/assets/plugin/synod/` and are rebuilt from the active lock during asset setup/prepack.
 - Set `SYNOD_BUNDLE_STRICT_CLIENT_LOCK=true` to fail bundle generation if pinned artifacts are missing or mismatched.

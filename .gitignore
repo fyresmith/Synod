@@ -15,6 +15,10 @@ client/data.json
 server/assets/plugin/synod/main.js
 server/assets/plugin/synod/styles.css
 server/assets/plugin/synod/manifest.json
+server/assets/plugin/synod/synod-client.lock.json
+
+# Local development vault
+.dev/
 
 # Logs
 yarn-error.log*
