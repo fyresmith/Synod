@@ -23,7 +23,7 @@ export function renderClaimSuccessPage(vaultName) {
       Your invite has been claimed. Download the preconfigured vault package, extract it, then open the folder in Obsidian desktop.
     </p>
     <form method="POST" action="/auth/bundle" style="margin-bottom:var(--space-5)">
-      <button class="btn btn-primary" type="submit" style="width:100%;padding:13px;font-size:var(--text-base)">
+      <button class="btn btn-primary" type="submit" style="width:100%">
         Download ${displayName}.zip
       </button>
     </form>

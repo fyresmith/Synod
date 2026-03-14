@@ -7,6 +7,11 @@ export function renderInvitesPage(state, serverUrl, csrfToken) {
     b.createdAt.localeCompare(a.createdAt),
   );
 
+  function copyBtn(value, label = 'Copy') {
+    const escaped = JSON.stringify(value);
+    return `<button class="btn btn-ghost btn-sm" type="button" onclick="(function(b){navigator.clipboard.writeText(${escaped}).then(function(){var o=b.textContent;b.textContent='Copied!';b.classList.add('btn-copied');setTimeout(function(){b.textContent=o;b.classList.remove('btn-copied')},1800)}).catch(function(){})})(this)">${label}</button>`;
+  }
+
   const rows =
     invites.length === 0
       ? '<tr><td colspan="4"><div class="empty-state">No invites yet.</div></td></tr>'
@@ -14,11 +19,10 @@ export function renderInvitesPage(state, serverUrl, csrfToken) {
           .map((invite) => {
             const isPending = !invite.usedAt && !invite.revokedAt;
             const claimUrl = `${serverUrl}/auth/claim?code=${encodeURIComponent(invite.code)}`;
-            const copyBtn = isPending
-              ? `<button class="btn btn-secondary btn-sm" onclick="(function(btn){navigator.clipboard.writeText(${JSON.stringify(claimUrl)}).then(function(){btn.textContent='Copied!';btn.classList.add('btn-copied');setTimeout(function(){btn.textContent='Copy';btn.classList.remove('btn-copied')},2000)}).catch(function(){})})(this)">Copy</button>`
-              : '';
+            const copyBtnEl = isPending ? copyBtn(claimUrl, 'Copy URL') : '';
             const revokeBtn = isPending
               ? `<form method="POST" action="/dashboard/invites/revoke" style="display:inline">
+            <input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">
             <input type="hidden" name="code" value="${escapeHtml(invite.code)}">
             <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Revoke invite ${escapeHtml(invite.code)}?')">Revoke</button>
           </form>`
@@ -31,7 +35,7 @@ export function renderInvitesPage(state, serverUrl, csrfToken) {
         <td class="mono">${escapeHtml(invite.code)}</td>
         <td>${inviteStatusBadge(invite)}</td>
         <td>${urlCell}</td>
-        <td><div class="actions">${copyBtn}${revokeBtn}</div></td>
+        <td><div class="actions">${copyBtnEl}${revokeBtn}</div></td>
       </tr>`;
           })
           .join('');
@@ -40,6 +44,7 @@ export function renderInvitesPage(state, serverUrl, csrfToken) {
     <div class="page-header">
       <h1>Invites</h1>
       <form method="POST" action="/dashboard/invites/create">
+        <input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">
         <button class="btn btn-primary" type="submit">+ Create Invite</button>
       </form>
     </div>

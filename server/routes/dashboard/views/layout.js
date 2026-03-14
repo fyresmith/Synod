@@ -33,6 +33,17 @@ export function dashboardPage(title, bodyHtml, { activeNav = '', csrfToken = '' 
 <div class="content">
 ${bodyHtml}
 </div>
+<script>
+(function(){
+  document.querySelectorAll('time.date-fmt[data-iso]').forEach(function(el){
+    try {
+      el.textContent = new Date(el.getAttribute('data-iso')).toLocaleString(undefined,{
+        year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'
+      });
+    } catch(e){}
+  });
+})();
+</script>
 </body>
 </html>`;
 }

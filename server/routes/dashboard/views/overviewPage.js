@@ -6,6 +6,16 @@ export function renderOverviewPage(state, csrfToken) {
   const pendingCount = inviteList.filter((i) => !i.usedAt && !i.revokedAt).length;
   const memberCount = Object.keys(state.members ?? {}).length;
 
+  function copyBtn(value, label = 'Copy') {
+    const escaped = JSON.stringify(value);
+    return `<button class="btn btn-ghost btn-sm" type="button" onclick="(function(b){navigator.clipboard.writeText(${escaped}).then(function(){var o=b.textContent;b.textContent='Copied!';b.classList.add('btn-copied');setTimeout(function(){b.textContent=o;b.classList.remove('btn-copied')},1800)}).catch(function(){})})(this)">${label}</button>`;
+  }
+
+  function dateCell(iso) {
+    const safe = escapeHtml(iso);
+    return `<time class="date-fmt" datetime="${safe}" data-iso="${safe}">${safe}</time>`;
+  }
+
   const body = `
     <div class="page-header">
       <h1>${escapeHtml(state.vaultName ?? 'Synod Vault')}</h1>
@@ -27,10 +37,10 @@ export function renderOverviewPage(state, csrfToken) {
     <div class="card">
       <h2>Details</h2>
       <table>
-        <tr><td><strong>Vault Name</strong></td><td>${escapeHtml(state.vaultName ?? '(not set)')}</td></tr>
-        <tr><td><strong>Vault ID</strong></td><td class="mono">${escapeHtml(state.vaultId)}</td></tr>
-        <tr><td><strong>Initialized</strong></td><td>${escapeHtml(state.initializedAt)}</td></tr>
-        <tr><td><strong>Owner ID</strong></td><td class="mono">${escapeHtml(state.ownerId)}</td></tr>
+        <tr><td class="muted" style="font-size:var(--text-sm);width:140px">Vault Name</td><td>${escapeHtml(state.vaultName ?? '(not set)')}</td></tr>
+        <tr><td class="muted" style="font-size:var(--text-sm)">Vault ID</td><td><div class="id-cell"><span class="mono">${escapeHtml(state.vaultId)}</span>${copyBtn(state.vaultId)}</div></td></tr>
+        <tr><td class="muted" style="font-size:var(--text-sm)">Initialized</td><td>${dateCell(state.initializedAt)}</td></tr>
+        <tr><td class="muted" style="font-size:var(--text-sm)">Owner ID</td><td><div class="id-cell"><span class="mono">${escapeHtml(state.ownerId)}</span>${copyBtn(state.ownerId)}</div></td></tr>
       </table>
     </div>
   `;

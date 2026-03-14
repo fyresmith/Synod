@@ -6,6 +6,16 @@ export function renderMembersPage(state, csrfToken) {
     a.addedAt.localeCompare(b.addedAt),
   );
 
+  function copyBtn(value, label = 'Copy') {
+    const escaped = JSON.stringify(value);
+    return `<button class="btn btn-ghost btn-sm" type="button" onclick="(function(b){navigator.clipboard.writeText(${escaped}).then(function(){var o=b.textContent;b.textContent='Copied!';b.classList.add('btn-copied');setTimeout(function(){b.textContent=o;b.classList.remove('btn-copied')},1800)}).catch(function(){})})(this)">${label}</button>`;
+  }
+
+  function dateCell(iso) {
+    const safe = escapeHtml(iso);
+    return `<time class="date-fmt" datetime="${safe}" data-iso="${safe}">${safe}</time>`;
+  }
+
   const rows =
     members.length === 0
       ? '<tr><td colspan="4"><div class="empty-state">No members yet.</div></td></tr>'
@@ -16,13 +26,14 @@ export function renderMembersPage(state, csrfToken) {
             const removeBtn = isOwner
               ? ''
               : `<form method="POST" action="/dashboard/members/remove" style="display:inline">
+            <input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">
             <input type="hidden" name="userId" value="${escapeHtml(member.id)}">
             <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Remove member ${escapeHtml(member.username)}?')">Remove</button>
           </form>`;
             return `<tr>
-        <td>${escapeHtml(member.username)} ${badge}</td>
-        <td class="mono muted">${escapeHtml(member.id)}</td>
-        <td class="muted">${escapeHtml(member.addedAt)}</td>
+        <td><div style="display:flex;align-items:center;gap:var(--space-2)">${escapeHtml(member.username)}${badge}</div></td>
+        <td><div class="id-cell"><span class="mono">${escapeHtml(member.id)}</span>${copyBtn(member.id)}</div></td>
+        <td class="muted">${dateCell(member.addedAt)}</td>
         <td>${removeBtn}</td>
       </tr>`;
           })
