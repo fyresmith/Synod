@@ -1,4 +1,7 @@
 import * as vault from '../vault/index.js';
+import logger from '../logger.js';
+
+const log = logger.child({ module: 'yjs' });
 import { docs, getYDoc, setupWSConnection } from './shared.js';
 import { getOrCreateRoomState } from './roomStateStore.js';
 import { observeRoom } from './persistence.js';
@@ -52,7 +55,7 @@ export function registerConnectionHandler(wss) {
         codec.hydrateFromDisk(ydoc, relPath);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error(`[yjs] Room bootstrap error (${relPath}): ${message}`);
+        log.error({ relPath }, `Room bootstrap error: ${message}`);
         docs.delete(rawDocName);
         try {
           ydoc.destroy();
@@ -70,7 +73,7 @@ export function registerConnectionHandler(wss) {
     trackRoomClient(state, conn);
 
     if (isNewRoom) {
-      console.log(`[yjs] Room opened: ${relPath}`);
+      log.info({ relPath }, 'Room opened');
     }
   });
 }

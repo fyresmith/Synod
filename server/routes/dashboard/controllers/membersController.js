@@ -1,4 +1,5 @@
 import { requireDashboardAuth } from '../../../lib/dashboardAuth.js';
+import { generateCsrfToken, CSRF_COOKIE_NAME } from '../../../lib/csrfToken.js';
 import { removeMember } from '../../../lib/managed-state/index.js';
 import { requireOwnerSession } from '../middleware/requireOwnerSession.js';
 import { getVaultPath } from '../utils/requestContext.js';
@@ -10,7 +11,9 @@ export function registerMembersRoutes(router) {
     try {
       const state = await requireOwnerSession(req, res);
       if (!state) return;
-      res.send(renderMembersPage(state));
+      const csrfToken = generateCsrfToken();
+      res.setHeader('Set-Cookie', `${CSRF_COOKIE_NAME}=${csrfToken}; Path=/dashboard; SameSite=Strict`);
+      res.send(renderMembersPage(state, csrfToken));
     } catch (err) {
       sendDashboardError(res, err);
     }

@@ -2,6 +2,8 @@ const DEFAULT_WINDOW_MS = 300000;
 const DEFAULT_SIGNUP_MAX = 8;
 const DEFAULT_SIGNIN_MAX = 8;
 const DEFAULT_BOOTSTRAP_MAX = 20;
+const DEFAULT_SOCKET_OPS_MAX = 60;
+const DEFAULT_SOCKET_OPS_WINDOW_MS = 60000;
 
 const rateBuckets = new Map();
 let hitCounter = 0;
@@ -33,6 +35,14 @@ export function getAuthRateLimitConfig() {
     bootstrapMax: parsePositiveInt(
       process.env.SYNOD_RATE_LIMIT_BOOTSTRAP_MAX,
       DEFAULT_BOOTSTRAP_MAX,
+    ),
+    socketOpsMax: parsePositiveInt(
+      process.env.SYNOD_RATE_LIMIT_SOCKET_OPS_MAX,
+      DEFAULT_SOCKET_OPS_MAX,
+    ),
+    socketOpsWindowMs: parsePositiveInt(
+      process.env.SYNOD_RATE_LIMIT_SOCKET_OPS_WINDOW_MS,
+      DEFAULT_SOCKET_OPS_WINDOW_MS,
     ),
   };
 }

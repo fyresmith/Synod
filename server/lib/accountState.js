@@ -127,7 +127,7 @@ export async function createAccount({ vaultPath, email, password, displayName })
   const state = await loadAccountsState(vaultPath);
   const existing = Object.values(state.accounts).find((row) => row.emailNorm === emailNorm);
   if (existing) {
-    throw new Error('An account already exists for this email');
+    throw new Error('Unable to create account. Please check your details and try again.');
   }
 
   const id = randomUUID();

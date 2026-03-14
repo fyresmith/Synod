@@ -1,4 +1,7 @@
 import { docs } from './shared.js';
+import logger from '../logger.js';
+
+const log = logger.child({ module: 'yjs' });
 import { IDLE_ROOM_TTL_MS } from './constants.js';
 import { roomStates } from './state.js';
 import { clearTimers } from './roomStateStore.js';
@@ -44,7 +47,7 @@ export async function closeRoom(docName, { closeClients, reason }) {
   }
 
   roomStates.delete(docName);
-  console.log(`[yjs] Room closed (${reason}): ${state.relPath}`);
+  log.info({ relPath: state.relPath, reason }, 'Room closed');
 }
 
 export function trackRoomClient(state, conn) {

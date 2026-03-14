@@ -1,7 +1,7 @@
 import { BASE_STYLES } from './baseStyles.js';
 import { escapeHtml } from '../utils/html.js';
 
-export function setupPage(error) {
+export function setupPage(error, csrfToken) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +21,7 @@ export function setupPage(error) {
     <div class="auth-subtitle">Configure your vault and create the owner account. This only runs once.</div>
     ${error ? `<div class="alert alert-error">${escapeHtml(error)}</div>` : ''}
     <form method="POST" action="/dashboard/setup">
+      ${csrfToken ? `<input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">` : ''}
       <div class="section-divider">Vault</div>
       <div class="form-group">
         <label for="vaultName">Vault display name</label>

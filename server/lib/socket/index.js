@@ -1,5 +1,8 @@
 import { SocketEvents } from '../contracts/socketEvents.js';
 import { socketMiddleware } from '../auth.js';
+import logger from '../logger.js';
+
+const log = logger.child({ module: 'socket' });
 import { socketToFiles, userBySocket } from './state.js';
 import { registerVaultSyncHandlers } from './handlers/vaultSyncHandlers.js';
 import { registerFileCrudHandlers } from './handlers/fileCrudHandlers.js';
@@ -12,7 +15,7 @@ export function attachHandlers(io, getActiveRooms, forceCloseRoom) {
 
   io.on('connection', (socket) => {
     const user = socket.user;
-    console.log(`[socket] Connected: ${user.username} (${socket.id})`);
+    log.info({ userId: user.id, socketId: socket.id }, `Connected: ${user.username}`);
 
     userBySocket.set(socket.id, user);
     socketToFiles.set(socket.id, new Set());

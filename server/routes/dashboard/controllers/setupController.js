@@ -5,9 +5,14 @@ import {
 import { loadManagedState } from '../../../lib/managed-state/index.js';
 import { loadEnvFile, normalizeEnv, writeEnvFile } from '../../../cli/env-file.js';
 import { setDashboardCookie, signDashboardSessionToken } from '../../../lib/dashboardAuth.js';
+import { generateCsrfToken, requireCsrfToken, CSRF_COOKIE_NAME } from '../../../lib/csrfToken.js';
 import { getConfiguredVaultPath, getEnvFilePath, getVaultPath } from '../utils/requestContext.js';
 import { setupPage } from '../views/setupPage.js';
 import { chooseParentFolder } from '../services/macFolderPicker.js';
+
+function setCsrfCookie(res, token) {
+  res.setHeader('Set-Cookie', `${CSRF_COOKIE_NAME}=${token}; Path=/dashboard; SameSite=Strict`);
+}
 
 export function registerSetupRoutes(router) {
   router.get('/', async (req, res) => {
@@ -28,7 +33,9 @@ export function registerSetupRoutes(router) {
 
   router.get('/setup', async (req, res) => {
     if (!getConfiguredVaultPath()) {
-      return res.send(setupPage());
+      const csrfToken = generateCsrfToken();
+      setCsrfCookie(res, csrfToken);
+      return res.send(setupPage(null, csrfToken));
     }
     let state = null;
     try {
@@ -37,7 +44,9 @@ export function registerSetupRoutes(router) {
       /* uninitialized */
     }
     if (state) return res.redirect('/dashboard/login');
-    return res.send(setupPage());
+    const csrfToken = generateCsrfToken();
+    setCsrfCookie(res, csrfToken);
+    return res.send(setupPage(null, csrfToken));
   });
 
   router.post('/setup/pick-folder', async (req, res) => {
@@ -50,7 +59,7 @@ export function registerSetupRoutes(router) {
     }
   });
 
-  router.post('/setup', async (req, res) => {
+  router.post('/setup', requireCsrfToken, async (req, res) => {
     const configuredPath = getConfiguredVaultPath();
     if (configuredPath) {
       let state = null;
@@ -79,13 +88,17 @@ export function registerSetupRoutes(router) {
     const password = String(req.body?.password ?? '');
 
     if (!vaultName || !vaultParentPath || !email || !displayName || !password) {
-      return res.send(setupPage('All fields are required.'));
+      const csrfToken = generateCsrfToken();
+      setCsrfCookie(res, csrfToken);
+      return res.send(setupPage('All fields are required.', csrfToken));
     }
 
     try {
       const envFile = getEnvFilePath(req);
       if (!envFile) {
-        return res.send(setupPage('Could not determine env file path.'));
+        const csrfToken = generateCsrfToken();
+        setCsrfCookie(res, csrfToken);
+        return res.send(setupPage('Could not determine env file path.', csrfToken));
       }
 
       const vaultPath = await createVaultAtParent({
@@ -117,8 +130,10 @@ export function registerSetupRoutes(router) {
       setDashboardCookie(req, res, token);
       return res.redirect('/dashboard/overview');
     } catch (err) {
+      const csrfToken = generateCsrfToken();
+      setCsrfCookie(res, csrfToken);
       return res.send(
-        setupPage(err instanceof Error ? err.message : 'Setup failed. Please try again.'),
+        setupPage(err instanceof Error ? err.message : 'Setup failed. Please try again.', csrfToken),
       );
     }
   });

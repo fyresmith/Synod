@@ -1,9 +1,12 @@
 import { SocketEvents } from '../../contracts/socketEvents.js';
 import { claimedFiles, presenceByFile, socketToFiles, userBySocket } from '../state.js';
+import logger from '../../logger.js';
+
+const log = logger.child({ module: 'socket' });
 
 export function registerDisconnectHandler(io, socket, user) {
   socket.on('disconnect', () => {
-    console.log(`[socket] Disconnected: ${user.username} (${socket.id})`);
+    log.info({ userId: user.id, socketId: socket.id }, `Disconnected: ${user.username}`);
     const openFiles = socketToFiles.get(socket.id) ?? new Set();
     for (const relPath of openFiles) {
       presenceByFile.get(relPath)?.delete(socket.id);

@@ -1,4 +1,7 @@
 import { SocketEvents } from '../../lib/contracts/socketEvents.js';
+import logger from '../../lib/logger.js';
+
+const log = logger.child({ module: 'startup' });
 import * as vault from '../../lib/vault/index.js';
 import { attachHandlers } from '../../lib/socket/index.js';
 import { forceCloseRoom, getActiveRooms, startYjsServer } from '../../lib/yjs/index.js';
@@ -45,12 +48,12 @@ export function createRealtimeActivator({ io, httpServer, broadcastFileUpdated, 
       const docName = encodeURIComponent(relPath);
       if (getActiveRooms().has(docName)) {
         if (!quiet) {
-          console.log(`[chokidar] Ignoring external change to active room: ${relPath}`);
+          log.info({ relPath }, 'Ignoring external change to active room');
         }
         return;
       }
       if (!quiet) {
-        console.log(`[chokidar] External ${event}: ${relPath}`);
+        log.info({ relPath, event }, 'External file event');
       }
       io.emit(SocketEvents.EXTERNAL_UPDATE, { relPath, event });
     });

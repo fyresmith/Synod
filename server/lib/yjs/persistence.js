@@ -1,4 +1,7 @@
 import * as vault from '../vault/index.js';
+import logger from '../logger.js';
+
+const log = logger.child({ module: 'yjs' });
 import { docs } from './shared.js';
 import { getBroadcastRef } from './state.js';
 import { PERSIST_DEBOUNCE_MS } from './constants.js';
@@ -22,11 +25,11 @@ export async function flushRoomState(state) {
         state.lastPersistHash = hash;
         state.lastPersistError = null;
         getBroadcastRef()?.(state.relPath, hash, null);
-        console.log(`[yjs] Persisted: ${state.relPath}`);
+        log.info({ relPath: state.relPath }, 'Persisted');
       } catch (err) {
         state.lastPersistError = err instanceof Error ? err.message : String(err);
         state.dirty = true;
-        console.error(`[yjs] Persist error for ${state.relPath}:`, err);
+        log.error({ relPath: state.relPath, err }, 'Persist error');
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
     }

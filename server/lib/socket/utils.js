@@ -1,11 +1,14 @@
 import * as vault from '../vault/index.js';
+import logger from '../logger.js';
+
+const log = logger.child({ module: 'socket' });
 
 export function respond(cb, payload) {
   if (typeof cb === 'function') cb(payload);
 }
 
 export function rejectPath(cb, relPath) {
-  console.warn(`[socket] Rejected disallowed path: ${String(relPath)}`);
+  log.warn({ relPath: String(relPath) }, 'Rejected disallowed path');
   respond(cb, { ok: false, error: 'Path not allowed' });
 }
 

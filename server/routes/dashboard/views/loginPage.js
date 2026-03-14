@@ -1,7 +1,7 @@
 import { BASE_STYLES } from './baseStyles.js';
 import { escapeHtml } from '../utils/html.js';
 
-export function loginPage(error) {
+export function loginPage(error, csrfToken) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +21,7 @@ export function loginPage(error) {
     <div class="auth-subtitle">Sign in to your dashboard</div>
     ${error ? `<div class="alert alert-error">${escapeHtml(error)}</div>` : ''}
     <form method="POST" action="/dashboard/login">
+      ${csrfToken ? `<input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">` : ''}
       <div class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required autofocus placeholder="owner@example.com">

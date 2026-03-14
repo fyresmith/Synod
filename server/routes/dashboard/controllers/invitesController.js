@@ -1,4 +1,5 @@
 import { requireDashboardAuth } from '../../../lib/dashboardAuth.js';
+import { generateCsrfToken, CSRF_COOKIE_NAME } from '../../../lib/csrfToken.js';
 import { createInvite, revokeInvite } from '../../../lib/managed-state/index.js';
 import { requireOwnerSession } from '../middleware/requireOwnerSession.js';
 import { getServerUrl, getVaultPath } from '../utils/requestContext.js';
@@ -10,7 +11,9 @@ export function registerInvitesRoutes(router) {
     try {
       const state = await requireOwnerSession(req, res);
       if (!state) return;
-      res.send(renderInvitesPage(state, getServerUrl(req)));
+      const csrfToken = generateCsrfToken();
+      res.setHeader('Set-Cookie', `${CSRF_COOKIE_NAME}=${csrfToken}; Path=/dashboard; SameSite=Strict`);
+      res.send(renderInvitesPage(state, getServerUrl(req), csrfToken));
     } catch (err) {
       sendDashboardError(res, err);
     }

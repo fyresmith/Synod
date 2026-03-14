@@ -2,7 +2,7 @@ import { escapeHtml } from '../utils/html.js';
 import { dashboardPage } from './layout.js';
 import { inviteStatusBadge } from './inviteStatusBadge.js';
 
-export function renderInvitesPage(state, serverUrl) {
+export function renderInvitesPage(state, serverUrl, csrfToken) {
   const invites = Object.values(state.invites ?? {}).sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt),
   );
@@ -51,5 +51,5 @@ export function renderInvitesPage(state, serverUrl) {
     </div>
   `;
 
-  return dashboardPage('Invites', body, { activeNav: 'Invites' });
+  return dashboardPage('Invites', body, { activeNav: 'Invites', csrfToken });
 }

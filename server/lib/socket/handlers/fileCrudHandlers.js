@@ -1,6 +1,27 @@
 import { SocketEvents } from '../../contracts/socketEvents.js';
 import * as vault from '../../vault/index.js';
 import { isAllowedPath, rejectPath, respond } from '../utils.js';
+import { checkRateLimit, getAuthRateLimitConfig } from '../../httpRateLimit.js';
+import logger from '../../logger.js';
+
+const log = logger.child({ module: 'socket' });
+
+const MAX_FILE_BYTES = parseInt(String(process.env.SYNOD_MAX_FILE_BYTES ?? ''), 10) || 10 * 1024 * 1024;
+
+function checkSocketRateLimit(socketId, cb) {
+  const { socketOpsMax, socketOpsWindowMs } = getAuthRateLimitConfig();
+  const result = checkRateLimit({
+    bucket: 'socket-file-ops',
+    key: socketId,
+    limit: socketOpsMax,
+    windowMs: socketOpsWindowMs,
+  });
+  if (!result.allowed) {
+    respond(cb, { ok: false, code: 'rate_limited', error: 'Too many requests.' });
+    return false;
+  }
+  return true;
+}
 
 export function registerFileCrudHandlers(io, socket, user, getActiveRooms, forceCloseRoom) {
   const rejectActiveCanvasWrite = (relPath, cb) => {
@@ -25,7 +46,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
       const hash = vault.hashContent(content);
       respond(cb, { ok: true, content, hash });
     } catch (err) {
-      console.error(`[socket] file-read error (${relPath}):`, err);
+      log.error({ relPath }, `file-read error: ${err.message}`);
       respond(cb, { ok: false, error: err.message });
     }
   });
@@ -37,15 +58,20 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
       rejectPath(cb, relPath);
       return;
     }
+    if (Buffer.byteLength(content, 'utf-8') > MAX_FILE_BYTES) {
+      respond(cb, { ok: false, error: 'File too large.' });
+      return;
+    }
+    if (!checkSocketRateLimit(socket.id, cb)) return;
     if (rejectActiveCanvasWrite(relPath, cb)) return;
     try {
       await vault.writeFile(relPath, content);
       const hash = vault.hashContent(content);
       socket.broadcast.emit(SocketEvents.FILE_UPDATED, { relPath, hash, user });
       respond(cb, { ok: true, hash });
-      console.log(`[socket] file-write: ${relPath} by ${user.username}`);
+      log.info({ relPath, userId: user.id, socketId: socket.id }, 'file-write');
     } catch (err) {
-      console.error(`[socket] file-write error (${relPath}):`, err);
+      log.error({ relPath }, `file-write error: ${err.message}`);
       respond(cb, { ok: false, error: err.message });
     }
   });
@@ -57,14 +83,19 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
       rejectPath(cb, relPath);
       return;
     }
+    if (Buffer.byteLength(content, 'utf-8') > MAX_FILE_BYTES) {
+      respond(cb, { ok: false, error: 'File too large.' });
+      return;
+    }
+    if (!checkSocketRateLimit(socket.id, cb)) return;
     if (rejectActiveCanvasWrite(relPath, cb)) return;
     try {
       await vault.writeFile(relPath, content);
       socket.broadcast.emit(SocketEvents.FILE_CREATED, { relPath, user });
       respond(cb, { ok: true });
-      console.log(`[socket] file-create: ${relPath} by ${user.username}`);
+      log.info({ relPath, userId: user.id, socketId: socket.id }, 'file-create');
     } catch (err) {
-      console.error(`[socket] file-create error (${relPath}):`, err);
+      log.error({ relPath }, `file-create error: ${err.message}`);
       respond(cb, { ok: false, error: err.message });
     }
   });
@@ -74,6 +105,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
       rejectPath(cb, relPath);
       return;
     }
+    if (!checkSocketRateLimit(socket.id, cb)) return;
     try {
       const docName = encodeURIComponent(relPath);
       if (getActiveRooms().has(docName)) {
@@ -82,9 +114,9 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
       await vault.deleteFile(relPath);
       io.emit(SocketEvents.FILE_DELETED, { relPath, user });
       respond(cb, { ok: true });
-      console.log(`[socket] file-delete: ${relPath} by ${user.username}`);
+      log.info({ relPath, userId: user.id, socketId: socket.id }, 'file-delete');
     } catch (err) {
-      console.error(`[socket] file-delete error (${relPath}):`, err);
+      log.error({ relPath }, `file-delete error: ${err.message}`);
       respond(cb, { ok: false, error: err.message });
     }
   });
@@ -96,6 +128,7 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
       rejectPath(cb, `${String(oldPath)} -> ${String(newPath)}`);
       return;
     }
+    if (!checkSocketRateLimit(socket.id, cb)) return;
     try {
       const docName = encodeURIComponent(oldPath);
       if (getActiveRooms().has(docName)) {
@@ -104,9 +137,9 @@ export function registerFileCrudHandlers(io, socket, user, getActiveRooms, force
       await vault.renameFile(oldPath, newPath);
       socket.broadcast.emit(SocketEvents.FILE_RENAMED, { oldPath, newPath, user });
       respond(cb, { ok: true });
-      console.log(`[socket] file-rename: ${oldPath} → ${newPath} by ${user.username}`);
+      log.info({ oldPath, newPath, userId: user.id, socketId: socket.id }, 'file-rename');
     } catch (err) {
-      console.error(`[socket] file-rename error (${oldPath}):`, err);
+      log.error({ oldPath }, `file-rename error: ${err.message}`);
       respond(cb, { ok: false, error: err.message });
     }
   });

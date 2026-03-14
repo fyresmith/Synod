@@ -1,5 +1,8 @@
 import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
+import logger from '../../lib/logger.js';
+
+const log = logger.child({ module: 'startup' });
 
 const REQUIRED = ['JWT_SECRET'];
 
@@ -11,9 +14,7 @@ export function validateEnv({ allowSetupMode = false } = {}) {
   }
 
   if (process.env.JWT_SECRET.length < 32) {
-    console.warn(
-      '[startup] WARNING: JWT_SECRET is shorter than 32 characters — consider using a stronger secret',
-    );
+    log.warn('JWT_SECRET is shorter than 32 characters — consider using a stronger secret');
   }
 
   const port = parseInt(process.env.PORT ?? '3000', 10);

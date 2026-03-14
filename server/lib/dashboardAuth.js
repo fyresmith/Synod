@@ -56,7 +56,7 @@ export function setDashboardCookie(req, res, token) {
   const secure = isSecureRequest(req) ? '; Secure' : '';
   res.setHeader(
     'Set-Cookie',
-    `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/dashboard; HttpOnly; SameSite=Lax; Max-Age=86400${secure}`,
+    `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/dashboard; HttpOnly; SameSite=Strict; Max-Age=86400${secure}`,
   );
 }
 
@@ -64,7 +64,7 @@ export function clearDashboardCookie(req, res) {
   const secure = isSecureRequest(req) ? '; Secure' : '';
   res.setHeader(
     'Set-Cookie',
-    `${COOKIE_NAME}=; Path=/dashboard; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
+    `${COOKIE_NAME}=; Path=/dashboard; HttpOnly; SameSite=Strict; Max-Age=0${secure}`,
   );
 }
 

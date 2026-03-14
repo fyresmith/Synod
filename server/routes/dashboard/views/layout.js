@@ -1,7 +1,7 @@
 import { BASE_STYLES } from './baseStyles.js';
 import { escapeHtml } from '../utils/html.js';
 
-export function dashboardPage(title, bodyHtml, { activeNav = '' } = {}) {
+export function dashboardPage(title, bodyHtml, { activeNav = '', csrfToken = '' } = {}) {
   const nav = (href, label) => {
     const isActive = activeNav === label ? ' class="active"' : '';
     return `<a href="${href}"${isActive}>${escapeHtml(label)}</a>`;
@@ -25,6 +25,7 @@ export function dashboardPage(title, bodyHtml, { activeNav = '' } = {}) {
   </nav>
   <div class="topbar-end">
     <form method="POST" action="/dashboard/logout">
+      ${csrfToken ? `<input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">` : ''}
       <button type="submit">Sign Out</button>
     </form>
   </div>

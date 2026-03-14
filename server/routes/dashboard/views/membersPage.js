@@ -1,7 +1,7 @@
 import { escapeHtml } from '../utils/html.js';
 import { dashboardPage } from './layout.js';
 
-export function renderMembersPage(state) {
+export function renderMembersPage(state, csrfToken) {
   const members = Object.values(state.members ?? {}).sort((a, b) =>
     a.addedAt.localeCompare(b.addedAt),
   );
@@ -40,5 +40,5 @@ export function renderMembersPage(state) {
     </div>
   `;
 
-  return dashboardPage('Members', body, { activeNav: 'Members' });
+  return dashboardPage('Members', body, { activeNav: 'Members', csrfToken });
 }

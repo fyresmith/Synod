@@ -1,7 +1,7 @@
 import { escapeHtml } from '../utils/html.js';
 import { dashboardPage } from './layout.js';
 
-export function renderOverviewPage(state) {
+export function renderOverviewPage(state, csrfToken) {
   const inviteList = Object.values(state.invites ?? {});
   const pendingCount = inviteList.filter((i) => !i.usedAt && !i.revokedAt).length;
   const memberCount = Object.keys(state.members ?? {}).length;
@@ -35,5 +35,5 @@ export function renderOverviewPage(state) {
     </div>
   `;
 
-  return dashboardPage('Overview', body, { activeNav: 'Overview' });
+  return dashboardPage('Overview', body, { activeNav: 'Overview', csrfToken });
 }
